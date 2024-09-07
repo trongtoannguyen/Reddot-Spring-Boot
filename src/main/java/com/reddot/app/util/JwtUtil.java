@@ -1,23 +1,22 @@
 package com.reddot.app.util;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Encoders;
 import io.jsonwebtoken.security.InvalidKeyException;
 import io.jsonwebtoken.security.MacAlgorithm;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
-import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.function.Function;
 
 // TODO: Implement this class
 // TODO: IMPROVE THIS CLASS WITH TRY-CATCH BLOCKS
+@Log4j2
 @Component
 public class JwtUtil {
 
@@ -34,6 +33,10 @@ public class JwtUtil {
         // JJWT has provided builder class to generate sufficiently secure key
         // using the JCA default provider's KeyGenerator under the hood
         this.key = alg.key().build();
+        String encoded = Encoders.BASE64.encode(key.getEncoded());
+
+        log.warn("DO NOT LOG SECRET KEY IN PRODUCTION");
+        log.info("encoded:{}", encoded);
     }
 
     public String extractUsername(String jws) {
@@ -69,14 +72,18 @@ public class JwtUtil {
     }
 
     public String generateToken(UserDetails userDetails) {
-        Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, userDetails.getUsername());
+        Map<String, Object> claims = new LinkedHashMap<>();
+        // add additional claims to the JWT
+        claims.put("iss", "reddot");
+        claims.put("sub", userDetails.getUsername());
+        claims.put("aud", "end-user");
+
+        return createToken(claims);
     }
 
-    private String createToken(Map<String, Object> claims, String subject) {
+    private String createToken(Map<String, Object> claims) {
         try {
             // Create compact JWS
-            // add additional claims to the JWT
             // convert claim maps to LinkedHashMap to keep the order of the claims
             claims = new LinkedHashMap<>(claims);
             claims.put("iat", new Date());
