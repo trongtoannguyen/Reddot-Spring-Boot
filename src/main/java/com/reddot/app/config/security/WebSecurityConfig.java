@@ -47,7 +47,9 @@ public class WebSecurityConfig {
                     .anyRequest().authenticated()
             )
 
-            // Set session management to stateless
+            // Set session management:
+                // -STATELESS: No session will be created, each request will be authenticated individually.
+                // Read more about Authentication Persistence and Session Management
             .sessionManagement(sess -> sess
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             );
@@ -57,7 +59,7 @@ public class WebSecurityConfig {
         return http.build();
     }
 
-    // TODO: MIGRATE UserDetailsService to a service class
+    // TODO: MIGRATE UserDetailsService to a service class. This is only for development
     @Bean
     public UserDetailsService inMemoryUserDetailsManager() {
         UserDetails user =
