@@ -11,7 +11,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
-import java.util.*;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.function.Function;
 
 // TODO: Implement this class
@@ -52,7 +54,7 @@ public class JwtUtil {
     private Claims extractAllClaims(String jws) {
         try {
             // Read (Parse) JWS
-            System.out.println("PARSING JWS");
+            log.info("Extracting all claims from JWS");
             return (Claims) Jwts.parser()
                     .verifyWith(key)    // call verifyWith or decryptWith methods if you want to parse signed or encrypted JWTs
                     .clockSkewSeconds(seconds)  // set the clock skew to 2 minutes
