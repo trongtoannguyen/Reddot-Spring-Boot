@@ -2,7 +2,6 @@ package com.reddot.app.controller;
 
 import com.reddot.app.authentication.dto.AuthenticationRequest;
 import com.reddot.app.util.JwtUtil;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -26,7 +25,7 @@ public class AuthenticationController {
 
     private final AuthenticationManager authenticationManager;
 
-    public AuthenticationController(JwtUtil jwtUtil, @Qualifier("inMemoryUserDetailsManager") UserDetailsService userDetailsService, AuthenticationManager authenticationManager) {
+    public AuthenticationController(JwtUtil jwtUtil, UserDetailsService userDetailsService, AuthenticationManager authenticationManager) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
         this.authenticationManager = authenticationManager;

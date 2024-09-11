@@ -6,7 +6,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,11 +20,10 @@ import java.io.IOException;
 @Component
 public class JwtTokenFilter extends OncePerRequestFilter {
 
-
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
 
-    public JwtTokenFilter(JwtUtil jwtUtil, @Qualifier("inMemoryUserDetailsManager") UserDetailsService userDetailsService) {// @Qualifier("userDetailsService"): if there are multiple implementations of UserDetailsService, this annotation is used to specify which one to use.
+    public JwtTokenFilter(JwtUtil jwtUtil, UserDetailsService userDetailsService) {// @Qualifier("userDetailsService"): if there are multiple implementations of UserDetailsService, this annotation is used to specify which one to use.
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
     }
