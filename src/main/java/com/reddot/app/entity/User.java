@@ -1,13 +1,11 @@
 package com.reddot.app.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.reddot.app.entity.enumeration.ROLENAME;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.NaturalId;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
@@ -22,37 +20,34 @@ import java.util.stream.Collectors;
 
 @Setter
 @Getter
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @Entity
 public class User extends BaseEntity implements UserDetails {
     @Serial
     private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+    private static final Collection<? extends Role> DEFAULT_ROLES = Set.of(new Role(ROLENAME.ROLE_USER));
 
     @NaturalId
     @NonNull
-    @Size(min = 3, max = 50)
     @Column(unique = true)
     private String username;
 
     @NaturalId
     @NonNull
-    @Size(max = 50)
-    @Email
     @Column(unique = true)
     private String email;
 
     @JsonIgnore
     @NonNull
-    @Size(min = 6, max = 100)
     private String password;
 
     @Lob
     private String avatar;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH})
     @OrderBy("name ASC")
-    Set<Role> roles = new HashSet<>();
+    private Set<Role> roles = new HashSet<>();
 
     private boolean enabled;
 
@@ -61,20 +56,29 @@ public class User extends BaseEntity implements UserDetails {
     private boolean accountNonLocked;
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(name = "person_id", foreignKey = @ForeignKey(name = "FK_USER_PERSON"))
     private Person person;
 
     public User(@NonNull String username, @NonNull String email, @NonNull String password) {
-        this(username, email, password, true, true, true);
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.accountNonExpired = true;
+        this.accountNonLocked = true;
+        this.enabled = true;
     }
 
-    public User(@NonNull String username, @NonNull String email, @NonNull String password, boolean accountNonExpired, boolean accountNonLocked, boolean enabled) {
+    public User(@NonNull String username, @NonNull String email, @NonNull String password, Set<Role> roles) {
+       this(username, email, password, true, true, true, roles);
+    }
+
+    public User(@NonNull String username, @NonNull String email, @NonNull String password, boolean accountNonExpired, boolean accountNonLocked, boolean enabled, Collection<? extends Role> roles) {
         this.username = username;
         this.email = email;
         this.password = password;
         this.accountNonExpired = accountNonExpired;
         this.accountNonLocked = accountNonLocked;
         this.enabled = enabled;
+        this.roles = new HashSet<>(roles);
     }
 
     @Override
