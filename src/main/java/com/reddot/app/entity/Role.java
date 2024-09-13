@@ -1,29 +1,28 @@
 package com.reddot.app.entity;
 
 import com.reddot.app.entity.enumeration.ROLENAME;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.*;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
-import org.hibernate.annotations.NaturalId;
+import org.springframework.util.Assert;
 
 @NoArgsConstructor
 @Getter
 @Setter
 @Entity
+@EqualsAndHashCode(callSuper = true)
 public class Role extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
-    @NaturalId
-    @Column(length = 60)
     @NonNull
+    @Column(unique = true)
     private ROLENAME name;
 
     public Role(@NonNull ROLENAME name) {
+        Assert.hasText(String.valueOf(name), "Role textual representation is required");
         this.name = name;
         this.setCreatedBy("System");
     }
