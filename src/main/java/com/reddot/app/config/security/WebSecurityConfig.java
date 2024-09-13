@@ -3,6 +3,7 @@ package com.reddot.app.config.security;
 import com.reddot.app.config.security.jwt.JwtTokenFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -24,7 +25,7 @@ public class WebSecurityConfig {
 
     final JwtTokenFilter jwtTokenFilter;
 
-    public WebSecurityConfig(JwtTokenFilter jwtTokenFilter, UserDetailsService userDetailsService) {
+    public WebSecurityConfig(JwtTokenFilter jwtTokenFilter, @Lazy UserDetailsService userDetailsService) {
         this.jwtTokenFilter = jwtTokenFilter;
         this.userDetailsService = userDetailsService;
     }
@@ -37,22 +38,18 @@ public class WebSecurityConfig {
                 // Set permissions for different endpoints
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints
-                        .requestMatchers("/api/hello").authenticated()
-                        .requestMatchers("/api/**").permitAll()
+                        .requestMatchers("/hello").authenticated().requestMatchers("/**").permitAll()
+
                         // Private endpoints
-                        .requestMatchers("/api/private/**").hasRole("ADMIN")
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/private/**").hasRole("ADMIN").requestMatchers("/api/admin/**").hasRole("ADMIN")
+
                         // OpenAPI endpoints
-                        .requestMatchers("/v3/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                        .anyRequest().authenticated()
-                )
+                        .requestMatchers("/v3/**", "/swagger-ui/**", "/swagger-ui.html").permitAll().anyRequest().authenticated())
 
                 // Set session management:
                 // -STATELESS: No session will be created, each request will be authenticated individually.
                 // Read more about Authentication Persistence and Session Management
-                .sessionManagement(sess -> sess
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                );
+                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         // Add JWT filter
         http.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
