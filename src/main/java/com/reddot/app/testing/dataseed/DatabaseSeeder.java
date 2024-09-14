@@ -33,8 +33,13 @@ public class DatabaseSeeder implements CommandLineRunner {
     @Override
     public void run(String... args) throws InterruptedException {
 
-        seedRole(roleRepository);
-        seedUser(userRepository, roleRepository);
+        if (roleRepository.findAll().isEmpty()) {
+            seedRole(roleRepository);
+        }
+
+        if (userRepository.findAll().isEmpty()) {
+            seedUser(userRepository, roleRepository);
+        }
 
         log.info("Fetching all roles");
         log.info("-------------------------------");
@@ -59,7 +64,6 @@ public class DatabaseSeeder implements CommandLineRunner {
         repository.save(new Role(ROLENAME.ROLE_ADMIN));
         repository.save(new Role(ROLENAME.ROLE_USER));
         repository.save(new Role(ROLENAME.ROLE_MODERATOR));
-        SeedingStatus("ROLE");
         log.info("------------------------------");
     }
 
@@ -73,11 +77,18 @@ public class DatabaseSeeder implements CommandLineRunner {
         if (!userList.isEmpty()) {
             return;
         }
-        User seedUser = new User("test user", "user@localhost", encoder.encode("user"));
-        User seedAdmin = new User("test admin", "admin@localhost", encoder.encode("admin"));
 
-        Set<Role> roles = roleList.stream().collect(HashSet::new, HashSet::add, HashSet::addAll);
-        seedAdmin.setRoles(roles);
+        Role userRole = roleRepository.findByName(ROLENAME.ROLE_USER)
+                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+        Role adminRole = roleRepository.findByName(ROLENAME.ROLE_ADMIN)
+                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+
+        User seedUser = new User("test user", "user@localhost", encoder.encode("user"), new HashSet<>(roleList));
+        // ROLE_USER for seedUser
+        seedUser.setRoles(new HashSet<>(Set.of(userRole)));
+        User seedAdmin = new User("test admin", "admin@localhost", encoder.encode("admin"));
+        // ROLE_USER and ROLE_ADMIN for seedAdmin
+        seedAdmin.setRoles(new HashSet<>(Set.of(userRole, adminRole)));
 
         Person p = new Person();
         p.setDisplayName("local user");
@@ -96,30 +107,6 @@ public class DatabaseSeeder implements CommandLineRunner {
         seedAdmin.setPerson(adPerson);
 
         userRepository.save(seedAdmin);
-        SeedingStatus("USER");
         log.info("Users added to the database.");
-    }
-
-    private void SeedingStatus(String entity) throws InterruptedException {
-        int totalSteps = 40;  // Total steps to complete installation
-        System.out.println("SEEDING [" + entity + "] PROCESS");
-
-        // Simulate installation process
-        for (int step = 0; step <= totalSteps; step++) {
-            // Print the progress bar with '#' symbols
-            System.out.print("\r[");
-            for (int i = 0; i < step; i++) {
-                System.out.print("#");
-            }
-            for (int i = step; i < totalSteps; i++) {
-                System.out.print(" ");
-            }
-            System.out.print("] " + (step * 100) / totalSteps + "%");
-
-            // Simulate time taken for each step
-            Thread.sleep(100);
-        }
-
-        System.out.println("SEEDING [" + entity + "] PROCESS COMPLETED");
     }
 }
