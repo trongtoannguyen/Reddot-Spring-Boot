@@ -3,7 +3,6 @@ package com.reddot.app.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
 
@@ -11,13 +10,9 @@ import java.time.LocalDate;
 @IdClass(Follow.FollowId.class)
 @Setter
 @Getter
-@EqualsAndHashCode
 @NoArgsConstructor
 @RequiredArgsConstructor
-public class Follow implements Serializable {
-
-    @Serial
-    private static final long serialVersionUID = 1L;
+public class Follow {
 
     @Id
     @ManyToOne(fetch = FetchType.LAZY)

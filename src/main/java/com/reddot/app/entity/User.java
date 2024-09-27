@@ -10,10 +10,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serial;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -61,30 +58,24 @@ public class User extends BaseEntity implements UserDetails {
             fetch = FetchType.LAZY)
     private Person person;
 
-    @ManyToMany(cascade = {
-            CascadeType.REFRESH,
-            CascadeType.MERGE}, fetch = FetchType.LAZY)
-    @JoinTable(name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @ManyToMany(cascade = {CascadeType.REFRESH, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
     @OneToMany(mappedBy = "user",
             cascade = CascadeType.ALL,
             orphanRemoval = true)
-    private List<Notification> notifications;
+    private List<Notification> notifications = new ArrayList<>();
 
-    // Question should not be deleted
-    @OneToMany(mappedBy = "user",
-            cascade = {
-                    CascadeType.PERSIST,
-                    CascadeType.MERGE,
-                    CascadeType.DETACH
-            })
-    private List<Question> questions;
+    @OneToMany(mappedBy = "user", cascade = {
+            CascadeType.PERSIST,
+            CascadeType.MERGE,
+            CascadeType.DETACH})
+    private List<Question> questions = new ArrayList<>();
 
     @OneToMany(mappedBy = "user",
-            cascade = CascadeType.ALL, orphanRemoval = true)
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
     private Set<Bookmark> bookmarks = new HashSet<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -93,7 +84,12 @@ public class User extends BaseEntity implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<JwtToken> jwtTokens = new HashSet<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = {
+            CascadeType.DETACH,
+            CascadeType.MERGE,
+            CascadeType.REFRESH,
+            CascadeType.REMOVE
+    }, orphanRemoval = true, fetch = FetchType.EAGER)
     private Set<UserBadge> userBadges = new HashSet<>();
 
     @OneToMany(mappedBy = "follower", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -149,6 +145,7 @@ public class User extends BaseEntity implements UserDetails {
         notification.setUser(null);
     }
 
+    // TODO: WHERE SHOULD THIS METHOD BE LOCATED?
     public void addBadge(Badge badge) {
         this.userBadges.add(new UserBadge(this, badge));
         badge.getUserBadges().add(new UserBadge(this, badge));
@@ -171,9 +168,9 @@ public class User extends BaseEntity implements UserDetails {
         followed.getFollowers().remove(follow);
     }
 
-    public void addQuestion(Question question) {
-        this.questions.add(question);
+    public void ask(Question question) {
         question.setUser(this);
+        this.questions.add(question);
     }
 
     // When user is deleted, dissociate all questions in DB
@@ -183,16 +180,6 @@ public class User extends BaseEntity implements UserDetails {
             question.setUser(null);
         }
         this.questions.clear();
-    }
-
-    public void addBookmark(Bookmark bookmark) {
-        this.bookmarks.add(bookmark);
-        bookmark.setUser(this);
-    }
-
-    public void removeBookmark(Bookmark bookmark) {
-        this.bookmarks.remove(bookmark);
-        bookmark.setUser(null);
     }
 
     public void addUserOAuth(UserOAuth userOAuth) {
@@ -214,4 +201,9 @@ public class User extends BaseEntity implements UserDetails {
         this.jwtTokens.remove(jwtToken);
         jwtToken.setUser(null);
     }
+
+    public void comment(Comment comment) {
+        comment.setUser(this);
+    }
+
 }

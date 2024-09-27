@@ -1,10 +1,7 @@
 package com.reddot.app.entity;
 
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 
 /**
@@ -18,6 +15,7 @@ import lombok.Setter;
 @Setter
 @Getter
 @NoArgsConstructor
+@RequiredArgsConstructor
 @EqualsAndHashCode
 public class Bookmark {
 
@@ -27,20 +25,27 @@ public class Bookmark {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
+    @NonNull
     private User user;
 
     /**
      * Question that user bookmarked.
-     * Can not be null
+     * Null if user bookmarked a comment
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "question_id", nullable = false)
+    @JoinColumn(name = "question_id")
     private Question question;
 
     /**
-     * Comment that user bookmarked in this case, question is parent of comment
+     * Comment that user bookmarked.
+     * Null if user bookmarked a question
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "comment_id")
     private Comment comment;
+
+    public Bookmark(@NonNull User user, Question question) {
+        this.user = user;
+        this.question = question;
+    }
 }
