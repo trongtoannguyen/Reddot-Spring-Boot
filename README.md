@@ -2,6 +2,8 @@
 
 This user guide provides clear, step-by-step instructions for navigating and using the key features of Reddot, a question and answer platform designed to help users share and gain knowledge.
 
+If you are developer and want to contribute to this project, please refer to the [Developer Guide](docs/DEV.md).
+
 ## 1. Web Application
 
 ### Getting Started
