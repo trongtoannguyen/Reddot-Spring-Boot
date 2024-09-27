@@ -1,6 +1,9 @@
 package com.reddot.app.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
@@ -18,15 +21,20 @@ import lombok.*;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-public class Tag extends BaseEntity {
+@EqualsAndHashCode()
+public class Tag {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
     @NonNull
-    @Size(min = 3, max = 50)
+    @Size(min = 2, max = 21)
     private String name;
 
     @Size(min = 3, max = 100)
     private String description;
 
     private int tagged;
+
 }

@@ -3,7 +3,6 @@ package com.reddot.app.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
@@ -12,22 +11,20 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor
 @RequiredArgsConstructor
-@EqualsAndHashCode
 @IdClass(UserBadge.UserBadgeId.class)
-public class UserBadge implements Serializable {
+public class UserBadge {
 
-    @Serial
-    private static final long serialVersionUID = 1L;
-
+    // TODO: implement cascade type properly
     @Id
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     @NonNull
     private User user;
 
 
+    // TODO: implement cascade type properly
     @Id
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "badge_id", referencedColumnName = "id")
     @NonNull
     private Badge badge;
@@ -43,11 +40,12 @@ public class UserBadge implements Serializable {
 
     @Setter
     @Getter
+    @NoArgsConstructor
     @AllArgsConstructor
     @EqualsAndHashCode
     public static class UserBadgeId implements Serializable {
-        private Integer user;
-        private Integer badge;
+        private int user;
+        private int badge;
 
     }
 }

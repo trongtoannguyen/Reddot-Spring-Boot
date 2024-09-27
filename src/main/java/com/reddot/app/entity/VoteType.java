@@ -10,8 +10,8 @@ import lombok.*;
 @Entity(name = "vote_types")
 @Setter
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor
+@RequiredArgsConstructor
 public class VoteType {
 
     @Id
