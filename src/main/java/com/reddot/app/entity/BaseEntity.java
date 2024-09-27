@@ -6,32 +6,27 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.domain.Persistable;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Getter
 @Setter
 @EqualsAndHashCode
 @MappedSuperclass
-public abstract class BaseEntity implements Persistable<String> {
+public abstract class BaseEntity implements Persistable<Integer>, Serializable {
 
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
     @Transient
     private boolean isNew = true;
 
-    @Column(name = "created_at", columnDefinition = "DATETIME")
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @Column(name = "created_by", length = 50)
-    private String createdBy;
-
-    @Column(name = "updated_at", columnDefinition = "DATETIME")
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
-    @Column(name = "updated_by", length = 50)
-    private String updatedBy;
 
     @Override
     public boolean isNew() {
@@ -46,7 +41,6 @@ public abstract class BaseEntity implements Persistable<String> {
     @PrePersist
     public void prePersist() {
         this.isNew = false;
-        this.id = UUID.randomUUID().toString();
         LocalDateTime now = LocalDateTime.now();
         this.setCreatedAt(now);
         this.setUpdatedAt(now);

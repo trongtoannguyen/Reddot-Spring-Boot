@@ -3,7 +3,6 @@ package com.reddot.app.testing.dataseed;
 import com.reddot.app.entity.Person;
 import com.reddot.app.entity.Role;
 import com.reddot.app.entity.User;
-import com.reddot.app.entity.enumeration.GENDER;
 import com.reddot.app.entity.enumeration.ROLENAME;
 import com.reddot.app.repository.RoleRepository;
 import com.reddot.app.repository.UserRepository;
@@ -67,7 +66,7 @@ public class DatabaseSeeder implements CommandLineRunner {
         log.info("------------------------------");
     }
 
-    private void seedUser(UserRepository userRepository, RoleRepository roleRepository) throws InterruptedException {
+    private void seedUser(UserRepository userRepository, RoleRepository roleRepository) {
         List<Role> roleList = roleRepository.findAll();
         if (roleList.isEmpty()) {
             return;
@@ -92,21 +91,24 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         Person p = new Person();
         p.setDisplayName("local user");
-        p.setBirthDate(LocalDate.now());
-        p.setGender(GENDER.MALE);
-        p.setPhone("1234567890");
-        p.setAddress("Ho Chi Minh City, Vietnam");
-        p.setBio("Reddot powerful");
-
+        p.setAboutMe("I am a local user.");
+        p.setDob(LocalDate.now());
+        p.setLastAccess(LocalDate.now());
+        p.setLocation("Berlin");
+        p.setWebsiteUrl("example.com");
         seedUser.setPerson(p);
-        userRepository.save(seedUser);
 
-        Person adPerson;
-        adPerson = p;
+        Person adPerson = new Person();
         adPerson.setDisplayName("local admin");
+        adPerson.setAboutMe("I am a local admin.");
+        adPerson.setDob(LocalDate.now());
+        adPerson.setLastAccess(LocalDate.now());
+        adPerson.setLocation("New York");
+        adPerson.setWebsiteUrl("example.com");
         seedAdmin.setPerson(adPerson);
 
+        userRepository.save(seedUser);
         userRepository.save(seedAdmin);
-        log.info("Users added to the database.");
+        log.info("{} and {} added to the database.", p.getDisplayName(), adPerson.getDisplayName());
     }
 }

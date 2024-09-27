@@ -1,39 +1,47 @@
 package com.reddot.app.entity;
 
-import com.reddot.app.entity.enumeration.GENDER;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Lob;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.security.core.SpringSecurityCoreVersion;
 
+import java.io.Serial;
 import java.time.LocalDate;
 
-@Entity
+/**
+ * The Person class is an entity model object. It represents public information about the user.
+ */
+@Entity(name = "persons")
 @Getter
 @Setter
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class Person extends BaseEntity {
+    @Serial
+    private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
     @Column(name = "display_name")
     @Size(min = 3, max = 100)
     private String displayName;
 
-    @Column(name = "birth_date", columnDefinition = "DATE")
-    private LocalDate birthDate;
+    @Column(name = "about_me")
+    private String aboutMe;
 
-    private GENDER gender;
+    @Column(name = "dob", columnDefinition = "DATE")
+    private LocalDate dob;
 
-    @Column(name = "phone", length = 50)
-    private String phone;
+    @Column(name = "last_access", columnDefinition = "DATE")
+    private LocalDate lastAccess;
 
-    private String address;
+    private String location;
 
-    private String bio;
+    @Column(name = "website_url")
+    private String websiteUrl;
 
-    @Lob
-    @Column(name = "profile_banner")
-    private byte[] profileBanner;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 }

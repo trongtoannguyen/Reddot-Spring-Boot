@@ -8,7 +8,6 @@ import com.reddot.app.repository.RoleRepository;
 import com.reddot.app.repository.UserRepository;
 import com.reddot.app.util.Validator;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -96,7 +95,6 @@ public class UserServiceManagerImp implements UserServiceManager {
             User user = new User(request.getUsername(), request.getEmail(),
                     encoder.encode(request.getPassword())
             );
-            user.setCreatedBy(user.getUsername());
 
             Set<Role> roles = getRolesByString(request.getRoles());
             user.setRoles(roles);
