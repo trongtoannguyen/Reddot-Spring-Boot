@@ -58,8 +58,13 @@ public class User extends BaseEntity implements UserDetails {
             fetch = FetchType.LAZY)
     private Person person;
 
-    @ManyToMany(cascade = {CascadeType.REFRESH, CascadeType.MERGE}, fetch = FetchType.LAZY)
-    @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @ManyToMany(cascade = {
+            CascadeType.REFRESH,
+            CascadeType.MERGE},
+            fetch = FetchType.EAGER)
+    @JoinTable(name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
     @OneToMany(mappedBy = "user",
@@ -67,10 +72,11 @@ public class User extends BaseEntity implements UserDetails {
             orphanRemoval = true)
     private List<Notification> notifications = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", cascade = {
-            CascadeType.PERSIST,
-            CascadeType.MERGE,
-            CascadeType.DETACH})
+    @OneToMany(mappedBy = "user",
+            cascade = {
+                    CascadeType.PERSIST,
+                    CascadeType.MERGE,
+                    CascadeType.DETACH})
     private List<Question> questions = new ArrayList<>();
 
     @OneToMany(mappedBy = "user",
@@ -78,24 +84,34 @@ public class User extends BaseEntity implements UserDetails {
             orphanRemoval = true)
     private Set<Bookmark> bookmarks = new HashSet<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
     private Set<UserOAuth> userOAuths = new HashSet<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
     private Set<JwtToken> jwtTokens = new HashSet<>();
 
-    @OneToMany(mappedBy = "user", cascade = {
-            CascadeType.DETACH,
-            CascadeType.MERGE,
-            CascadeType.REFRESH,
-            CascadeType.REMOVE
-    }, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user",
+            fetch = FetchType.EAGER,
+            cascade = {
+                    CascadeType.DETACH,
+                    CascadeType.MERGE,
+                    CascadeType.REFRESH,
+                    CascadeType.REMOVE},
+            orphanRemoval = true)
     private Set<UserBadge> userBadges = new HashSet<>();
 
-    @OneToMany(mappedBy = "follower", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "follower",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true, fetch = FetchType.EAGER)
     private Set<Follow> followings = new HashSet<>();
 
-    @OneToMany(mappedBy = "followed", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "followed",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
     private Set<Follow> followers = new HashSet<>();
 
     public User(@NonNull String username, @NonNull String email, @NonNull String password) {
@@ -148,12 +164,10 @@ public class User extends BaseEntity implements UserDetails {
     // TODO: WHERE SHOULD THIS METHOD BE LOCATED?
     public void addBadge(Badge badge) {
         this.userBadges.add(new UserBadge(this, badge));
-        badge.getUserBadges().add(new UserBadge(this, badge));
     }
 
     public void removeBadge(Badge badge) {
         this.userBadges.removeIf(userBadge -> userBadge.getBadge().equals(badge));
-        badge.getUserBadges().removeIf(userBadge -> userBadge.getUser().equals(this));
     }
 
     public void follow(User followed) {

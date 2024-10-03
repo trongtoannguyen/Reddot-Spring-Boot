@@ -15,13 +15,13 @@ import java.time.LocalDate;
 public class Follow {
 
     @Id
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "follower_id", referencedColumnName = "id")
     @NonNull
     private User follower;
 
     @Id
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "followed_id", referencedColumnName = "id")
     @NonNull
     private User followed;

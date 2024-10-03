@@ -38,10 +38,11 @@ public class UserOAuth {
     @Column(name = "provider")
     private String provider;
 
-    @Column(name = "oauth_id", unique = true)
+    @Column(name = "oauth_id",
+            unique = true)
     private String oauthId;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "owner_id")
     private User user;
 

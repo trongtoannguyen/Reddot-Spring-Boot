@@ -39,7 +39,7 @@ public class Person extends BaseEntity {
     @Column(name = "website_url")
     private String websiteUrl;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
 }

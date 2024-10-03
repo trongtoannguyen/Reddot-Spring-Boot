@@ -23,7 +23,7 @@ public class Bookmark {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     @NonNull
     private User user;
@@ -32,7 +32,7 @@ public class Bookmark {
      * Question that user bookmarked.
      * Null if user bookmarked a comment
      */
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "question_id")
     private Question question;
 
@@ -40,7 +40,7 @@ public class Bookmark {
      * Comment that user bookmarked.
      * Null if user bookmarked a question
      */
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "comment_id")
     private Comment comment;
 
