@@ -4,6 +4,7 @@ import com.reddot.app.authentication.dto.LoginRequest;
 import com.reddot.app.authentication.dto.RegisterRequest;
 import com.reddot.app.dto.ServiceResponse;
 import com.reddot.app.entity.User;
+import com.reddot.app.exception.ResourceNotFoundException;
 import com.reddot.app.service.user.UserServiceManager;
 import com.reddot.app.util.JwtUtil;
 import jakarta.validation.Valid;
@@ -15,11 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 // FIXME: implement validation
 @RestController
@@ -28,21 +25,18 @@ public class AuthenticationController {
 
     private final JwtUtil jwtUtil;
 
-    private final UserDetailsService userDetailsService;
-
     private final UserServiceManager manager;
 
     private final AuthenticationManager authenticationManager;
 
-    public AuthenticationController(JwtUtil jwtUtil, UserDetailsService userDetailsService, UserServiceManager manager, AuthenticationManager authenticationManager) {
+    public AuthenticationController(JwtUtil jwtUtil, UserServiceManager manager, AuthenticationManager authenticationManager) {
         this.jwtUtil = jwtUtil;
-        this.userDetailsService = userDetailsService;
         this.manager = manager;
         this.authenticationManager = authenticationManager;
     }
 
     @PostMapping("/login")
-    public String createAuthenticationToken(@Valid @RequestBody LoginRequest request) throws Exception {
+    public String createAuthenticationToken(@Valid @RequestBody LoginRequest request) {
         try {
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
 
@@ -50,21 +44,30 @@ public class AuthenticationController {
             SecurityContext context = SecurityContextHolder.createEmptyContext();
             context.setAuthentication(authentication);
             SecurityContextHolder.setContext(context);
+            final UserDetails userDetails = manager.loadUserByUsername(request.getUsername());
+            return jwtUtil.generateToken(userDetails);
         } catch (Exception e) {
-            throw new Exception("Incorrect username or password", e);
+            throw new ResourceNotFoundException(e.getMessage());
         }
-
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUsername());
-        return jwtUtil.generateToken(userDetails);
     }
 
     @PostMapping("/register")
     public ResponseEntity<ServiceResponse<User>> register(@Valid @RequestBody RegisterRequest request) { // @Valid: validate the request body and throw Bad Request if invalid
         try {
-            User user = manager.createNewUser(request);
-            return new ResponseEntity<>(new ServiceResponse<>(HttpStatus.CREATED.value(), "User created", user), HttpStatus.CREATED);
+            manager.createNewUser(request);
+            return new ResponseEntity<>(new ServiceResponse<>(HttpStatus.CREATED.value(), "Check email box to confirm account registration or you may want to check spam folder"), HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    @GetMapping("/confirm-account")
+    public ResponseEntity<ServiceResponse<User>> confirm(@RequestParam("token") String token) {
+        try {
+            User user = manager.confirmNewUser(token);
+            return new ResponseEntity<>(new ServiceResponse<>(HttpStatus.OK.value(), "Congratulations! Your account has been confirmed", user), HttpStatus.OK);
+        } catch (ResourceNotFoundException e) {
+            throw new ResourceNotFoundException(e.getMessage());
         }
     }
 }

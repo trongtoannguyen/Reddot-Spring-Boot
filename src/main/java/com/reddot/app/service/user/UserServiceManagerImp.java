@@ -1,13 +1,24 @@
 package com.reddot.app.service.user;
 
 import com.reddot.app.authentication.dto.RegisterRequest;
+import com.reddot.app.entity.ConfirmationToken;
+import com.reddot.app.entity.RecoveryToken;
 import com.reddot.app.entity.Role;
 import com.reddot.app.entity.User;
 import com.reddot.app.entity.enumeration.ROLENAME;
+import com.reddot.app.exception.ResourceNotFoundException;
+import com.reddot.app.repository.ConfirmationTokenRepository;
+import com.reddot.app.repository.RecoveryTokenRepository;
 import com.reddot.app.repository.RoleRepository;
 import com.reddot.app.repository.UserRepository;
+import com.reddot.app.service.email.MailSenderManager;
 import com.reddot.app.util.Validator;
+import jakarta.mail.Message;
+import jakarta.mail.internet.InternetAddress;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.MailException;
+import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,14 +27,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Log4j2
 @Service
 public class UserServiceManagerImp implements UserServiceManager {
+
+    private final MailSenderManager mailSenderManager;
 
     private final UserRepository userRepository;
 
@@ -31,28 +42,22 @@ public class UserServiceManagerImp implements UserServiceManager {
 
     private final PasswordEncoder encoder;
 
-    public UserServiceManagerImp(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder encoder) {
+    private final RecoveryTokenRepository recoveryTokenRepository;
+    private final ConfirmationTokenRepository confirmationTokenRepository;
+
+    private final String fullUrl;
+
+    public UserServiceManagerImp(@Value("${server.address}") String appDomain,
+                                 @Value("${server.port}") String appPort,
+                                 @Value("${server.servlet.context-path}") String appPath,
+                                 MailSenderManager sender, UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder encoder, RecoveryTokenRepository recoveryTokenRepository, ConfirmationTokenRepository confirmationTokenRepository) {
+        this.mailSenderManager = sender;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.encoder = encoder;
-    }
-
-    @Override
-    public void createUser(UserDetails userDetails) {
-    }
-
-    @Override
-    public void updateUser(UserDetails user) {
-
-    }
-
-    @Override
-    public void deleteUser(String username) {
-
-    }
-
-    @Override
-    public void changePassword(String oldPassword, String newPassword) {
+        this.recoveryTokenRepository = recoveryTokenRepository;
+        this.confirmationTokenRepository = confirmationTokenRepository;
+        this.fullUrl = "http://" + appDomain + ":" + appPort + appPath;
     }
 
     @Override
@@ -76,13 +81,14 @@ public class UserServiceManagerImp implements UserServiceManager {
         return dbAuths;
     }
 
+    // Helper method
     protected UserDetails createUserDetails(User userFromDb, List<GrantedAuthority> combinedAuthorities) {
         String returnUsername = userFromDb.getUsername();
         return new org.springframework.security.core.userdetails.User(returnUsername, userFromDb.getPassword(), userFromDb.isEnabled(), userFromDb.isAccountNonExpired(), userFromDb.isCredentialsNonExpired(), userFromDb.isAccountNonLocked(), combinedAuthorities);
     }
 
     @Override
-    public User createNewUser(RegisterRequest request) {
+    public void createNewUser(RegisterRequest request) {
         try {
             if (userExists(request.getUsername())) {
                 throw new Exception("USER_ALREADY_EXISTS");
@@ -95,16 +101,77 @@ public class UserServiceManagerImp implements UserServiceManager {
             User user = new User(request.getUsername(), request.getEmail(),
                     encoder.encode(request.getPassword())
             );
-
             Set<Role> roles = getRolesByString(request.getRoles());
             user.setRoles(roles);
-
             userRepository.save(user);
-            return user;
+
+            // Send confirmation email
+            ConfirmationToken token = new ConfirmationToken(user.getEmail());
+            String subject = "Reddot account confirmation";
+            String body = "Hi there,\n\n" +
+                    "To confirm your account, click the link below:\n"
+                    + fullUrl + "/auth/confirm-account?token=" + token.getToken();
+            mailSenderManager.sendEmail(user.getEmail(), subject, body);
+
+            // Save confirmation token
+            confirmationTokenRepository.save(token);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public User confirmNewUser(String token) {
+        try {
+            ConfirmationToken confirmationToken = confirmationTokenRepository.findByToken(token).orElseThrow(() -> new ResourceNotFoundException("TOKEN_NOT_FOUND"));
+            if (confirmationToken.getConfirmedAt() != null) {
+                throw new Exception("EMAIL_ALREADY_CONFIRMED");
+            }
+            User user = userRepository.findByEmail(confirmationToken.getEmail()).orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND"));
+            user.setEnabled(true);
+            userRepository.save(user);
+            confirmationToken.setConfirmedAt(LocalDateTime.now());
+            confirmationTokenRepository.save(confirmationToken);
+            return user;
+        } catch (ResourceNotFoundException e) {
+            throw new ResourceNotFoundException(e.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void sendPasswordResetEmail(String email) {
+        try {
+            // check if email exists in the system
+            if (!userRepository.existsByEmail(email)) {
+                throw new ResourceNotFoundException("EMAIL_NOT_FOUND");
+            }
+
+            // send password reset email
+            RecoveryToken recoveryToken = new RecoveryToken();
+            recoveryToken.setEmail(email);
+            recoveryToken.setToken(UUID.randomUUID().toString());
+            LocalDateTime validBefore = LocalDateTime.now().plusHours(24);
+            recoveryToken.setValidBefore(validBefore);
+
+            // send password reset email
+            String subject = "Reddot password reset";
+            String body = "Hi there,\n\n" +
+                    "To reset your password, click the link below:\n"
+                    + fullUrl + "/reset-password?token=" + recoveryToken.getToken();
+            mailSenderManager.sendEmail(email, subject, body);
+
+            // save recovery token
+            recoveryTokenRepository.save(recoveryToken);
+
+        } catch (ResourceNotFoundException e) {
+            throw new ResourceNotFoundException(e.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     private Set<Role> getRolesByString(Set<String> strRoles) {
         Set<Role> roles = new HashSet<>();

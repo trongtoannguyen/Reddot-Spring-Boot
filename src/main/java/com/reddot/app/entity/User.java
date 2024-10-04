@@ -40,8 +40,6 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "password_hash")
     private String password;
 
-    private boolean isVerified;
-
     private boolean isEnabled;
 
     @Lob
@@ -118,18 +116,12 @@ public class User extends BaseEntity implements UserDetails {
         this.username = username;
         this.email = email;
         this.password = password;
-        this.isEnabled = true;
     }
 
-    public User(@NonNull String username, @NonNull String email, @NonNull String password, Set<Role> roles) {
-        this(username, email, password, true, roles);
-    }
-
-    public User(@NonNull String username, @NonNull String email, @NonNull String password, boolean isEnabled, Collection<? extends Role> roles) {
+    public User(@NonNull String username, @NonNull String email, @NonNull String password, Collection<? extends Role> roles) {
         this.username = username;
         this.email = email;
         this.password = password;
-        this.isEnabled = isEnabled;
         this.roles = new HashSet<>(roles);
     }
 

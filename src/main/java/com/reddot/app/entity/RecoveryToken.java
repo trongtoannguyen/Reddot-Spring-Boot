@@ -1,5 +1,6 @@
 package com.reddot.app.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import lombok.*;
 
@@ -16,12 +17,14 @@ import java.time.LocalDateTime;
 public class RecoveryToken extends BaseEntity{
 
     @NonNull
-    private String email;
     private String token;
+    @NonNull
+    private String email;
     private boolean used;
+    @Column(name = "valid_before")
     private LocalDateTime validBefore;
 
-    public RecoveryToken(@NonNull String email, String token, LocalDateTime validBefore){
+    public RecoveryToken(@NonNull String email, @NonNull String token, LocalDateTime validBefore){
         this.email = email;
         this.token = token;
         this.validBefore = validBefore;
