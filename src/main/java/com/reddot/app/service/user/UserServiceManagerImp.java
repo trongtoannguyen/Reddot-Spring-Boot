@@ -1,6 +1,7 @@
 package com.reddot.app.service.user;
 
 import com.reddot.app.authentication.dto.RegisterRequest;
+import com.reddot.app.authentication.dto.UpdatePasswordRequest;
 import com.reddot.app.entity.ConfirmationToken;
 import com.reddot.app.entity.RecoveryToken;
 import com.reddot.app.entity.Role;
@@ -13,12 +14,8 @@ import com.reddot.app.repository.RoleRepository;
 import com.reddot.app.repository.UserRepository;
 import com.reddot.app.service.email.MailSenderManager;
 import com.reddot.app.util.Validator;
-import jakarta.mail.Message;
-import jakarta.mail.internet.InternetAddress;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.MailException;
-import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -135,6 +132,38 @@ public class UserServiceManagerImp implements UserServiceManager {
             return user;
         } catch (ResourceNotFoundException e) {
             throw new ResourceNotFoundException(e.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void resetPassword(UpdatePasswordRequest request) {
+        try {
+            RecoveryToken recoveryToken = recoveryTokenRepository.findByToken(request.getToken()).orElseThrow(() -> new ResourceNotFoundException("TOKEN_NOT_FOUND"));
+            if (!Validator.isPasswordValid(request.getPassword())) {
+                throw new Exception("INVALID_PASSWORD_FORMAT");
+            }
+            if (recoveryToken.isUsed()) {
+                throw new Exception("TOKEN_ALREADY_USED");
+            }
+            if (recoveryToken.getValidBefore().isBefore(LocalDateTime.now())) {
+                throw new Exception("TOKEN_EXPIRED");
+            }
+            User user = userRepository.findByEmail(recoveryToken.getEmail()).orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND"));
+            user.setPassword(encoder.encode(request.getPassword()));
+            userRepository.save(user);
+            recoveryToken.setUsed(true);
+            recoveryTokenRepository.save(recoveryToken);
+
+            // send email
+            String subject = "Reddot password reset successful";
+            String body = """
+                    Hi there,
+
+                    Your password has been reset successfully.
+                    """;
+            mailSenderManager.sendEmail(user.getEmail(), subject, body);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
