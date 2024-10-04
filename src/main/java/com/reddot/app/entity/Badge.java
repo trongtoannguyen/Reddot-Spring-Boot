@@ -1,12 +1,11 @@
 package com.reddot.app.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.io.Serial;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity(name = "badges")
 @Setter
@@ -30,9 +29,4 @@ public class Badge extends BaseEntity {
 
     @NonNull
     private String description;
-
-    @OneToMany(mappedBy = "badge",
-            cascade = CascadeType.ALL,
-            fetch = FetchType.EAGER)
-    private Set<UserBadge> userBadges = new HashSet<>();
 }

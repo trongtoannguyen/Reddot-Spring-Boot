@@ -24,7 +24,7 @@ public class Vote extends BaseEntity {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "user_id")
     @NonNull
     private User user;
@@ -37,7 +37,7 @@ public class Vote extends BaseEntity {
      * This field is optional.
      * </p>
      */
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "question_id")
     private Question question;
 
@@ -53,31 +53,17 @@ public class Vote extends BaseEntity {
     @JoinColumn(name = "comment_id")
     private Comment comment;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "vote_type_id")
     @NonNull
     private VoteType voteType;
 
-    /**
-     * Constructor for Vote a question
-     *
-     * @param user     the user who votes
-     * @param question the question to vote
-     * @param voteType the type of vote (UPVOTE or DOWNVOTE)
-     */
     public Vote(@NonNull User user, Question question, @NonNull VoteType voteType) {
         this.user = user;
         this.question = question;
         this.voteType = voteType;
     }
 
-    /**
-     * Constructor for Vote a comment
-     *
-     * @param user     the user who votes
-     * @param comment  the comment to vote
-     * @param voteType the type of vote (UPVOTE or DOWNVOTE)
-     */
     public Vote(@NonNull User user, Comment comment, @NonNull VoteType voteType) {
         this.user = user;
         this.comment = comment;

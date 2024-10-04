@@ -1,6 +1,7 @@
 package com.reddot.app.config.security;
 
 import com.reddot.app.config.security.jwt.JwtTokenFilter;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -25,7 +26,7 @@ public class WebSecurityConfig {
 
     final JwtTokenFilter jwtTokenFilter;
 
-    public WebSecurityConfig(JwtTokenFilter jwtTokenFilter, @Lazy UserDetailsService userDetailsService) {
+    public WebSecurityConfig(JwtTokenFilter jwtTokenFilter, @Qualifier("userServiceManagerImp") @Lazy UserDetailsService userDetailsService) {
         this.jwtTokenFilter = jwtTokenFilter;
         this.userDetailsService = userDetailsService;
     }
@@ -38,13 +39,15 @@ public class WebSecurityConfig {
                 // Set permissions for different endpoints
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints
-                        .requestMatchers("/hello").authenticated().requestMatchers("/**").permitAll()
+                        .requestMatchers("/hello", "/auth/**", "/reset-password/**").permitAll()
 
                         // Private endpoints
-                        .requestMatchers("/api/private/**").hasRole("ADMIN").requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/private/**").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
                         // OpenAPI endpoints
-                        .requestMatchers("/v3/**", "/swagger-ui/**", "/swagger-ui.html").permitAll().anyRequest().authenticated())
+                        .requestMatchers("/v3/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                        .anyRequest().authenticated())
 
                 // Set session management:
                 // -STATELESS: No session will be created, each request will be authenticated individually.

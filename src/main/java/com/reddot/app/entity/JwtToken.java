@@ -32,7 +32,7 @@ public class JwtToken {
     @Column(name = "device_name")
     private String deviceName;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "owner_id")
     private User user;
 

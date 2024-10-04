@@ -78,13 +78,11 @@ public class DatabaseSeeder implements CommandLineRunner {
     }
 
     private void seedVoteType(VoteTypeRepository repository) {
-        if (repository.findAll().isEmpty()) {
-            log.info("");
-            log.info("########## SEEDING VOTE TYPE ##########");
-            repository.save(new VoteType(VOTETYPE.UPVOTE));
-            repository.save(new VoteType(VOTETYPE.DOWNVOTE));
-            log.info("2 VOTE TYPES added to the database.");
-        }
+        log.info("");
+        log.info("########## SEEDING VOTE TYPE ##########");
+        repository.save(new VoteType(VOTETYPE.UPVOTE));
+        repository.save(new VoteType(VOTETYPE.DOWNVOTE));
+        log.info("2 VOTE TYPES added to the database.");
     }
 
     /**
@@ -217,18 +215,16 @@ public class DatabaseSeeder implements CommandLineRunner {
                 "apple-music", "google-play-music", "deezer", "soundcloud", "tunein", "pandora", "youtube-music", "amazon-music", "shazam", "google-play-store", "apple-app-store",
                 "microsoft-store", "amazon-app-store", "google-cloud", "aws", "azure", "heroku", "digitalocean", "linode", "vultr", "upcloud", "cloudflare", "fastly", "akamai", "cloudfront",
                 "s3", "rds", "ec2", "lambda", "sqs", "s3", "route-53", "elasticache", "dynamodb", "cloudwatch", "cloudtrail", "cloudformation", "cloudfront", "cloudsearch", "cloudhsm");
-        if (tagRepository.findAll().isEmpty()) {
-            log.info("");
-            log.info("########## SEEDING TAG ##########");
-            Faker faker = new Faker();
-            tags.forEach(name -> {
-                Tag tag = new Tag();
-                tag.setName(name);
-                tag.setDescription(faker.lorem().sentence());
-                tagRepository.save(tag);
-            });
-            log.info("{} TAGs added to the database.", tags.size());
-        }
+        log.info("");
+        log.info("########## SEEDING TAG ##########");
+        Faker faker = new Faker();
+        tags.forEach(name -> {
+            Tag tag = new Tag();
+            tag.setName(name);
+            tag.setDescription(faker.lorem().sentence());
+            tagRepository.save(tag);
+        });
+        log.info("{} TAGs added to the database.", tags.size());
     }
 
     /**
@@ -261,13 +257,11 @@ public class DatabaseSeeder implements CommandLineRunner {
                 new Badge("Great Contribution", "Your post has been upvoted 100 times"),
                 new Badge("Awesome Contribution", "Your post has been upvoted 1000 times"));
 
-        if (badgeRepository.findAll().isEmpty()) {
-            log.info("");
-            log.info("N########## SEEDING BADGE ##########");
-            badgeRepository.saveAll(commonBadges);
-            badgeRepository.saveAll(featureBadges);
-            log.info("{} BADGES added to the database.", commonBadges.size());
-        }
+        log.info("");
+        log.info("N########## SEEDING BADGE ##########");
+        badgeRepository.saveAll(commonBadges);
+        badgeRepository.saveAll(featureBadges);
+        log.info("{} BADGES added to the database.", commonBadges.size());
     }
 
 
@@ -281,11 +275,9 @@ public class DatabaseSeeder implements CommandLineRunner {
                 new Role(ROLENAME.ROLE_ADMIN)
         );
 
-        if (roleRepository.findAll().isEmpty()) {
-            log.info("");
-            log.info("########## SEEDING ROLE ##########");
-            roleRepository.saveAll(roles);
-            log.info("3 ROLEs added to the database.");
-        }
+        log.info("");
+        log.info("########## SEEDING ROLE ##########");
+        roleRepository.saveAll(roles);
+        log.info("3 ROLEs added to the database.");
     }
 }

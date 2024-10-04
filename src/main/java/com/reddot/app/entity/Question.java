@@ -38,27 +38,25 @@ public class Question extends BaseEntity {
 
     private int downvotes;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToMany(cascade = {
             CascadeType.DETACH,
-            CascadeType.MERGE})
-    @JoinTable(
-            name = "question_tags",
+            CascadeType.MERGE},
+            fetch = FetchType.EAGER)
+    @JoinTable(name = "question_tags",
             joinColumns = @JoinColumn(name = "question_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id"))
     private Set<Tag> tags = new HashSet<>();
 
-    @OneToMany(
-            mappedBy = "question",
+    @OneToMany(mappedBy = "question",
             cascade = CascadeType.ALL,
             orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 
-    @OneToMany(
-            mappedBy = "question",
+    @OneToMany(mappedBy = "question",
             cascade = CascadeType.ALL,
             orphanRemoval = true)
     private List<Vote> votes = new ArrayList<>();
