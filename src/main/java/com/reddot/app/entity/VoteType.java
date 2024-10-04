@@ -1,10 +1,7 @@
 package com.reddot.app.entity;
 
 import com.reddot.app.entity.enumeration.VOTETYPE;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Entity(name = "vote_types")
@@ -18,6 +15,7 @@ public class VoteType {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Enumerated(EnumType.STRING)
     @NonNull
     private VOTETYPE type;
 }
