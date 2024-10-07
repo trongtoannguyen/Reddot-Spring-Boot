@@ -45,12 +45,16 @@ public class JwtUtil {
         return extractClaim(jws, Claims::getSubject);
     }
 
+    public Integer extractUserId(String jws) {
+        return extractClaim(jws, claims -> claims.get("userId", Integer.class));
+    }
+
     private <T> T extractClaim(String jws, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(jws);
         return claimsResolver.apply(claims);
     }
-
     // TODO: properly configure this method match with createToken method if token is signed or encrypted
+
     private Claims extractAllClaims(String jws) {
         try {
             // Read (Parse) JWS
