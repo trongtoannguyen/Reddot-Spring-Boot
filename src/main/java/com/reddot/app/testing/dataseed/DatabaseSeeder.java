@@ -195,10 +195,9 @@ public class DatabaseSeeder implements CommandLineRunner {
         person.setDisplayName(faker.name().fullName());
         person.setAboutMe(faker.lorem().sentence());
         person.setDob(LocalDate.now());
-        person.setLastAccess(LocalDate.now());
         person.setLocation(faker.address().fullAddress());
         person.setWebsiteUrl(faker.internet().url());
-        user.addPerson(person);
+        user.setPerson(person);
     }
 
     /**
