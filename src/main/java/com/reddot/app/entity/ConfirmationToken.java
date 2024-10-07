@@ -14,12 +14,13 @@ import java.util.UUID;
 public class ConfirmationToken extends BaseEntity {
     private String token;
     @NonNull
-    private String email;
+    @Column(name = "owner_id")
+    private Integer ownerId;
     @Column(name = "confirmed_at")
     private LocalDateTime confirmedAt;
 
-    public ConfirmationToken(@NonNull String email) {
+    public ConfirmationToken(@NonNull Integer ownerId) {
         this.token = UUID.randomUUID().toString();
-        this.email = email;
+        this.ownerId = ownerId;
     }
 }

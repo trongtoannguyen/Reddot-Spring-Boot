@@ -1,7 +1,7 @@
 package com.reddot.app.controller;
 
-import com.reddot.app.authentication.dto.UpdatePasswordRequest;
-import com.reddot.app.dto.ServiceResponse;
+import com.reddot.app.dto.request.UpdatePasswordRequest;
+import com.reddot.app.dto.response.ServiceResponse;
 import com.reddot.app.service.user.UserServiceManager;
 import jakarta.validation.Valid;
 import lombok.NonNull;

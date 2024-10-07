@@ -1,19 +1,17 @@
 package com.reddot.app.service.user;
 
-import com.reddot.app.authentication.dto.RegisterRequest;
-import com.reddot.app.authentication.dto.UpdatePasswordRequest;
-import com.reddot.app.entity.ConfirmationToken;
-import com.reddot.app.entity.RecoveryToken;
-import com.reddot.app.entity.Role;
-import com.reddot.app.entity.User;
+import com.reddot.app.dto.UserProfileDTO;
+import com.reddot.app.dto.request.ProfileUpdateRequest;
+import com.reddot.app.dto.request.RegisterRequest;
+import com.reddot.app.dto.request.UpdateEmailRequest;
+import com.reddot.app.dto.request.UpdatePasswordRequest;
+import com.reddot.app.entity.*;
 import com.reddot.app.entity.enumeration.ROLENAME;
 import com.reddot.app.exception.ResourceNotFoundException;
-import com.reddot.app.repository.ConfirmationTokenRepository;
-import com.reddot.app.repository.RecoveryTokenRepository;
-import com.reddot.app.repository.RoleRepository;
-import com.reddot.app.repository.UserRepository;
+import com.reddot.app.repository.*;
 import com.reddot.app.service.email.MailSenderManager;
 import com.reddot.app.util.Validator;
+import jakarta.validation.Valid;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
@@ -43,11 +41,12 @@ public class UserServiceManagerImp implements UserServiceManager {
     private final ConfirmationTokenRepository confirmationTokenRepository;
 
     private final String fullUrl;
+    private final PersonRepository personRepository;
 
     public UserServiceManagerImp(@Value("${server.address}") String appDomain,
                                  @Value("${server.port}") String appPort,
                                  @Value("${server.servlet.context-path}") String appPath,
-                                 MailSenderManager sender, UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder encoder, RecoveryTokenRepository recoveryTokenRepository, ConfirmationTokenRepository confirmationTokenRepository) {
+                                 MailSenderManager sender, UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder encoder, RecoveryTokenRepository recoveryTokenRepository, ConfirmationTokenRepository confirmationTokenRepository, PersonRepository personRepository) {
         this.mailSenderManager = sender;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
@@ -55,13 +54,9 @@ public class UserServiceManagerImp implements UserServiceManager {
         this.recoveryTokenRepository = recoveryTokenRepository;
         this.confirmationTokenRepository = confirmationTokenRepository;
         this.fullUrl = "http://" + appDomain + ":" + appPort + appPath;
+        this.personRepository = personRepository;
     }
 
-    @Override
-    public boolean userExists(String username) {
-        Assert.notNull(username, "Username is null");
-        return userRepository.findByUsername(username).isPresent();
-    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -87,7 +82,7 @@ public class UserServiceManagerImp implements UserServiceManager {
     @Override
     public void createNewUser(RegisterRequest request) {
         try {
-            if (userExists(request.getUsername())) {
+            if (userExistsByUsername(request.getUsername())) {
                 throw new Exception("USER_ALREADY_EXISTS");
             }
             List<String> errorMessages = validateUser(request);
@@ -103,7 +98,8 @@ public class UserServiceManagerImp implements UserServiceManager {
             userRepository.save(user);
 
             // Send confirmation email
-            ConfirmationToken token = new ConfirmationToken(user.getEmail());
+            Assert.notNull(user.getId(), "User id must not be null");
+            ConfirmationToken token = new ConfirmationToken(user.getId());
             String subject = "Reddot account confirmation";
             String body = "Hi there,\n\n" +
                     "To confirm your account, click the link below:\n"
@@ -118,19 +114,29 @@ public class UserServiceManagerImp implements UserServiceManager {
     }
 
     @Override
-    public User confirmNewUser(String token) {
+    public UserProfileDTO confirmNewUser(String token) {
         try {
             ConfirmationToken confirmationToken = confirmationTokenRepository.findByToken(token).orElseThrow(() -> new ResourceNotFoundException("TOKEN_NOT_FOUND"));
             if (confirmationToken.getConfirmedAt() != null) {
                 throw new Exception("EMAIL_ALREADY_CONFIRMED");
             }
-            User user = userRepository.findByEmail(confirmationToken.getEmail()).orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND"));
+            User user = getUser(confirmationToken.getOwnerId());
             user.setEnabled(true);
             user.setEmailVerified(true);
+
+            // Create user profile
+            Person person = new Person(user.getUsername());
+            user.setPerson(person);
             userRepository.save(user);
+
+            // update confirm token
             confirmationToken.setConfirmedAt(LocalDateTime.now());
             confirmationTokenRepository.save(confirmationToken);
-            return user;
+
+            // return safely DTO
+            UserProfileDTO dto = new UserProfileDTO();
+            dto.builder(user, person);
+            return dto;
         } catch (ResourceNotFoundException e) {
             throw new ResourceNotFoundException(e.getMessage());
         } catch (Exception e) {
@@ -151,7 +157,7 @@ public class UserServiceManagerImp implements UserServiceManager {
             if (recoveryToken.getValidBefore().isBefore(LocalDateTime.now())) {
                 throw new Exception("TOKEN_EXPIRED");
             }
-            User user = userRepository.findByEmail(recoveryToken.getEmail()).orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND"));
+            User user = getUser(recoveryToken.getOwnerId());
             user.setPassword(encoder.encode(request.getPassword()));
             userRepository.save(user);
             recoveryToken.setUsed(true);
@@ -171,30 +177,38 @@ public class UserServiceManagerImp implements UserServiceManager {
     }
 
     @Override
+    public void sendUpdateEmail(String newEmail) {
+
+    }
+
+    @Override
+    public void confirmNewEmail(UpdateEmailRequest request) {
+
+    }
+
+    @Override
     public void sendPasswordResetEmail(String email) {
         try {
-            // check if email exists in the system
-            if (!userRepository.existsByEmail(email)) {
-                throw new ResourceNotFoundException("EMAIL_NOT_FOUND");
+            if (userExistsByEmail(email)) {
+                User user = getUser(email);
+
+                // send password reset email
+                RecoveryToken recoveryToken = new RecoveryToken();
+                recoveryToken.setOwnerId(user.getId());
+                recoveryToken.setToken(UUID.randomUUID().toString());
+                LocalDateTime validBefore = LocalDateTime.now().plusHours(24);
+                recoveryToken.setValidBefore(validBefore);
+
+                // send password reset email
+                String subject = "Reddot password reset";
+                String body = "Hi there,\n\n" +
+                        "To reset your password, click the link below:\n"
+                        + fullUrl + "/reset-password?token=" + recoveryToken.getToken();
+                mailSenderManager.sendEmail(email, subject, body);
+
+                // save recovery token
+                recoveryTokenRepository.save(recoveryToken);
             }
-
-            // send password reset email
-            RecoveryToken recoveryToken = new RecoveryToken();
-            recoveryToken.setEmail(email);
-            recoveryToken.setToken(UUID.randomUUID().toString());
-            LocalDateTime validBefore = LocalDateTime.now().plusHours(24);
-            recoveryToken.setValidBefore(validBefore);
-
-            // send password reset email
-            String subject = "Reddot password reset";
-            String body = "Hi there,\n\n" +
-                    "To reset your password, click the link below:\n"
-                    + fullUrl + "/reset-password?token=" + recoveryToken.getToken();
-            mailSenderManager.sendEmail(email, subject, body);
-
-            // save recovery token
-            recoveryTokenRepository.save(recoveryToken);
-
         } catch (ResourceNotFoundException e) {
             throw new ResourceNotFoundException(e.getMessage());
         } catch (Exception e) {
@@ -202,6 +216,77 @@ public class UserServiceManagerImp implements UserServiceManager {
         }
     }
 
+    @Override
+    public UserProfileDTO getUserProfile(String username) {
+        try {
+            User user = getUserByUsername(username);
+            Optional<Person> p = personRepository.findByUserId(user.getId());
+            Person person;
+
+            if (p.isPresent()) {
+                person = p.get();
+            } else {
+                person = new Person(user.getUsername());
+                user.setPerson(person);
+                userRepository.save(user);
+            }
+
+            UserProfileDTO dto = new UserProfileDTO();
+            dto.builder(user, person);
+            return dto;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public UserProfileDTO updateProfile(String username, @Valid ProfileUpdateRequest updateRequest) {
+        try {
+            User user = getUserByUsername(username);
+            user.setAvatarUrl(updateRequest.getAvatar());
+            Person person = personRepository.findByUserId(user.getId()).orElse(new Person(user.getUsername()));
+
+            // FIXME: make code clean
+            // Update person from DTO
+            person.setDisplayName(updateRequest.getDisplayName());
+            person.setAboutMe(updateRequest.getAboutMe());
+            person.setDob(updateRequest.getDob());
+            person.setLocation(updateRequest.getLocation());
+            person.setWebsiteUrl(updateRequest.getWebsiteUrl());
+
+            user.setPerson(person);
+            userRepository.save(user);
+            log.info("User profile updated successfully");
+
+            UserProfileDTO dto = new UserProfileDTO();
+            dto.builder(user, person);
+            return dto;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private boolean userExistsByUsername(String username) {
+        Assert.notNull(username, "Username is null");
+        return userRepository.findByUsername(username).isPresent();
+    }
+
+    private boolean userExistsByEmail(String email) {
+        Assert.notNull(email, "Email is null");
+        return userRepository.findByEmail(email).isPresent();
+    }
+
+    private User getUser(Integer ownerId) {
+        return userRepository.findById(ownerId).orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND"));
+    }
+
+    private User getUser(String email) {
+        return userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND"));
+    }
+
+    private User getUserByUsername(String username) {
+        return userRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND"));
+    }
 
     private Set<Role> getRolesByString(Set<String> strRoles) {
         Set<Role> roles = new HashSet<>();

@@ -1,8 +1,9 @@
 package com.reddot.app.controller;
 
-import com.reddot.app.authentication.dto.LoginRequest;
-import com.reddot.app.authentication.dto.RegisterRequest;
-import com.reddot.app.dto.ServiceResponse;
+import com.reddot.app.dto.UserProfileDTO;
+import com.reddot.app.dto.request.LoginRequest;
+import com.reddot.app.dto.request.RegisterRequest;
+import com.reddot.app.dto.response.ServiceResponse;
 import com.reddot.app.entity.User;
 import com.reddot.app.exception.ResourceNotFoundException;
 import com.reddot.app.service.user.UserServiceManager;
@@ -62,9 +63,9 @@ public class AuthenticationController {
     }
 
     @GetMapping("/confirm-account")
-    public ResponseEntity<ServiceResponse<User>> confirm(@RequestParam("token") String token) {
+    public ResponseEntity<ServiceResponse<UserProfileDTO>> confirm(@RequestParam("token") String token) {
         try {
-            User user = manager.confirmNewUser(token);
+            UserProfileDTO user = manager.confirmNewUser(token);
             return new ResponseEntity<>(new ServiceResponse<>(HttpStatus.OK.value(), "Congratulations! Your account has been confirmed", user), HttpStatus.OK);
         } catch (ResourceNotFoundException e) {
             throw new ResourceNotFoundException(e.getMessage());

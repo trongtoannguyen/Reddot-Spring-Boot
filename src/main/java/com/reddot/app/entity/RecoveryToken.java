@@ -19,24 +19,26 @@ public class RecoveryToken extends BaseEntity{
     @NonNull
     private String token;
     @NonNull
-    private String email;
+    @Column(name = "owner_id")
+    private Integer ownerId;
     private boolean used;
     @Column(name = "valid_before")
     private LocalDateTime validBefore;
 
-    public RecoveryToken(@NonNull String email, @NonNull String token, LocalDateTime validBefore){
-        this.email = email;
+    public RecoveryToken(@NonNull Integer ownerId, @NonNull String token, LocalDateTime validBefore){
+        this.ownerId = ownerId;
         this.token = token;
         this.validBefore = validBefore;
         this.used = false;
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return "RecoveryToken{" +
-                "email='" + email + '\'' +
-                ", token='" + token + '\'' +
+                "token='" + token + '\'' +
+                ", ownerId=" + ownerId +
                 ", used=" + used +
+                ", validBefore=" + validBefore +
                 '}';
     }
 }
