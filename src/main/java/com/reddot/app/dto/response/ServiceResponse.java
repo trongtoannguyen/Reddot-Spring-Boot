@@ -1,4 +1,4 @@
-package com.reddot.app.dto;
+package com.reddot.app.dto.response;
 
 import lombok.*;
 
