@@ -16,7 +16,7 @@ public interface UserServiceManager extends UserDetailsService {
 
     UserProfileDTO getUserProfile(String username);
 
-    UserProfileDTO updateProfile(String username, @Valid ProfileUpdateRequest request);
+    UserProfileDTO updateProfile(@Valid ProfileUpdateRequest request);
 
     void sendPasswordResetEmail(String email);
 
@@ -25,4 +25,6 @@ public interface UserServiceManager extends UserDetailsService {
     void sendUpdateEmail(String newEmail);
 
     void confirmNewEmail(UpdateEmailRequest request);
+
+    boolean isOwner(String username, Integer id);
 }

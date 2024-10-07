@@ -11,6 +11,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProfileUpdateRequest {
+    private Integer id;
     private String avatar;
     @Size(min = 3, max = 100)
     private String displayName;

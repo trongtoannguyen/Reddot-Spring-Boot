@@ -27,6 +27,7 @@ public class UserProfileDTO {
     private String websiteUrl;
 
     public void builder(User user, Person person) {
+        this.id = user.getId();
         this.username = user.getUsername();
         this.avatar = user.getAvatarUrl();
         this.displayName = person.getDisplayName();

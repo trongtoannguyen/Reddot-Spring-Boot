@@ -167,7 +167,7 @@ public class UserServiceManagerImp implements UserServiceManager {
             String subject = "Reddot password reset successful";
             String body = """
                     Hi there,
-
+                    
                     Your password has been reset successfully.
                     """;
             mailSenderManager.sendEmail(user.getEmail(), subject, body);
@@ -184,6 +184,16 @@ public class UserServiceManagerImp implements UserServiceManager {
     @Override
     public void confirmNewEmail(UpdateEmailRequest request) {
 
+    }
+
+    @Override
+    public boolean isOwner(String username, Integer id) {
+        try {
+            User user = getUserByUsername(username);
+            return Objects.equals(user.getId(), id);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -240,9 +250,9 @@ public class UserServiceManagerImp implements UserServiceManager {
     }
 
     @Override
-    public UserProfileDTO updateProfile(String username, @Valid ProfileUpdateRequest updateRequest) {
+    public UserProfileDTO updateProfile(@Valid ProfileUpdateRequest updateRequest) {
         try {
-            User user = getUserByUsername(username);
+            User user = getUser(updateRequest.getId());
             user.setAvatarUrl(updateRequest.getAvatar());
             Person person = personRepository.findByUserId(user.getId()).orElse(new Person(user.getUsername()));
 
