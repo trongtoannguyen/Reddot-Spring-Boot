@@ -42,6 +42,9 @@ public class User extends BaseEntity implements UserDetails {
 
     private boolean isEnabled;
 
+    @Column(name = "email_verified")
+    private boolean emailVerified = false;
+
     @Lob
     private String avatarUrl;
 
@@ -52,8 +55,8 @@ public class User extends BaseEntity implements UserDetails {
     // So the User entity should be the parent-side and the Person entity should be the client-side.
     @OneToOne(mappedBy = "user",
             cascade = CascadeType.ALL,
-            orphanRemoval = true,
-            fetch = FetchType.LAZY)
+            orphanRemoval = true
+    )
     private Person person;
 
     @ManyToMany(cascade = {

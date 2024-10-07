@@ -126,6 +126,7 @@ public class UserServiceManagerImp implements UserServiceManager {
             }
             User user = userRepository.findByEmail(confirmationToken.getEmail()).orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND"));
             user.setEnabled(true);
+            user.setEmailVerified(true);
             userRepository.save(user);
             confirmationToken.setConfirmedAt(LocalDateTime.now());
             confirmationTokenRepository.save(confirmationToken);
