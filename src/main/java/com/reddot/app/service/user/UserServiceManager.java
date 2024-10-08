@@ -26,5 +26,4 @@ public interface UserServiceManager extends UserDetailsService {
 
     void confirmNewEmail(UpdateEmailRequest request);
 
-    boolean isOwner(String username, Integer id);
 }

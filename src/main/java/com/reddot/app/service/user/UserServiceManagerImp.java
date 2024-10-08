@@ -14,8 +14,6 @@ import com.reddot.app.util.Validator;
 import jakarta.validation.Valid;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -60,25 +58,13 @@ public class UserServiceManagerImp implements UserServiceManager {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
-        List<GrantedAuthority> dbAuths = new ArrayList<>(loadUserAuthorities(username));
-//        return createUserDetails(user, dbAuths);
-        return user;
+        return userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
     }
 
-    // TODO: Implement this method
-    protected List<GrantedAuthority> loadUserAuthorities(String username) {
-        Assert.notNull(username, "Username is null");
-        List<GrantedAuthority> dbAuths = new ArrayList<>();
-        dbAuths.add(new SimpleGrantedAuthority("ROLE_USER"));
-        return dbAuths;
-    }
-
+    // TODO: comment out these methods to implement User entity instead of UserDetails
+    // protected List<GrantedAuthority> loadUserAuthorities(String username)
     // Helper method
-    protected UserDetails createUserDetails(User userFromDb, List<GrantedAuthority> combinedAuthorities) {
-        String returnUsername = userFromDb.getUsername();
-        return new org.springframework.security.core.userdetails.User(returnUsername, userFromDb.getPassword(), userFromDb.isEnabled(), userFromDb.isAccountNonExpired(), userFromDb.isCredentialsNonExpired(), userFromDb.isAccountNonLocked(), combinedAuthorities);
-    }
+    // protected UserDetails createUserDetails(User userFromDb, List<GrantedAuthority> combinedAuthorities)
 
     @Override
     public void createNewUser(RegisterRequest request) {
@@ -185,16 +171,6 @@ public class UserServiceManagerImp implements UserServiceManager {
     @Override
     public void confirmNewEmail(UpdateEmailRequest request) {
 
-    }
-
-    @Override
-    public boolean isOwner(String username, Integer id) {
-        try {
-            User user = getUserByUsername(username);
-            return Objects.equals(user.getId(), id);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @Override
