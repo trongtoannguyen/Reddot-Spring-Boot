@@ -21,9 +21,12 @@ public class ConfirmationToken extends BaseEntity {
     private Integer ownerId;
     @Column(name = "confirmed_at")
     private LocalDateTime confirmedAt;
+    @Column(name = "valid_before")
+    private LocalDateTime validBefore;
 
     public ConfirmationToken(@NonNull Integer ownerId) {
         this.token = UUID.randomUUID().toString();
         this.ownerId = ownerId;
+        this.validBefore = LocalDateTime.now().plusHours(24);
     }
 }

@@ -31,7 +31,7 @@ public class User extends BaseEntity implements UserDetails {
     @Column(unique = true)
     private String username;
 
-    @NaturalId
+    @NaturalId(mutable = true)
     @NonNull
     @Column(name = "email_hash", unique = true)
     private String email;

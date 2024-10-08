@@ -3,9 +3,10 @@ package com.reddot.app.service.user;
 import com.reddot.app.dto.UserProfileDTO;
 import com.reddot.app.dto.request.ProfileUpdateRequest;
 import com.reddot.app.dto.request.RegisterRequest;
-import com.reddot.app.dto.request.UpdateEmailRequest;
 import com.reddot.app.dto.request.UpdatePasswordRequest;
+import com.reddot.app.exception.ResourceNotFoundException;
 import jakarta.validation.Valid;
+import lombok.NonNull;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 public interface UserServiceManager extends UserDetailsService {
@@ -13,6 +14,8 @@ public interface UserServiceManager extends UserDetailsService {
     void createNewUser(RegisterRequest request);
 
     UserProfileDTO confirmNewUser(String token);
+
+    UserProfileDTO getUserProfile(Integer userId);
 
     UserProfileDTO getUserProfile(String username);
 
@@ -22,8 +25,9 @@ public interface UserServiceManager extends UserDetailsService {
 
     void resetPassword(UpdatePasswordRequest request);
 
-    void sendUpdateEmail(String newEmail);
+    void updateEmail(Integer userId, String newEmail) throws ResourceNotFoundException;
 
-    void confirmNewEmail(UpdateEmailRequest request);
+    void confirmNewEmail(@NonNull String token) throws ResourceNotFoundException;
 
+    void resendEmailConfirm(Integer userId) throws ResourceNotFoundException;
 }
