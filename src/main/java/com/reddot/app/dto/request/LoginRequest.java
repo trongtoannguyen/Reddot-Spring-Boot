@@ -1,4 +1,4 @@
-package com.reddot.app.authentication.dto;
+package com.reddot.app.dto.request;
 
 import lombok.Getter;
 import lombok.NonNull;

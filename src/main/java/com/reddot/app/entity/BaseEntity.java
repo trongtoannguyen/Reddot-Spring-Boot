@@ -3,6 +3,7 @@ package com.reddot.app.entity;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 import org.springframework.data.domain.Persistable;
 
@@ -17,6 +18,7 @@ public abstract class BaseEntity implements Persistable<Integer>, Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @NonNull
     private Integer id;
 
     @Transient

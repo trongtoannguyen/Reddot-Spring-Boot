@@ -1,5 +1,6 @@
 package com.reddot.app.util;
 
+import com.reddot.app.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -45,12 +47,16 @@ public class JwtUtil {
         return extractClaim(jws, Claims::getSubject);
     }
 
+    public Integer extractUserId(String jws) {
+        return extractClaim(jws, claims -> claims.get("userId", Integer.class));
+    }
+
     private <T> T extractClaim(String jws, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(jws);
         return claimsResolver.apply(claims);
     }
-
     // TODO: properly configure this method match with createToken method if token is signed or encrypted
+
     private Claims extractAllClaims(String jws) {
         try {
             // Read (Parse) JWS
@@ -73,13 +79,13 @@ public class JwtUtil {
         return extractClaim(jws, Claims::getExpiration);
     }
 
-    public String generateToken(UserDetails userDetails) {
+    public String generateToken(User user) {
         Map<String, Object> claims = new LinkedHashMap<>();
         // add additional claims to the JWT
         claims.put("iss", "reddot");
-        claims.put("sub", userDetails.getUsername());
+        claims.put("sub", user.getUsername());
         claims.put("aud", "end-user");
-
+        claims.put("userId", user.getId());
         return createToken(claims);
     }
 
@@ -87,13 +93,13 @@ public class JwtUtil {
         try {
             // Create compact JWS
             // convert claim maps to LinkedHashMap to keep the order of the claims
-            claims = new LinkedHashMap<>(claims);
-            claims.put("iat", new Date());
-            claims.put("exp", new Date(System.currentTimeMillis() + JWT_EXPIRATION));
+            HashMap<String, Object> c = new LinkedHashMap<>(claims);
+            c.put("iat", new Date());
+            c.put("exp", new Date(System.currentTimeMillis() + JWT_EXPIRATION));
             // create JWS
             return Jwts.builder().
                     signWith(key, alg)
-                    .claims(claims)
+                    .claims(c)
                     .compact();
             // TODO: to compress the JWT to reduce its size.
             // https://github.com/jwtk/jjwt?tab=readme-ov-file#compression

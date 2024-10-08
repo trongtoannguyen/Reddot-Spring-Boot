@@ -1,19 +1,33 @@
 package com.reddot.app.service.user;
 
-import com.reddot.app.authentication.dto.RegisterRequest;
-import com.reddot.app.authentication.dto.UpdatePasswordRequest;
-import com.reddot.app.entity.User;
+import com.reddot.app.dto.UserProfileDTO;
+import com.reddot.app.dto.request.ProfileUpdateRequest;
+import com.reddot.app.dto.request.RegisterRequest;
+import com.reddot.app.dto.request.UpdatePasswordRequest;
+import com.reddot.app.exception.ResourceNotFoundException;
+import jakarta.validation.Valid;
+import lombok.NonNull;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 public interface UserServiceManager extends UserDetailsService {
 
     void createNewUser(RegisterRequest request);
 
+    UserProfileDTO confirmNewUser(String token);
+
+    UserProfileDTO getUserProfile(Integer userId);
+
+    UserProfileDTO getUserProfile(String username);
+
+    UserProfileDTO updateProfile(Integer userId, @Valid ProfileUpdateRequest request);
+
     void sendPasswordResetEmail(String email);
 
-    boolean userExists(String username);
-
-    User confirmNewUser(String token);
-
     void resetPassword(UpdatePasswordRequest request);
+
+    void updateEmail(Integer userId, String newEmail) throws ResourceNotFoundException;
+
+    void confirmNewEmail(@NonNull String token) throws ResourceNotFoundException;
+
+    void resendEmailConfirm(Integer userId) throws ResourceNotFoundException;
 }

@@ -10,6 +10,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serial;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -30,7 +31,7 @@ public class User extends BaseEntity implements UserDetails {
     @Column(unique = true)
     private String username;
 
-    @NaturalId
+    @NaturalId(mutable = true)
     @NonNull
     @Column(name = "email_hash", unique = true)
     private String email;
@@ -42,18 +43,25 @@ public class User extends BaseEntity implements UserDetails {
 
     private boolean isEnabled;
 
+    @Column(name = "email_verified")
+    private boolean emailVerified = false;
+
     @Lob
     private String avatarUrl;
 
     private String provider;
+
+    @Column(name = "last_access")
+    private LocalDateTime lastAccess;
 
     // it’s unusual to consider the User as a client-side and the Person as the parent-side
     // because the person cannot exist without an actual user.
     // So the User entity should be the parent-side and the Person entity should be the client-side.
     @OneToOne(mappedBy = "user",
             cascade = CascadeType.ALL,
-            orphanRemoval = true,
-            fetch = FetchType.LAZY)
+            orphanRemoval = true
+    )
+    @JsonIgnore
     private Person person;
 
     @ManyToMany(cascade = {
@@ -131,7 +139,7 @@ public class User extends BaseEntity implements UserDetails {
     }
 
     // Utility methods
-    public void addPerson(Person person) {
+    public void setPerson(Person person) {
         this.person = person;
         person.setUser(this);
     }

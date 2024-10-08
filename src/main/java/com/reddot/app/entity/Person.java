@@ -1,10 +1,11 @@
 package com.reddot.app.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 
 import java.io.Serial;
@@ -17,10 +18,12 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @NoArgsConstructor
+@RequiredArgsConstructor
 public class Person extends BaseEntity {
     @Serial
     private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
+    @NonNull
     @Column(name = "display_name")
     @Size(min = 3, max = 100)
     private String displayName;
@@ -30,9 +33,6 @@ public class Person extends BaseEntity {
 
     @Column(name = "dob", columnDefinition = "DATE")
     private LocalDate dob;
-
-    @Column(name = "last_access", columnDefinition = "DATE")
-    private LocalDate lastAccess;
 
     private String location;
 
