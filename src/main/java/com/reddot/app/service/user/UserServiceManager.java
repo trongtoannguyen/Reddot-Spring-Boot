@@ -16,7 +16,7 @@ public interface UserServiceManager extends UserDetailsService {
 
     UserProfileDTO getUserProfile(String username);
 
-    UserProfileDTO updateProfile(@Valid ProfileUpdateRequest request);
+    UserProfileDTO updateProfile(Integer userId, @Valid ProfileUpdateRequest request);
 
     void sendPasswordResetEmail(String email);
 

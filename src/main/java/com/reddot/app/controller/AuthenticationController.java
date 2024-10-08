@@ -16,7 +16,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 // FIXME: implement validation
@@ -45,8 +44,8 @@ public class AuthenticationController {
             SecurityContext context = SecurityContextHolder.createEmptyContext();
             context.setAuthentication(authentication);
             SecurityContextHolder.setContext(context);
-            final UserDetails userDetails = manager.loadUserByUsername(request.getUsername());
-            return jwtUtil.generateToken(userDetails);
+            final User user = (User) manager.loadUserByUsername(request.getUsername());
+            return jwtUtil.generateToken(user);
         } catch (Exception e) {
             throw new ResourceNotFoundException(e.getMessage());
         }

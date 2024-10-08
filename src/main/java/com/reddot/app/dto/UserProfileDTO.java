@@ -2,9 +2,11 @@ package com.reddot.app.dto;
 
 import com.reddot.app.entity.Person;
 import com.reddot.app.entity.User;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
 
@@ -14,10 +16,8 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class UserProfileDTO {
     private Integer id;
-    @NonNull
-    @Size(min = 3, max = 30)
-    @Pattern(regexp = "^[a-zA-Z0-9_]{3,30}$")
     private String username;
+    private String email;
     private String avatar;
     @Size(min = 3, max = 100)
     private String displayName;
@@ -29,6 +29,7 @@ public class UserProfileDTO {
     public void builder(User user, Person person) {
         this.id = user.getId();
         this.username = user.getUsername();
+        this.email = user.getEmail();
         this.avatar = user.getAvatarUrl();
         this.displayName = person.getDisplayName();
         this.aboutMe = person.getAboutMe();

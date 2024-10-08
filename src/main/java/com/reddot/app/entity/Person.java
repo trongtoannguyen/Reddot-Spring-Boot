@@ -1,6 +1,9 @@
 package com.reddot.app.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.springframework.security.core.SpringSecurityCoreVersion;

@@ -1,8 +1,10 @@
 package com.reddot.app.dto.request;
 
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
 
@@ -11,7 +13,6 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProfileUpdateRequest {
-    private Integer id;
     private String avatar;
     @Size(min = 3, max = 100)
     private String displayName;

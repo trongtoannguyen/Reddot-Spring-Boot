@@ -62,7 +62,8 @@ public class UserServiceManagerImp implements UserServiceManager {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
         List<GrantedAuthority> dbAuths = new ArrayList<>(loadUserAuthorities(username));
-        return createUserDetails(user, dbAuths);
+//        return createUserDetails(user, dbAuths);
+        return user;
     }
 
     // TODO: Implement this method
@@ -250,9 +251,9 @@ public class UserServiceManagerImp implements UserServiceManager {
     }
 
     @Override
-    public UserProfileDTO updateProfile(@Valid ProfileUpdateRequest updateRequest) {
+    public UserProfileDTO updateProfile(Integer userId, @Valid ProfileUpdateRequest updateRequest) {
         try {
-            User user = getUser(updateRequest.getId());
+            User user = getUser(userId);
             user.setAvatarUrl(updateRequest.getAvatar());
             Person person = personRepository.findByUserId(user.getId()).orElse(new Person(user.getUsername()));
 
