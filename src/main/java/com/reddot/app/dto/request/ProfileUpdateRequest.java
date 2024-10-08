@@ -1,5 +1,7 @@
 package com.reddot.app.dto.request;
 
+import com.reddot.app.entity.Person;
+import com.reddot.app.entity.User;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,4 +22,15 @@ public class ProfileUpdateRequest {
     private LocalDate dob;
     private String location;
     private String websiteUrl;
+
+    // helper update profile method
+    public void updateProfile(User user, Person person) {
+        user.setAvatarUrl(avatar);
+        person.setDisplayName(displayName);
+        person.setAboutMe(aboutMe);
+        person.setDob(dob);
+        person.setLocation(location);
+        person.setWebsiteUrl(websiteUrl);
+        user.setPerson(person);
+    }
 }

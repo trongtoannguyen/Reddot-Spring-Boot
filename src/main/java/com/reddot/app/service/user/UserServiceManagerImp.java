@@ -167,7 +167,8 @@ public class UserServiceManagerImp implements UserServiceManager {
             ConfirmationToken confirmationToken = confirmationTokenRepository.findByToken(token).orElseThrow(() -> new ResourceNotFoundException("TOKEN_NOT_FOUND"));
             if (confirmationToken.getConfirmedAt() != null) {
                 throw new Exception("TOKEN_ALREADY_USED");
-            }if (confirmationToken.getValidBefore().isBefore(LocalDateTime.now())) {
+            }
+            if (confirmationToken.getValidBefore().isBefore(LocalDateTime.now())) {
                 throw new Exception("TOKEN_EXPIRED");
             }
             User user = getUser(confirmationToken.getOwnerId());
@@ -288,18 +289,11 @@ public class UserServiceManagerImp implements UserServiceManager {
     public UserProfileDTO updateProfile(Integer userId, @Valid ProfileUpdateRequest updateRequest) {
         try {
             User user = getUser(userId);
-            user.setAvatarUrl(updateRequest.getAvatar());
             Person person = personRepository.findByUserId(user.getId()).orElse(new Person(user.getUsername()));
+            user.setAvatarUrl(updateRequest.getAvatar());
 
-            // FIXME: make code clean
             // Update person from DTO
-            person.setDisplayName(updateRequest.getDisplayName());
-            person.setAboutMe(updateRequest.getAboutMe());
-            person.setDob(updateRequest.getDob());
-            person.setLocation(updateRequest.getLocation());
-            person.setWebsiteUrl(updateRequest.getWebsiteUrl());
-
-            user.setPerson(person);
+            updateRequest.updateProfile(user, person);
             userRepository.save(user);
             log.info("User profile updated successfully");
 
