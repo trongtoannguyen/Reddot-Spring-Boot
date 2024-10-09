@@ -28,7 +28,7 @@ public class UserManagementController {
     @GetMapping
     public ResponseEntity<ServiceResponse<UserProfileDTO>> getUserProfile(@RequestParam String username) {
         try {
-            UserProfileDTO profileDTO = userServiceManager.getUserProfile(username);
+            UserProfileDTO profileDTO = userServiceManager.profileGetBy(username);
             return new ResponseEntity<>(new ServiceResponse<>(HttpStatus.OK.value(), "Retrieve profile successfully", profileDTO), HttpStatus.OK);
         } catch (ResourceNotFoundException e) {
             throw new ResourceNotFoundException(e.getMessage());
@@ -39,7 +39,7 @@ public class UserManagementController {
     @GetMapping("/{id}")
     public ResponseEntity<ServiceResponse<UserProfileDTO>> getUserProfileById(@PathVariable Integer id) {
         try {
-            UserProfileDTO profileDTO = userServiceManager.getUserProfile(id);
+            UserProfileDTO profileDTO = userServiceManager.profileGetBy(id);
             return new ResponseEntity<>(new ServiceResponse<>(HttpStatus.OK.value(), "Retrieve profile successfully", profileDTO), HttpStatus.OK);
         } catch (ResourceNotFoundException e) {
             throw new ResourceNotFoundException(e.getMessage());
@@ -58,7 +58,7 @@ public class UserManagementController {
             if (!user.getId().equals(id)) {
                 throw new BadRequestException("Unable to update profile");
             }
-            UserProfileDTO updatedProfile = userServiceManager.updateProfile(user.getId(), request);
+            UserProfileDTO updatedProfile = userServiceManager.profileUpdate(user.getId(), request);
             return new ResponseEntity<>(new ServiceResponse<>(HttpStatus.OK.value(), "Profile updated successfully", updatedProfile), HttpStatus.OK);
         } catch (UsernameNotFoundException | ResourceNotFoundException e) {
             throw new ResourceNotFoundException(e.getMessage());

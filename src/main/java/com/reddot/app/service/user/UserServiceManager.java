@@ -13,23 +13,25 @@ import org.springframework.stereotype.Component;
 @Component
 public interface UserServiceManager extends UserDetailsService {
 
-    void createNewUser(RegisterRequest request);
+    void userCreate(RegisterRequest request);
 
-    UserProfileDTO confirmNewUser(String token);
+    UserProfileDTO userConfirm(String token);
 
-    UserProfileDTO getUserProfile(Integer userId);
+    void userDelete(Integer userId) throws ResourceNotFoundException;
 
-    UserProfileDTO getUserProfile(String username);
+    UserProfileDTO profileGetBy(Integer userId);
 
-    UserProfileDTO updateProfile(Integer userId, @Valid ProfileUpdateRequest request);
+    UserProfileDTO profileGetBy(String username);
 
-    void sendPasswordResetEmail(String email) throws ResourceNotFoundException;
+    UserProfileDTO profileUpdate(Integer userId, @Valid ProfileUpdateRequest request);
 
-    void resetPassword(UpdatePasswordRequest request);
+    void pwForgot(String email) throws ResourceNotFoundException;
 
-    void updateEmail(Integer userId, String newEmail) throws ResourceNotFoundException;
+    void pwReset(UpdatePasswordRequest request);
 
-    void confirmNewEmail(@NonNull String token) throws ResourceNotFoundException;
+    void emailUpdate(Integer userId, String newEmail) throws ResourceNotFoundException;
 
-    void resendEmailConfirm(Integer userId) throws ResourceNotFoundException;
+    void emailConfirm(@NonNull String token) throws ResourceNotFoundException;
+
+    void emailConfirmResend(Integer userId) throws ResourceNotFoundException;
 }

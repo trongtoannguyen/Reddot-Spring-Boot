@@ -54,7 +54,7 @@ public class AuthenticationController {
     @PostMapping("/register")
     public ResponseEntity<ServiceResponse<User>> register(@Valid @RequestBody RegisterRequest request) { // @Valid: validate the request body and throw Bad Request if invalid
         try {
-            userServiceManager.createNewUser(request);
+            userServiceManager.userCreate(request);
             return new ResponseEntity<>(new ServiceResponse<>(HttpStatus.CREATED.value(), "Check email box to confirm account registration or you may want to check spam folder"), HttpStatus.CREATED);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
@@ -64,7 +64,7 @@ public class AuthenticationController {
     @GetMapping("/confirm-account")
     public ResponseEntity<ServiceResponse<UserProfileDTO>> confirm(@RequestParam("token") String token) {
         try {
-            UserProfileDTO user = userServiceManager.confirmNewUser(token);
+            UserProfileDTO user = userServiceManager.userConfirm(token);
             return new ResponseEntity<>(new ServiceResponse<>(HttpStatus.OK.value(), "Congratulations! Your account has been confirmed", user), HttpStatus.OK);
         } catch (ResourceNotFoundException e) {
             throw new ResourceNotFoundException(e.getMessage());

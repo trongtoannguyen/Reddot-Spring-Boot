@@ -34,7 +34,7 @@ public class RecoveryController {
     public ResponseEntity<ServiceResponse<String>> sendResetPassword(@Valid @RequestBody EmailRequest request) {
         try {
             // Send email with reset password link
-            userServiceManager.sendPasswordResetEmail(request.getEmail());
+            userServiceManager.pwForgot(request.getEmail());
             return new ResponseEntity<>(new ServiceResponse<>(HttpStatus.OK.value(), " Reset password email sent. Check your email box or spam folder."), HttpStatus.OK);
         } catch (ResourceNotFoundException e) {
             throw new ResourceNotFoundException("Email not registered");
@@ -57,7 +57,7 @@ public class RecoveryController {
     public ResponseEntity<ServiceResponse<String>> confirmPassword(@Valid @RequestBody UpdatePasswordRequest request) {
         try {
             // Confirm password reset
-            userServiceManager.resetPassword(request);
+            userServiceManager.pwReset(request);
             return new ResponseEntity<>(new ServiceResponse<>(HttpStatus.OK.value(), "Password reset successfully"), HttpStatus.OK);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
@@ -74,7 +74,7 @@ public class RecoveryController {
             if (!user.getId().equals(id)) {
                 throw new ResourceNotFoundException("Unable to update email");
             }
-            userServiceManager.updateEmail(user.getId(), request.getEmail());
+            userServiceManager.emailUpdate(user.getId(), request.getEmail());
             ServiceResponse<Void> response = new ServiceResponse<>(HttpStatus.OK.value(), "Check your email or spam to confirm the new email");
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (UsernameNotFoundException | ResourceNotFoundException e) {
@@ -88,7 +88,7 @@ public class RecoveryController {
     @GetMapping("/email/confirm")
     public ResponseEntity<ServiceResponse<Void>> confirmEmail(@RequestParam String token) {
         try {
-            userServiceManager.confirmNewEmail(token);
+            userServiceManager.emailConfirm(token);
             return new ResponseEntity<>(new ServiceResponse<>(HttpStatus.OK.value(), "Email updated successfully"), HttpStatus.OK);
         } catch (ResourceNotFoundException e) {
             throw new ResourceNotFoundException(e.getMessage());
@@ -102,7 +102,7 @@ public class RecoveryController {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String currentPrincipalName = authentication.getName();
             User user = (User) userServiceManager.loadUserByUsername(currentPrincipalName);
-            userServiceManager.resendEmailConfirm(user.getId());
+            userServiceManager.emailConfirmResend(user.getId());
             return new ResponseEntity<>(new ServiceResponse<>(HttpStatus.OK.value(), "Check your email or spam to confirm the new email"), HttpStatus.OK);
         } catch (UsernameNotFoundException | ResourceNotFoundException e) {
             throw new ResourceNotFoundException(e.getMessage());

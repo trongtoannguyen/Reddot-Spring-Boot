@@ -70,7 +70,7 @@ public class UserServiceManagerImp implements UserServiceManager {
      * Every user must be User role when created, EVERYONE IS EQUAL
      */
     @Override
-    public void createNewUser(RegisterRequest request) {
+    public void userCreate(RegisterRequest request) {
         try {
             List<String> errorMessages = validateUser(request);
             if (!errorMessages.isEmpty()) {
@@ -102,7 +102,7 @@ public class UserServiceManagerImp implements UserServiceManager {
     }
 
     @Override
-    public UserProfileDTO confirmNewUser(String token) {
+    public UserProfileDTO userConfirm(String token) {
         try {
             ConfirmationToken confirmationToken = confirmationTokenRepository.findByToken(token).orElseThrow(() -> new ResourceNotFoundException("TOKEN_NOT_FOUND"));
             if (confirmationToken.getConfirmedAt() != null) {
@@ -133,7 +133,12 @@ public class UserServiceManagerImp implements UserServiceManager {
     }
 
     @Override
-    public void updateEmail(Integer userId, String newEmail) throws ResourceNotFoundException {
+    public void userDelete(Integer userId) throws ResourceNotFoundException {
+
+    }
+
+    @Override
+    public void emailUpdate(Integer userId, String newEmail) throws ResourceNotFoundException {
         try {
             User user = getUser(userId);
             if (userExistsByEmail(newEmail)) {
@@ -163,7 +168,7 @@ public class UserServiceManagerImp implements UserServiceManager {
     }
 
     @Override
-    public void confirmNewEmail(@NonNull String token) throws ResourceNotFoundException {
+    public void emailConfirm(@NonNull String token) throws ResourceNotFoundException {
         try {
             ConfirmationToken confirmationToken = confirmationTokenRepository.findByToken(token).orElseThrow(() -> new ResourceNotFoundException("TOKEN_NOT_FOUND"));
             if (confirmationToken.getConfirmedAt() != null) {
@@ -185,7 +190,7 @@ public class UserServiceManagerImp implements UserServiceManager {
     }
 
     @Override
-    public void resendEmailConfirm(Integer userId) throws ResourceNotFoundException {
+    public void emailConfirmResend(Integer userId) throws ResourceNotFoundException {
         try {
             User user = getUser(userId);
             if (user.isEmailVerified()) {
@@ -209,7 +214,7 @@ public class UserServiceManagerImp implements UserServiceManager {
     }
 
     @Override
-    public void sendPasswordResetEmail(String email) throws ResourceNotFoundException {
+    public void pwForgot(String email) throws ResourceNotFoundException {
         try {
             if (!userExistsByEmail(email)) {
                 throw new ResourceNotFoundException("EMAIL_NOT_FOUND");
@@ -234,7 +239,7 @@ public class UserServiceManagerImp implements UserServiceManager {
     }
 
     @Override
-    public void resetPassword(UpdatePasswordRequest request) {
+    public void pwReset(UpdatePasswordRequest request) {
         try {
             RecoveryToken recoveryToken = recoveryTokenRepository.findByToken(request.getToken()).orElseThrow(() -> new ResourceNotFoundException("TOKEN_NOT_FOUND"));
             if (!Validator.isPasswordValid(request.getPassword())) {
@@ -266,7 +271,7 @@ public class UserServiceManagerImp implements UserServiceManager {
     }
 
     @Override
-    public UserProfileDTO getUserProfile(Integer userId) {
+    public UserProfileDTO profileGetBy(Integer userId) {
         try {
             User user = getUser(userId);
             return getUserProfileDTO(user);
@@ -276,7 +281,7 @@ public class UserServiceManagerImp implements UserServiceManager {
     }
 
     @Override
-    public UserProfileDTO getUserProfile(String username) {
+    public UserProfileDTO profileGetBy(String username) {
         try {
             User user = getUserByUsername(username);
             return getUserProfileDTO(user);
@@ -286,7 +291,7 @@ public class UserServiceManagerImp implements UserServiceManager {
     }
 
     @Override
-    public UserProfileDTO updateProfile(Integer userId, @Valid ProfileUpdateRequest updateRequest) {
+    public UserProfileDTO profileUpdate(Integer userId, @Valid ProfileUpdateRequest updateRequest) {
         try {
             User user = getUser(userId);
             Person person = personRepository.findByUserId(user.getId()).orElse(new Person(user.getUsername()));
