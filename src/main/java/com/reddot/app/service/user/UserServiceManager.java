@@ -8,7 +8,9 @@ import com.reddot.app.exception.ResourceNotFoundException;
 import jakarta.validation.Valid;
 import lombok.NonNull;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.stereotype.Component;
 
+@Component
 public interface UserServiceManager extends UserDetailsService {
 
     void createNewUser(RegisterRequest request);

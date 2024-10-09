@@ -66,12 +66,12 @@ public class UserServiceManagerImp implements UserServiceManager {
     // Helper method
     // protected UserDetails createUserDetails(User userFromDb, List<GrantedAuthority> combinedAuthorities)
 
+    /**
+     * Every user must be User role when created, EVERYONE IS EQUAL
+     */
     @Override
     public void createNewUser(RegisterRequest request) {
         try {
-            if (userExistsByUsername(request.getUsername())) {
-                throw new Exception("USER_ALREADY_EXISTS");
-            }
             List<String> errorMessages = validateUser(request);
             if (!errorMessages.isEmpty()) {
                 log.error(String.valueOf(errorMessages));
@@ -80,8 +80,9 @@ public class UserServiceManagerImp implements UserServiceManager {
             User user = new User(request.getUsername(), request.getEmail(),
                     encoder.encode(request.getPassword())
             );
-            Set<Role> roles = getRolesByString(request.getRoles());
-            user.setRoles(roles);
+
+            Role role = findRoleByName(ROLENAME.ROLE_USER);
+            user.addRole(role);
             userRepository.save(user);
 
             // Send confirmation email

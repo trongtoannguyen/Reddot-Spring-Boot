@@ -7,8 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
 
-import java.util.Set;
-
 @Data
 @AllArgsConstructor
 public class RegisterRequest {
@@ -29,6 +27,4 @@ public class RegisterRequest {
             message = "Password must contain minimum 8 characters, at least one uppercase letter," +
                     "one lowercase letter, one number and one special character")
     private String password;
-
-    private Set<String> roles;
 }
