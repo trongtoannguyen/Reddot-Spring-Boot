@@ -59,7 +59,7 @@ public class RecoveryController {
             if (!user.getId().equals(id)) {
                 throw new ResourceNotFoundException("Unable to update email");
             }
-            userServiceManager.updateEmail(user.getId(), request.getNewEmail());
+            userServiceManager.updateEmail(user.getId(), request.getEmail());
             ServiceResponse<Void> response = new ServiceResponse<>(HttpStatus.OK.value(), "Check your email or spam to confirm the new email");
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (UsernameNotFoundException | ResourceNotFoundException e) {

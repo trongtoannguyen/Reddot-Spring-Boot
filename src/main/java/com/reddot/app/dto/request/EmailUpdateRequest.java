@@ -15,5 +15,5 @@ public class EmailUpdateRequest {
     @Size(min = 3, max = 50)
     @Pattern(regexp = "^[a-zA-Z0-9.]+@[a-zA-Z0-9.]+.[a-zA-Z]{2,10}$",
             message = "Invalid email format")
-    private String newEmail;
+    private String email;
 }
