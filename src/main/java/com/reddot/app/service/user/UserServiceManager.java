@@ -21,7 +21,7 @@ public interface UserServiceManager extends UserDetailsService {
 
     UserProfileDTO updateProfile(Integer userId, @Valid ProfileUpdateRequest request);
 
-    void sendPasswordResetEmail(String email);
+    void sendPasswordResetEmail(String email) throws ResourceNotFoundException;
 
     void resetPassword(UpdatePasswordRequest request);
 

@@ -1,13 +1,12 @@
 package com.reddot.app.controller;
 
-import com.reddot.app.dto.request.EmailUpdateRequest;
+import com.reddot.app.dto.request.EmailRequest;
 import com.reddot.app.dto.request.UpdatePasswordRequest;
 import com.reddot.app.dto.response.ServiceResponse;
 import com.reddot.app.entity.User;
 import com.reddot.app.exception.ResourceNotFoundException;
 import com.reddot.app.service.user.UserServiceManager;
 import jakarta.validation.Valid;
-import lombok.NonNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -25,19 +24,35 @@ public class RecoveryController {
         this.userServiceManager = userServiceManager;
     }
 
-    // POST request to send reset password request to email
+    /**
+     * Do not require authentication
+     * Function describe: When user click on forgot password, prompt to enter target email.
+     * App send reset password email with code (recovery token).
+     * User click on the link in email and enter new password.
+     */
     @PostMapping("/reset-password")
-    public ResponseEntity<ServiceResponse<String>> sendResetPassword(@RequestParam @NonNull String email) {
+    public ResponseEntity<ServiceResponse<String>> sendResetPassword(@Valid @RequestBody EmailRequest request) {
         try {
             // Send email with reset password link
-            userServiceManager.sendPasswordResetEmail(email);
+            userServiceManager.sendPasswordResetEmail(request.getEmail());
             return new ResponseEntity<>(new ServiceResponse<>(HttpStatus.OK.value(), " Reset password email sent. Check your email box or spam folder."), HttpStatus.OK);
+        } catch (ResourceNotFoundException e) {
+            throw new ResourceNotFoundException("Email not registered");
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
     }
 
-    // POST request to reset password with token param
+    /*
+      GET request method is not supported by Server
+      instead this should be implemented by Client side
+     */
+
+    /**
+     * Do not require authentication
+     * Function describe: User post new password with code (recovery token) to reset password.
+     * App then check if the token is valid and update the password.
+     */
     @PostMapping("/reset-password/confirm")
     public ResponseEntity<ServiceResponse<String>> confirmPassword(@Valid @RequestBody UpdatePasswordRequest request) {
         try {
@@ -51,7 +66,7 @@ public class RecoveryController {
 
     // Email Update by user id
     @PutMapping("/email/edit/{id}")
-    public ResponseEntity<ServiceResponse<Void>> updateEmail(@PathVariable Integer id, @Valid @RequestBody EmailUpdateRequest request) {
+    public ResponseEntity<ServiceResponse<Void>> updateEmail(@PathVariable Integer id, @Valid @RequestBody EmailRequest request) {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String currentPrincipalName = authentication.getName();
@@ -64,7 +79,7 @@ public class RecoveryController {
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (UsernameNotFoundException | ResourceNotFoundException e) {
             throw new ResourceNotFoundException(e.getMessage());
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
     }

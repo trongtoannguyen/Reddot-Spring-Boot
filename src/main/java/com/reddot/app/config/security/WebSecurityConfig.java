@@ -39,9 +39,9 @@ public class WebSecurityConfig {
                 // Set permissions for different endpoints
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints
-                        .requestMatchers("/hello", "/auth/**", "/reset-password/**").permitAll()
+                        .requestMatchers("/hello", "/auth/**").permitAll()
                         .requestMatchers("/users", "/users/{id}").permitAll()
-                        .requestMatchers("/settings/reset-password/confirm", "/settings/email/confirm").permitAll()
+                        .requestMatchers("/settings/reset-password/**", "/settings/email/confirm").permitAll()
 
                         // Private endpoints
                         .requestMatchers("/api/private/**").hasRole("ADMIN")

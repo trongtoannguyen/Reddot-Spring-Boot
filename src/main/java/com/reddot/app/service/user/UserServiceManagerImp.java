@@ -208,24 +208,23 @@ public class UserServiceManagerImp implements UserServiceManager {
     }
 
     @Override
-    public void sendPasswordResetEmail(String email) {
+    public void sendPasswordResetEmail(String email) throws ResourceNotFoundException {
         try {
-            if (userExistsByEmail(email)) {
-                User user = getUser(email);
-
-                // send password reset email
-                RecoveryToken recoveryToken = new RecoveryToken(user.getId());
-
-                // send password reset email
-                String subject = "Reddot password reset";
-                String body = "Hi there,\n\n" +
-                        "To reset your password, click the link below:\n"
-                        + fullUrl + "/settings/reset-password?token=" + recoveryToken.getToken();
-                mailSenderManager.sendEmail(email, subject, body);
-
-                // save recovery token
-                recoveryTokenRepository.save(recoveryToken);
+            if (!userExistsByEmail(email)) {
+                throw new ResourceNotFoundException("EMAIL_NOT_FOUND");
             }
+            User user = getUser(email);
+
+            // send password reset email
+            RecoveryToken recoveryToken = new RecoveryToken(user.getId());
+            String subject = "Reddot password reset";
+            String body = "Hi there,\n\n" +
+                    "To reset your password, click the link below:\n"
+                    + fullUrl + "/settings/reset-password?token=" + recoveryToken.getToken();
+            mailSenderManager.sendEmail(email, subject, body);
+
+            // save recovery token
+            recoveryTokenRepository.save(recoveryToken);
         } catch (ResourceNotFoundException e) {
             throw new ResourceNotFoundException(e.getMessage());
         } catch (Exception e) {
