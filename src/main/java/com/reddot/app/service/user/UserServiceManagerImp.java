@@ -26,25 +26,21 @@ import java.util.*;
 @Log4j2
 @Service
 public class UserServiceManagerImp implements UserServiceManager {
-
-    private final MailSenderManager mailSenderManager;
-
-    private final UserRepository userRepository;
-
-    private final RoleRepository roleRepository;
-
     private final PasswordEncoder encoder;
-
+    private final MailSenderManager mailSenderManager;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final PersonRepository personRepository;
+    private final userDeleteRepository userDeleteRepository;
     private final RecoveryTokenRepository recoveryTokenRepository;
     private final ConfirmationTokenRepository confirmationTokenRepository;
 
     private final String fullUrl;
-    private final PersonRepository personRepository;
 
     public UserServiceManagerImp(@Value("${server.address}") String appDomain,
                                  @Value("${server.port}") String appPort,
                                  @Value("${server.servlet.context-path}") String appPath,
-                                 MailSenderManager sender, UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder encoder, RecoveryTokenRepository recoveryTokenRepository, ConfirmationTokenRepository confirmationTokenRepository, PersonRepository personRepository) {
+                                 MailSenderManager sender, UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder encoder, RecoveryTokenRepository recoveryTokenRepository, ConfirmationTokenRepository confirmationTokenRepository, PersonRepository personRepository, userDeleteRepository userDeleteRepository) {
         this.mailSenderManager = sender;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
@@ -53,6 +49,7 @@ public class UserServiceManagerImp implements UserServiceManager {
         this.confirmationTokenRepository = confirmationTokenRepository;
         this.fullUrl = "http://" + appDomain + ":" + appPort + appPath;
         this.personRepository = personRepository;
+        this.userDeleteRepository = userDeleteRepository;
     }
 
 
@@ -132,9 +129,26 @@ public class UserServiceManagerImp implements UserServiceManager {
         }
     }
 
+    // TODO: update to version 2.0 (Task Scheduler)
     @Override
     public void userDelete(Integer userId) throws ResourceNotFoundException {
+        try {
+            User user = getUser(userId);
+            user.setEnabled(false);
+            userRepository.save(user);
 
+            // send warning mail
+            String subject = "Reddot account deletion";
+            String body = """
+                    Hi there,
+                    
+                    Your account has been marked for deletion. If you did not request this, please contact us immediately.""";
+            mailSenderManager.sendEmail(user.getEmail(), subject, body);
+        } catch (ResourceNotFoundException e) {
+            throw new ResourceNotFoundException(e.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

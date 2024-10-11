@@ -64,4 +64,20 @@ public class UserManagementController {
             throw new ResourceNotFoundException(e.getMessage());
         }
     }
+
+    @PostMapping("/delete")
+    public ResponseEntity<ServiceResponse<Void>> userDelete(@RequestParam Integer id) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String currentPrincipalName = authentication.getName();
+            User user = (User) userServiceManager.loadUserByUsername(currentPrincipalName);
+            if (!user.getId().equals(id)) {
+                throw new BadRequestException("Unable to delete account");
+            }
+            userServiceManager.userDelete(user.getId());
+            return new ResponseEntity<>(new ServiceResponse<>(HttpStatus.OK.value(), "Account deleted successfully"), HttpStatus.OK);
+        } catch (UsernameNotFoundException | ResourceNotFoundException e) {
+            throw new ResourceNotFoundException(e.getMessage());
+        }
+    }
 }
