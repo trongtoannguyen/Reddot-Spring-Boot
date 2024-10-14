@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -45,9 +46,12 @@ public class AuthenticationController {
             context.setAuthentication(authentication);
             SecurityContextHolder.setContext(context);
             final User user = (User) userServiceManager.loadUserByUsername(request.getUsername());
+            userServiceManager.userOnLoginUpdate(request.getUsername());
             return jwtUtil.generateToken(user);
+        } catch (DisabledException e) {
+            throw new ResourceNotFoundException("Account is not confirmed, please check your email to confirm account registration");
         } catch (Exception e) {
-            throw new ResourceNotFoundException(e.getMessage());
+            throw new RuntimeException(e.getMessage());
         }
     }
 
