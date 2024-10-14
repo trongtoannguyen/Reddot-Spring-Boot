@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -25,13 +26,13 @@ public class AuthenticationController {
 
     private final JwtUtil jwtUtil;
 
-    private final UserServiceManager manager;
+    private final UserServiceManager userServiceManager;
 
     private final AuthenticationManager authenticationManager;
 
-    public AuthenticationController(JwtUtil jwtUtil, UserServiceManager manager, AuthenticationManager authenticationManager) {
+    public AuthenticationController(JwtUtil jwtUtil, UserServiceManager userServiceManager, AuthenticationManager authenticationManager) {
         this.jwtUtil = jwtUtil;
-        this.manager = manager;
+        this.userServiceManager = userServiceManager;
         this.authenticationManager = authenticationManager;
     }
 
@@ -44,17 +45,20 @@ public class AuthenticationController {
             SecurityContext context = SecurityContextHolder.createEmptyContext();
             context.setAuthentication(authentication);
             SecurityContextHolder.setContext(context);
-            final User user = (User) manager.loadUserByUsername(request.getUsername());
+            final User user = (User) userServiceManager.loadUserByUsername(request.getUsername());
+            userServiceManager.userOnLoginUpdate(request.getUsername());
             return jwtUtil.generateToken(user);
+        } catch (DisabledException e) {
+            throw new ResourceNotFoundException("Account is not confirmed, please check your email to confirm account registration");
         } catch (Exception e) {
-            throw new ResourceNotFoundException(e.getMessage());
+            throw new RuntimeException(e.getMessage());
         }
     }
 
     @PostMapping("/register")
     public ResponseEntity<ServiceResponse<User>> register(@Valid @RequestBody RegisterRequest request) { // @Valid: validate the request body and throw Bad Request if invalid
         try {
-            manager.createNewUser(request);
+            userServiceManager.userCreate(request);
             return new ResponseEntity<>(new ServiceResponse<>(HttpStatus.CREATED.value(), "Check email box to confirm account registration or you may want to check spam folder"), HttpStatus.CREATED);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
@@ -64,7 +68,7 @@ public class AuthenticationController {
     @GetMapping("/confirm-account")
     public ResponseEntity<ServiceResponse<UserProfileDTO>> confirm(@RequestParam("token") String token) {
         try {
-            UserProfileDTO user = manager.confirmNewUser(token);
+            UserProfileDTO user = userServiceManager.userConfirm(token);
             return new ResponseEntity<>(new ServiceResponse<>(HttpStatus.OK.value(), "Congratulations! Your account has been confirmed", user), HttpStatus.OK);
         } catch (ResourceNotFoundException e) {
             throw new ResourceNotFoundException(e.getMessage());
