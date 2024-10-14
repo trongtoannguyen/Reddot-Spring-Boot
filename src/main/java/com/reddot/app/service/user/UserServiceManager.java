@@ -17,7 +17,9 @@ public interface UserServiceManager extends UserDetailsService {
 
     UserProfileDTO userConfirm(String token);
 
-    void userDelete(Integer userId) throws ResourceNotFoundException;
+    void userDeleteRequest(Integer userId) throws ResourceNotFoundException;
+
+    void userOnLoginUpdate(@NonNull String username);
 
     UserProfileDTO profileGetBy(Integer userId);
 

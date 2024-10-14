@@ -1,5 +1,6 @@
 package com.reddot.app.config.security.jwt;
 
+import com.reddot.app.service.user.UserServiceManager;
 import com.reddot.app.util.JwtUtil;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
@@ -11,7 +12,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -23,11 +23,11 @@ import java.io.IOException;
 public class JwtTokenFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-    private final UserDetailsService userDetailsService;
+    private final UserServiceManager userServiceManager;
 
-    public JwtTokenFilter(JwtUtil jwtUtil, @Lazy UserDetailsService userDetailsService) {// @Qualifier("userDetailsService"): if there are multiple implementations of UserDetailsService, this annotation is used to specify which one to use.
+    public JwtTokenFilter(JwtUtil jwtUtil, @Lazy UserServiceManager userServiceManager) {
         this.jwtUtil = jwtUtil;
-        this.userDetailsService = userDetailsService;
+        this.userServiceManager = userServiceManager;
     }
 
     @Override
@@ -46,7 +46,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+            UserDetails userDetails = this.userServiceManager.loadUserByUsername(username);
 
             if (jwtUtil.validateToken(jws, userDetails)) {
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());

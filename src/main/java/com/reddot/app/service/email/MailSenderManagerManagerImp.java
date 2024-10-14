@@ -10,6 +10,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Service;
 
+import java.util.Set;
+
 @Setter
 @Service
 public class MailSenderManagerManagerImp implements MailSenderManager {
@@ -21,26 +23,6 @@ public class MailSenderManagerManagerImp implements MailSenderManager {
     }
 
     @Override
-    public void send(SimpleMailMessage simpleMailMessage) throws MailSendException {
-        try {
-            mailSender.send(simpleMailMessage);
-        } catch (MailException e) {
-            throw new MailSendException("Failed to send email", e);
-        }
-    }
-
-    @Override
-    public void send(MimeMessagePreparator preparator) {
-        try {
-            mailSender.send(preparator);
-        } catch (MailException e) {
-            throw new MailSendException("Failed to send email", e);
-        }
-    }
-
-    // Helper method to send email
-    @Override
-
     public void sendEmail(String to, String subject, String body) {
         MimeMessagePreparator preparator = mimeMessage -> {
             mimeMessage.setRecipient(Message.RecipientType.TO, new InternetAddress(to));
@@ -49,11 +31,35 @@ public class MailSenderManagerManagerImp implements MailSenderManager {
             mimeMessage.setText(body);
         };
 
-        try {
-            this.send(preparator);
-        } catch (MailException e) {
-            throw new RuntimeException(e);
+        this.send(preparator);
+    }
+
+    @Override
+    public void sendEmails(Set<String> emails, String subject, String body) {
+        SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
+        simpleMailMessage.setFrom("Reddot");
+        simpleMailMessage.setSubject(subject);
+        simpleMailMessage.setText(body);
+
+        for (String email : emails) {
+            simpleMailMessage.setTo(email);
+            this.send(simpleMailMessage);
         }
     }
 
+    private void send(SimpleMailMessage simpleMailMessage) throws MailSendException {
+        try {
+            mailSender.send(simpleMailMessage);
+        } catch (MailException e) {
+            throw new MailSendException("Failed to send email", e);
+        }
+    }
+
+    private void send(MimeMessagePreparator preparator) {
+        try {
+            mailSender.send(preparator);
+        } catch (MailException e) {
+            throw new MailSendException("Failed to send email", e);
+        }
+    }
 }

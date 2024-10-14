@@ -18,6 +18,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import java.time.LocalDateTime;
@@ -31,17 +32,20 @@ public class UserServiceManagerImp implements UserServiceManager {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PersonRepository personRepository;
-    private final userDeleteRepository userDeleteRepository;
     private final RecoveryTokenRepository recoveryTokenRepository;
     private final ConfirmationTokenRepository confirmationTokenRepository;
+    private final userDeleteRepository userDeleteRepository;
 
     private final String fullUrl;
 
     public UserServiceManagerImp(@Value("${server.address}") String appDomain,
                                  @Value("${server.port}") String appPort,
                                  @Value("${server.servlet.context-path}") String appPath,
-                                 MailSenderManager sender, UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder encoder, RecoveryTokenRepository recoveryTokenRepository, ConfirmationTokenRepository confirmationTokenRepository, PersonRepository personRepository, userDeleteRepository userDeleteRepository) {
-        this.mailSenderManager = sender;
+                                 MailSenderManager mailSenderManager, UserRepository userRepository, RoleRepository roleRepository,
+                                 PasswordEncoder encoder, RecoveryTokenRepository recoveryTokenRepository,
+                                 ConfirmationTokenRepository confirmationTokenRepository, PersonRepository personRepository,
+                                 userDeleteRepository userDeleteRepository) {
+        this.mailSenderManager = mailSenderManager;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.encoder = encoder;
@@ -78,7 +82,8 @@ public class UserServiceManagerImp implements UserServiceManager {
                     encoder.encode(request.getPassword())
             );
 
-            Role role = findRoleByName(ROLENAME.ROLE_USER);
+            ROLENAME roleUser = ROLENAME.ROLE_USER;
+            Role role = findRoleByName(roleUser);
             user.addRole(role);
             userRepository.save(user);
 
@@ -129,13 +134,15 @@ public class UserServiceManagerImp implements UserServiceManager {
         }
     }
 
-    // TODO: update to version 2.0 (Task Scheduler)
     @Override
-    public void userDelete(Integer userId) throws ResourceNotFoundException {
+    public void userDeleteRequest(Integer userId) throws ResourceNotFoundException {
         try {
+            if (userDeleteRepository.existsByUserId(userId)) {
+                throw new Exception("USER ALREADY IN DELETE QUEUE");
+            }
             User user = getUser(userId);
-            user.setEnabled(false);
-            userRepository.save(user);
+            UserOnDelete userOnDelete = new UserOnDelete(userId);
+            userDeleteRepository.save(userOnDelete);
 
             // send warning mail
             String subject = "Reddot account deletion";
@@ -144,6 +151,25 @@ public class UserServiceManagerImp implements UserServiceManager {
                     
                     Your account has been marked for deletion. If you did not request this, please contact us immediately.""";
             mailSenderManager.sendEmail(user.getEmail(), subject, body);
+        } catch (ResourceNotFoundException e) {
+            throw new ResourceNotFoundException(e.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Transactional
+    @Override
+    public void userOnLoginUpdate(@NonNull String username) {
+        try {
+            User user = getUserByUsername(username);
+            user.setLastAccess(LocalDateTime.now());
+            userRepository.save(user);
+
+            // remove delete request queue if exists
+            if (userDeleteRepository.existsByUserId(user.getId())) {
+                userDeleteRepository.removeByUserId(user.getId());
+            }
         } catch (ResourceNotFoundException e) {
             throw new ResourceNotFoundException(e.getMessage());
         } catch (Exception e) {
@@ -341,11 +367,6 @@ public class UserServiceManagerImp implements UserServiceManager {
         return dto;
     }
 
-    private boolean userExistsByUsername(String username) {
-        Assert.notNull(username, "Username is null");
-        return userRepository.findByUsername(username).isPresent();
-    }
-
     private boolean userExistsByEmail(String email) {
         Assert.notNull(email, "Email is null");
         return userRepository.findByEmail(email).isPresent();
@@ -363,36 +384,9 @@ public class UserServiceManagerImp implements UserServiceManager {
         return userRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND"));
     }
 
-    private Set<Role> getRolesByString(Set<String> strRoles) {
-        Set<Role> roles = new HashSet<>();
-        try {
-            if (strRoles == null || strRoles.isEmpty()) {
-                roles.add(findRoleByName(ROLENAME.ROLE_USER));
-            } else {
-                strRoles.forEach(role -> {
-                    switch (role) {
-                        case "ROLE_ADMIN":
-                            roles.add(findRoleByName(ROLENAME.ROLE_ADMIN));
-                            break;
-                        case "ROLE_MODERATOR":
-                            roles.add(findRoleByName(ROLENAME.ROLE_MODERATOR));
-                            break;
-                        default:
-                            roles.add(findRoleByName(ROLENAME.ROLE_USER));
-                            break;
-                    }
-                });
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        return roles;
-    }
-
     private Role findRoleByName(ROLENAME roleName) {
         return roleRepository.findByName(roleName).orElse(null);
     }
-
 
     private List<String> validateUser(RegisterRequest user) {
         List<String> messages = new ArrayList<>();

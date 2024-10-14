@@ -74,10 +74,12 @@ public class UserManagementController {
             if (!user.getId().equals(id)) {
                 throw new BadRequestException("Unable to delete account");
             }
-            userServiceManager.userDelete(user.getId());
-            return new ResponseEntity<>(new ServiceResponse<>(HttpStatus.OK.value(), "Account deleted successfully"), HttpStatus.OK);
+            userServiceManager.userDeleteRequest(user.getId());
+            return new ResponseEntity<>(new ServiceResponse<>(HttpStatus.OK.value(), "Account is in delete queue now, you have 15 days to cancel the request"), HttpStatus.OK);
         } catch (UsernameNotFoundException | ResourceNotFoundException e) {
             throw new ResourceNotFoundException(e.getMessage());
+        } catch (Exception e) {
+            throw new BadRequestException(e.getMessage());
         }
     }
 }
