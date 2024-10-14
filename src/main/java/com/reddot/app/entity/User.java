@@ -126,19 +126,11 @@ public class User extends BaseEntity implements UserDetails {
         this.password = password;
     }
 
-    public User(@NonNull String username, @NonNull String email, @NonNull String password, Collection<? extends Role> roles) {
-        this.username = username;
-        this.email = email;
-        this.password = password;
-        this.roles = new HashSet<>(roles);
-    }
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream().map(role -> new SimpleGrantedAuthority(role.getName().toString())).collect(Collectors.toList());
     }
 
-    // Utility methods
     public void setPerson(Person person) {
         this.person = person;
         person.setUser(this);
@@ -149,6 +141,14 @@ public class User extends BaseEntity implements UserDetails {
             person.setUser(null);
             this.person = null;
         }
+    }
+
+    public void addRole(Role role) {
+        this.roles.add(role);
+    }
+
+    public void removeRole(Role role) {
+        this.roles.remove(role);
     }
 
     public void addNotification(Notification notification) {

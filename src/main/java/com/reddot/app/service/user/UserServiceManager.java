@@ -8,26 +8,32 @@ import com.reddot.app.exception.ResourceNotFoundException;
 import jakarta.validation.Valid;
 import lombok.NonNull;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.stereotype.Component;
 
+@Component
 public interface UserServiceManager extends UserDetailsService {
 
-    void createNewUser(RegisterRequest request);
+    void userCreate(RegisterRequest request);
 
-    UserProfileDTO confirmNewUser(String token);
+    UserProfileDTO userConfirm(String token);
 
-    UserProfileDTO getUserProfile(Integer userId);
+    void userDeleteRequest(Integer userId) throws ResourceNotFoundException;
 
-    UserProfileDTO getUserProfile(String username);
+    void userOnLoginUpdate(@NonNull String username);
 
-    UserProfileDTO updateProfile(Integer userId, @Valid ProfileUpdateRequest request);
+    UserProfileDTO profileGetBy(Integer userId);
 
-    void sendPasswordResetEmail(String email);
+    UserProfileDTO profileGetBy(String username);
 
-    void resetPassword(UpdatePasswordRequest request);
+    UserProfileDTO profileUpdate(Integer userId, @Valid ProfileUpdateRequest request);
 
-    void updateEmail(Integer userId, String newEmail) throws ResourceNotFoundException;
+    void pwForgot(String email) throws ResourceNotFoundException;
 
-    void confirmNewEmail(@NonNull String token) throws ResourceNotFoundException;
+    void pwReset(UpdatePasswordRequest request);
 
-    void resendEmailConfirm(Integer userId) throws ResourceNotFoundException;
+    void emailUpdate(Integer userId, String newEmail) throws ResourceNotFoundException;
+
+    void emailConfirm(@NonNull String token) throws ResourceNotFoundException;
+
+    void emailConfirmResend(Integer userId) throws ResourceNotFoundException;
 }
