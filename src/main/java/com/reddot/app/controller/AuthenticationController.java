@@ -56,10 +56,10 @@ public class AuthenticationController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ServiceResponse<User>> register(@Valid @RequestBody RegisterRequest request) { // @Valid: validate the request body and throw Bad Request if invalid
+    public ResponseEntity<ServiceResponse<RegisterRequest>> register(@Valid @RequestBody RegisterRequest request) { // @Valid: validate the request body and throw Bad Request if invalid
         try {
             userServiceManager.userCreate(request);
-            return new ResponseEntity<>(new ServiceResponse<>(HttpStatus.CREATED.value(), "Check email box to confirm account registration or you may want to check spam folder"), HttpStatus.CREATED);
+            return new ResponseEntity<>(new ServiceResponse<>(HttpStatus.CREATED.value(), "Check email box to confirm account registration or you may want to check spam folder", request), HttpStatus.CREATED);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
