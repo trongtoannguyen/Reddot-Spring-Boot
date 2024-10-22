@@ -19,7 +19,7 @@ public interface UserServiceManager extends UserDetailsService {
 
     void userDeleteRequest(Integer userId) throws ResourceNotFoundException;
 
-    void userOnLoginUpdate(@NonNull String username);
+    void userOnLoginUpdate(@NonNull String email);
 
     UserProfileDTO profileGetBy(Integer userId);
 

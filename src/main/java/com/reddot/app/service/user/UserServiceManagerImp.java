@@ -60,8 +60,8 @@ public class UserServiceManagerImp implements UserServiceManager {
 
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        return userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found with mail address: " + email));
     }
 
     // TODO: comment out these methods to implement User entity instead of UserDetails
@@ -162,9 +162,9 @@ public class UserServiceManagerImp implements UserServiceManager {
 
     @Transactional
     @Override
-    public void userOnLoginUpdate(@NonNull String username) {
+    public void userOnLoginUpdate(@NonNull String email) {
         try {
-            User user = getUserByUsername(username);
+            User user = getUserByEmail(email);
             user.setLastAccess(LocalDateTime.now());
             userRepository.save(user);
 
@@ -384,6 +384,10 @@ public class UserServiceManagerImp implements UserServiceManager {
 
     private User getUserByUsername(String username) {
         return userRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND"));
+    }
+
+    private User getUserByEmail(String email) {
+        return userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND"));
     }
 
     private Role findRoleByName(ROLENAME roleName) {

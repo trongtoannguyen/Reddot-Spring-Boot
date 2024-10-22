@@ -39,14 +39,14 @@ public class AuthenticationController {
     @PostMapping("/login")
     public String createAuthenticationToken(@Valid @RequestBody LoginRequest request) {
         try {
-            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 
             // Authenticate user by creating new empty context and to avoid race conditions across multiple threads.
             SecurityContext context = SecurityContextHolder.createEmptyContext();
             context.setAuthentication(authentication);
             SecurityContextHolder.setContext(context);
-            final User user = (User) userServiceManager.loadUserByUsername(request.getUsername());
-            userServiceManager.userOnLoginUpdate(request.getUsername());
+            final User user = (User) userServiceManager.loadUserByUsername(request.getEmail());
+            userServiceManager.userOnLoginUpdate(request.getEmail());
             return jwtUtil.generateToken(user);
         } catch (DisabledException e) {
             throw new ResourceNotFoundException("Account is not confirmed, please check your email to confirm account registration");
