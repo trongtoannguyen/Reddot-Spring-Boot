@@ -1,10 +1,12 @@
 package com.reddot.app.testing.dataseed;
 
 import com.github.javafaker.Faker;
+import com.reddot.app.dto.request.RegisterRequest;
 import com.reddot.app.entity.*;
 import com.reddot.app.entity.enumeration.ROLENAME;
 import com.reddot.app.entity.enumeration.VOTETYPE;
 import com.reddot.app.repository.*;
+import com.reddot.app.service.user.UserServiceManager;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,8 +30,9 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final VoteRepository voteRepository;
     private final CommentRepository commentRepository;
     private final BookmarkRepository bookmarkRepository;
+    private final UserServiceManager userServiceManager;
 
-    public DatabaseSeeder(PasswordEncoder encoder, UserRepository userRepository, RoleRepository roleRepository, BadgeRepository badgeRepository, TagRepository tagRepository, VoteTypeRepository voteTypeRepository, QuestionRepository questionRepository, VoteRepository voteRepository, CommentRepository commentRepository, BookmarkRepository bookmarkRepository) {
+    public DatabaseSeeder(PasswordEncoder encoder, UserRepository userRepository, RoleRepository roleRepository, BadgeRepository badgeRepository, TagRepository tagRepository, VoteTypeRepository voteTypeRepository, QuestionRepository questionRepository, VoteRepository voteRepository, CommentRepository commentRepository, BookmarkRepository bookmarkRepository, UserServiceManager userServiceManager) {
         this.encoder = encoder;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
@@ -40,6 +43,7 @@ public class DatabaseSeeder implements CommandLineRunner {
         this.voteRepository = voteRepository;
         this.commentRepository = commentRepository;
         this.bookmarkRepository = bookmarkRepository;
+        this.userServiceManager = userServiceManager;
     }
 
 
@@ -89,6 +93,11 @@ public class DatabaseSeeder implements CommandLineRunner {
      * Seed the user and related data to the database
      */
     private void seedUser() {
+        // seed user from the service
+        userServiceManager.userCreate(new RegisterRequest("dev", "toannguyen.fordev@gmail.com", "Dev1234@"));
+        log.info("TEST CREDENTIALS: dev - Dev1234@");
+
+        // seed user from the repository
         log.info("");
         log.info("########## SEEDING USER ##########");
         log.info("<<<<<<< GETTING USER ROLEs");
