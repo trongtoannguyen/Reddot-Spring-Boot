@@ -93,13 +93,12 @@ public class DatabaseSeeder implements CommandLineRunner {
      * Seed the user and related data to the database
      */
     private void seedUser() {
+        log.info("");
+        log.info("########## SEEDING USER ##########");
         // seed user from the service
         userServiceManager.userCreate(new RegisterRequest("dev", "toannguyen.fordev@gmail.com", "Dev1234@"));
         log.info("TEST CREDENTIALS: dev - Dev1234@");
 
-        // seed user from the repository
-        log.info("");
-        log.info("########## SEEDING USER ##########");
         log.info("<<<<<<< GETTING USER ROLEs");
         Role userRole = roleRepository.findByName(ROLENAME.ROLE_USER)
                 .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
@@ -110,6 +109,7 @@ public class DatabaseSeeder implements CommandLineRunner {
         Badge badge = badgeRepository.findByName("Newbie")
                 .orElseThrow(() -> new RuntimeException("Error: Badge is not found."));
 
+        // seed user from the repository
         log.info(">>>>>>> INITIALIZING USER DATA");
         Faker faker = new Faker();
         String username = "test user";
