@@ -60,6 +60,7 @@ public class AuthenticationController {
         try {
             userServiceManager.userCreate(request);
             return new ResponseEntity<>(new ServiceResponse<>(HttpStatus.CREATED.value(), "Check email box to confirm account registration or you may want to check spam folder", request), HttpStatus.CREATED);
+
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
