@@ -361,7 +361,7 @@ public class UserServiceManagerImp implements UserServiceManager {
             user.setPerson(person);
             userRepository.save(user);
         }
-
+      
         return UserAssembler.toUserProfileDTO(user, person);
     }
 
@@ -385,7 +385,7 @@ public class UserServiceManagerImp implements UserServiceManager {
     private User getUserByEmail(String email) {
         return userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND"));
     }
-
+  
     private Role findRoleByName(ROLENAME roleName) {
         return roleRepository.findByName(roleName).orElse(null);
     }
