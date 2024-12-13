@@ -1,5 +1,6 @@
 package com.reddot.app.service.user;
 
+import com.reddot.app.assembler.UserAssembler;
 import com.reddot.app.dto.UserProfileDTO;
 import com.reddot.app.dto.request.ProfileUpdateRequest;
 import com.reddot.app.dto.request.RegisterRequest;
@@ -60,8 +61,8 @@ public class UserServiceManagerImp implements UserServiceManager {
 
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        return userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found with mail address: " + email));
     }
 
     // TODO: comment out these methods to implement User entity instead of UserDetails
@@ -106,7 +107,7 @@ public class UserServiceManagerImp implements UserServiceManager {
     }
 
     @Override
-    public UserProfileDTO userConfirm(String token) {
+    public User userConfirm(String token) {
         try {
             ConfirmationToken confirmationToken = confirmationTokenRepository.findByToken(token).orElseThrow(() -> new ResourceNotFoundException("TOKEN_NOT_FOUND"));
             if (confirmationToken.getConfirmedAt() != null) {
@@ -125,10 +126,7 @@ public class UserServiceManagerImp implements UserServiceManager {
             confirmationToken.setConfirmedAt(LocalDateTime.now());
             confirmationTokenRepository.save(confirmationToken);
 
-            // return safely DTO
-            UserProfileDTO dto = new UserProfileDTO();
-            dto.builder(user, person);
-            return dto;
+            return user;
         } catch (ResourceNotFoundException e) {
             throw new ResourceNotFoundException(e.getMessage());
         } catch (Exception e) {
@@ -162,9 +160,9 @@ public class UserServiceManagerImp implements UserServiceManager {
 
     @Transactional
     @Override
-    public void userOnLoginUpdate(@NonNull String username) {
+    public void userOnLoginUpdate(@NonNull String email) {
         try {
-            User user = getUserByUsername(username);
+            User user = getUserByEmail(email);
             user.setLastAccess(LocalDateTime.now());
             userRepository.save(user);
 
@@ -313,7 +311,7 @@ public class UserServiceManagerImp implements UserServiceManager {
     }
 
     @Override
-    public UserProfileDTO profileGetBy(Integer userId) {
+    public UserProfileDTO profileGetById(Integer userId) {
         try {
             User user = getUser(userId);
             return getUserProfileDTO(user);
@@ -323,7 +321,7 @@ public class UserServiceManagerImp implements UserServiceManager {
     }
 
     @Override
-    public UserProfileDTO profileGetBy(String username) {
+    public UserProfileDTO profileGetByUsername(String username) {
         try {
             User user = getUserByUsername(username);
             return getUserProfileDTO(user);
@@ -364,9 +362,7 @@ public class UserServiceManagerImp implements UserServiceManager {
             userRepository.save(user);
         }
 
-        UserProfileDTO dto = new UserProfileDTO();
-        dto.builder(user, person);
-        return dto;
+        return UserAssembler.toUserProfileDTO(user, person);
     }
 
     private boolean userExistsByEmail(String email) {
@@ -384,6 +380,10 @@ public class UserServiceManagerImp implements UserServiceManager {
 
     private User getUserByUsername(String username) {
         return userRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND"));
+    }
+
+    private User getUserByEmail(String email) {
+        return userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND"));
     }
 
     private Role findRoleByName(ROLENAME roleName) {

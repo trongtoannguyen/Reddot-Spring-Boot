@@ -28,7 +28,7 @@ public class UserManagementController {
     @GetMapping
     public ResponseEntity<ServiceResponse<UserProfileDTO>> getUserProfile(@RequestParam String username) {
         try {
-            UserProfileDTO profileDTO = userServiceManager.profileGetBy(username);
+            UserProfileDTO profileDTO = userServiceManager.profileGetByUsername(username);
             return new ResponseEntity<>(new ServiceResponse<>(HttpStatus.OK.value(), "Retrieve profile successfully", profileDTO), HttpStatus.OK);
         } catch (ResourceNotFoundException e) {
             throw new ResourceNotFoundException(e.getMessage());
@@ -39,7 +39,7 @@ public class UserManagementController {
     @GetMapping("/{id}")
     public ResponseEntity<ServiceResponse<UserProfileDTO>> getUserProfileById(@PathVariable Integer id) {
         try {
-            UserProfileDTO profileDTO = userServiceManager.profileGetBy(id);
+            UserProfileDTO profileDTO = userServiceManager.profileGetById(id);
             return new ResponseEntity<>(new ServiceResponse<>(HttpStatus.OK.value(), "Retrieve profile successfully", profileDTO), HttpStatus.OK);
         } catch (ResourceNotFoundException e) {
             throw new ResourceNotFoundException(e.getMessage());
