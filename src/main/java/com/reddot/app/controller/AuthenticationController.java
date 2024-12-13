@@ -39,14 +39,14 @@ public class AuthenticationController {
     @PostMapping("/login")
     public String createAuthenticationToken(@Valid @RequestBody LoginRequest request) {
         try {
-            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 
             // Authenticate user by creating new empty context and to avoid race conditions across multiple threads.
             SecurityContext context = SecurityContextHolder.createEmptyContext();
             context.setAuthentication(authentication);
             SecurityContextHolder.setContext(context);
-            final User user = (User) userServiceManager.loadUserByUsername(request.getUsername());
-            userServiceManager.userOnLoginUpdate(request.getUsername());
+            final User user = (User) userServiceManager.loadUserByUsername(request.getEmail());
+            userServiceManager.userOnLoginUpdate(request.getEmail());
             return jwtUtil.generateToken(user);
         } catch (DisabledException e) {
             throw new ResourceNotFoundException("Account is not confirmed, please check your email to confirm account registration");
@@ -56,20 +56,27 @@ public class AuthenticationController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ServiceResponse<User>> register(@Valid @RequestBody RegisterRequest request) { // @Valid: validate the request body and throw Bad Request if invalid
+    public ResponseEntity<ServiceResponse<RegisterRequest>> register(@Valid @RequestBody RegisterRequest request) { // @Valid: validate the request body and throw Bad Request if invalid
         try {
             userServiceManager.userCreate(request);
-            return new ResponseEntity<>(new ServiceResponse<>(HttpStatus.CREATED.value(), "Check email box to confirm account registration or you may want to check spam folder"), HttpStatus.CREATED);
+            return new ResponseEntity<>(new ServiceResponse<>(HttpStatus.CREATED.value(), "Check email box to confirm account registration or you may want to check spam folder", request), HttpStatus.CREATED);
+
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
     }
 
+    /**
+     * Confirm account registration
+     * @param token token from email link to confirm account registration
+     * @return due to security reasons, return user profile DTO to hide sensitive information
+     */
     @GetMapping("/confirm-account")
     public ResponseEntity<ServiceResponse<UserProfileDTO>> confirm(@RequestParam("token") String token) {
         try {
-            UserProfileDTO user = userServiceManager.userConfirm(token);
-            return new ResponseEntity<>(new ServiceResponse<>(HttpStatus.OK.value(), "Congratulations! Your account has been confirmed", user), HttpStatus.OK);
+            User user = userServiceManager.userConfirm(token);
+            UserProfileDTO dto = userServiceManager.profileGetById(user.getId());
+            return new ResponseEntity<>(new ServiceResponse<>(HttpStatus.OK.value(), "Congratulations! Your account has been confirmed", dto), HttpStatus.OK);
         } catch (ResourceNotFoundException e) {
             throw new ResourceNotFoundException(e.getMessage());
         }
