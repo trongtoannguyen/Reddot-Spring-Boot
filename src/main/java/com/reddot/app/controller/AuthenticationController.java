@@ -65,11 +65,17 @@ public class AuthenticationController {
         }
     }
 
+    /**
+     * Confirm account registration
+     * @param token token from email link to confirm account registration
+     * @return due to security reasons, return user profile DTO to hide sensitive information
+     */
     @GetMapping("/confirm-account")
     public ResponseEntity<ServiceResponse<UserProfileDTO>> confirm(@RequestParam("token") String token) {
         try {
-            UserProfileDTO user = userServiceManager.userConfirm(token);
-            return new ResponseEntity<>(new ServiceResponse<>(HttpStatus.OK.value(), "Congratulations! Your account has been confirmed", user), HttpStatus.OK);
+            User user = userServiceManager.userConfirm(token);
+            UserProfileDTO dto = userServiceManager.profileGetById(user.getId());
+            return new ResponseEntity<>(new ServiceResponse<>(HttpStatus.OK.value(), "Congratulations! Your account has been confirmed", dto), HttpStatus.OK);
         } catch (ResourceNotFoundException e) {
             throw new ResourceNotFoundException(e.getMessage());
         }
