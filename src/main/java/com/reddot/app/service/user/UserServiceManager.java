@@ -5,9 +5,11 @@ import com.reddot.app.dto.request.ProfileUpdateRequest;
 import com.reddot.app.dto.request.RegisterRequest;
 import com.reddot.app.dto.request.UpdatePasswordRequest;
 import com.reddot.app.entity.User;
+import com.reddot.app.exception.EmailNotFoundException;
 import com.reddot.app.exception.ResourceNotFoundException;
 import jakarta.validation.Valid;
 import lombok.NonNull;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +18,15 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public interface UserServiceManager extends UserDetailsService {
+
+    /**
+     * Locates the user based on the email.
+     *
+     * @param email the email identifying the user whose data is required.
+     * @return a fully populated user record (never <code>null</code>)
+     * @throws EmailNotFoundException if the user could not be found.
+     */
+    UserDetails loadUserByEmail(String email) throws EmailNotFoundException;
 
     void userCreate(RegisterRequest request);
 

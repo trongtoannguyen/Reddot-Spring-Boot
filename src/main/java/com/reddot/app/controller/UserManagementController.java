@@ -51,10 +51,8 @@ public class UserManagementController {
                                                                          @Valid @RequestBody ProfileUpdateRequest request) {
         try {
             // FIXME: RESOLVE LAZY INITIALIZATION EXCEPTION
-            // get the current context username
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String currentPrincipalName = authentication.getName();
-            User user = (User) userServiceManager.loadUserByUsername(currentPrincipalName);
+            User user = (User) userServiceManager.loadUserByUsername(authentication.getName());
             if (!user.getId().equals(id)) {
                 throw new BadRequestException("Unable to update profile");
             }
@@ -69,8 +67,7 @@ public class UserManagementController {
     public ResponseEntity<ServiceResponse<Void>> userDelete(@RequestParam Integer id) {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String currentPrincipalName = authentication.getName();
-            User user = (User) userServiceManager.loadUserByUsername(currentPrincipalName);
+            User user = (User) userServiceManager.loadUserByUsername(authentication.getName());
             if (!user.getId().equals(id)) {
                 throw new BadRequestException("Unable to delete account");
             }

@@ -45,13 +45,13 @@ public class AuthenticationController {
             SecurityContext context = SecurityContextHolder.createEmptyContext();
             context.setAuthentication(authentication);
             SecurityContextHolder.setContext(context);
-            final User user = (User) userServiceManager.loadUserByUsername(request.getEmail());
+            final User user = (User) userServiceManager.loadUserByEmail(request.getEmail());
             userServiceManager.userOnLoginUpdate(request.getEmail());
             return jwtUtil.generateToken(user);
         } catch (DisabledException e) {
             throw new ResourceNotFoundException("Account is not confirmed, please check your email to confirm account registration");
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 
@@ -68,6 +68,7 @@ public class AuthenticationController {
 
     /**
      * Confirm account registration
+     *
      * @param token token from email link to confirm account registration
      * @return due to security reasons, return user profile DTO to hide sensitive information
      */

@@ -69,8 +69,7 @@ public class RecoveryController {
     public ResponseEntity<ServiceResponse<Void>> updateEmail(@PathVariable Integer id, @Valid @RequestBody EmailRequest request) {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String currentPrincipalName = authentication.getName();
-            User user = (User) userServiceManager.loadUserByUsername(currentPrincipalName);
+            User user = (User) userServiceManager.loadUserByUsername(authentication.getName());
             if (!user.getId().equals(id)) {
                 throw new ResourceNotFoundException("Unable to update email");
             }

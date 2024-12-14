@@ -1,19 +1,13 @@
 package com.reddot.app.dto;
 
-import com.reddot.app.entity.Person;
-import com.reddot.app.entity.User;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
 
 @Setter
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
 public class UserProfileDTO {
     private Integer id;
     private String username;
@@ -26,19 +20,11 @@ public class UserProfileDTO {
     private String location;
     private String websiteUrl;
 
-    public void builder(User user, Person person) {
-        this.id = user.getId();
-        this.username = user.getUsername();
-        this.email = user.getEmail();
-        this.avatar = user.getAvatarUrl();
-        this.displayName = person.getDisplayName();
-        this.aboutMe = person.getAboutMe();
-        this.dob = person.getDob();
-        this.location = person.getLocation();
-        this.websiteUrl = person.getWebsiteUrl();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public static class Builder{
+    public static class Builder {
         private Integer id;
         private String username;
         private String email;
@@ -49,12 +35,12 @@ public class UserProfileDTO {
         private String location;
         private String websiteUrl;
 
-        public Builder id(Integer id){
+        public Builder id(Integer id) {
             this.id = id;
             return this;
         }
 
-        public Builder username(String username){
+        public Builder username(String username) {
             this.username = username;
             return this;
         }
@@ -95,7 +81,7 @@ public class UserProfileDTO {
             return this;
         }
 
-        public UserProfileDTO build(){
+        public UserProfileDTO build() {
             UserProfileDTO dto = new UserProfileDTO();
             dto.id = this.id;
             dto.username = this.username;
@@ -107,7 +93,6 @@ public class UserProfileDTO {
             dto.location = this.location;
             dto.websiteUrl = this.websiteUrl;
             return dto;
-
         }
     }
 }
