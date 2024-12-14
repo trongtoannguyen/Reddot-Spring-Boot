@@ -15,7 +15,7 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor
 @RequiredArgsConstructor
-public class RecoveryToken extends BaseEntity{
+public class RecoveryToken extends BaseEntity {
 
     @NonNull
     private String token;
@@ -31,13 +31,6 @@ public class RecoveryToken extends BaseEntity{
         this.ownerId = ownerId;
         this.used = false;
         this.validBefore = LocalDateTime.now().plusMinutes(30);
-    }
-
-    public RecoveryToken(@NonNull Integer ownerId, @NonNull String token, LocalDateTime validBefore){
-        this.ownerId = ownerId;
-        this.token = token;
-        this.validBefore = validBefore;
-        this.used = false;
     }
 
     @Override

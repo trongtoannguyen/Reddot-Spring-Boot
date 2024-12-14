@@ -1,6 +1,7 @@
 # User Guide for Reddot
 
-This user guide provides clear, step-by-step instructions for navigating and using the key features of Reddot, a question and answer platform designed to help users share and gain knowledge.
+This user guide provides clear, step-by-step instructions for navigating and using the key features of Reddot, a
+question and answer platform designed to help users share and gain knowledge.
 
 If you are developer and want to contribute to this project, please refer to the [Developer Guide](docs/DEV.md).
 
@@ -8,7 +9,8 @@ If you are developer and want to contribute to this project, please refer to the
 
 ### Getting Started
 
-Explain how users can sign up, log in, and navigate through the interface to ask and answer questions. Provide step-by-step instructions for basic tasks.
+Explain how users can sign up, log in, and navigate through the interface to ask and answer questions. Provide
+step-by-step instructions for basic tasks.
 
 ### Sign Up
 
@@ -40,29 +42,36 @@ Explain how users can sign up, log in, and navigate through the interface to ask
 ### Voting and Tagging Posts
 
 1. Upvote or downvote questions and answers by clicking the up arrow or down arrow next to each post.
-2. Use relevant tags when posting a question to help categorize it. Tags improve searchability and help users find content related to their expertise.
+2. Use relevant tags when posting a question to help categorize it. Tags improve searchability and help users find
+   content related to their expertise.
 
 ### Search and Navigation
 
-- Search Bar: Located at the top of the page, the search bar allows you to type keywords, topics, or question titles to find relevant questions and answers.
-- Tag Filters: Below the search bar, you can filter questions based on tags, such as JavaScript, Flutter, or Databases. Clicking a tag will show all questions related to that topic.
+- Search Bar: Located at the top of the page, the search bar allows you to type keywords, topics, or question titles to
+  find relevant questions and answers.
+- Tag Filters: Below the search bar, you can filter questions based on tags, such as JavaScript, Flutter, or Databases.
+  Clicking a tag will show all questions related to that topic.
 - Sorting: Sort results by relevance, most recent, or most voted to prioritize how the questions are displayed.
 
 ### User Profiles
 
 - Accessing Your Profile: Click on your username in the top right corner to open your profile.
-- Updating Your Bio: Add or edit your bio by clicking "Edit Profile" and entering details such as your expertise or professional background.
-- Reputation & Badges: Your profile shows your reputation score, which increases based on upvotes, answers, and accepted solutions. Badges are earned for participation milestones, such as answering a certain number of questions or receiving a high number of upvotes.
+- Updating Your Bio: Add or edit your bio by clicking "Edit Profile" and entering details such as your expertise or
+  professional background.
+- Reputation & Badges: Your profile shows your reputation score, which increases based on upvotes, answers, and accepted
+  solutions. Badges are earned for participation milestones, such as answering a certain number of questions or
+  receiving a high number of upvotes.
 
 ### Notifications and Updates
 
 - Notifications: You will receive notifications when:
-  - Someone answers your question.
-  - Your answer is upvoted or accepted.
-  - Someone comments on your post.
-   Notifications appear in the top-right corner as a bell icon.
+    - Someone answers your question.
+    - Your answer is upvoted or accepted.
+    - Someone comments on your post.
+      Notifications appear in the top-right corner as a bell icon.
 
-- Email Updates: You can enable email notifications for new answers, comments, or direct messages by going to your profile settings and adjusting your Notification Preferences.
+- Email Updates: You can enable email notifications for new answers, comments, or direct messages by going to your
+  profile settings and adjusting your Notification Preferences.
 
 ## 2. Mobile Application (Flutter Framework)
 
@@ -70,26 +79,27 @@ Explain how users can sign up, log in, and navigate through the interface to ask
 
 For iOS:
 
-   1. Open the App Store on your iPhone or iPad.
-   2. Search for Reddot.
-   3. Tap Download and wait for the app to install.
-   4. Once installed, open the app and log in or sign up.
+1. Open the App Store on your iPhone or iPad.
+2. Search for Reddot.
+3. Tap Download and wait for the app to install.
+4. Once installed, open the app and log in or sign up.
 
 For Android:
 
-   1. Open the Google Play Store on your device.
-   2. Search for Reddot.
-   3. Tap Install and wait for the app to download and install.
-   4. Once installed, open the app and log in or sign up.
+1. Open the Google Play Store on your device.
+2. Search for Reddot.
+3. Tap Install and wait for the app to download and install.
+4. Once installed, open the app and log in or sign up.
 
 ### Interface Overview
 
-- Home Screen: The home screen displays the feed of questions. Swipe up to browse the latest or most popular questions. Use the search icon to find specific topics.
+- Home Screen: The home screen displays the feed of questions. Swipe up to browse the latest or most popular questions.
+  Use the search icon to find specific topics.
 - Navigation Bar: At the bottom, the navigation bar contains:
-  - Home: View the question feed.
-  - Ask: Quickly post a new question.
-  - Notifications: View your recent notifications.
-  - Profile: Access and update your profile.
+    - Home: View the question feed.
+    - Ask: Quickly post a new question.
+    - Notifications: View your recent notifications.
+    - Profile: Access and update your profile.
 
 ### Interactivity
 
@@ -98,5 +108,7 @@ For Android:
 
 ### Offline Capabilities
 
-- Reading Saved Questions: If you’re offline, you can still read any questions you’ve saved by swiping left and choosing "Save for Offline." Saved questions are available in the Offline tab in your profile.
-- Drafting Answers Offline: You can also draft answers while offline. Once reconnected, your drafts will sync and post automatically.
+- Reading Saved Questions: If you’re offline, you can still read any questions you’ve saved by swiping left and
+  choosing "Save for Offline." Saved questions are available in the Offline tab in your profile.
+- Drafting Answers Offline: You can also draft answers while offline. Once reconnected, your drafts will sync and post
+  automatically.

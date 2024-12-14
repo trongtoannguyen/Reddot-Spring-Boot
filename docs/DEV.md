@@ -1,6 +1,7 @@
 # Developer Guide for Reddot
 
-This developer guide provides technical instructions for contributors or maintainers looking to understand the codebase and technical infrastructure of Reddot.
+This developer guide provides technical instructions for contributors or maintainers looking to understand the codebase
+and technical infrastructure of Reddot.
 
 ## 1. Web Version (ReactJS + Vite Frontend, Spring Boot + MySQL Backend)
 
@@ -37,7 +38,8 @@ This developer guide provides technical instructions for contributors or maintai
 
 #### Routing
 
-Reddot uses React Router for client-side navigation. Routes are configured in `src/routes.js`, mapping URLs to different components.
+Reddot uses React Router for client-side navigation. Routes are configured in `src/routes.js`, mapping URLs to different
+components.
 For example:
 
 ```jsx
@@ -61,7 +63,8 @@ function App() {
 
 #### State Management
 
-State is managed using the Context API. Global state is stored in `AppContext.js`, which provides access to data like user information, questions, and answers across components.
+State is managed using the Context API. Global state is stored in `AppContext.js`, which provides access to data like
+user information, questions, and answers across components.
 
 ### Backend (Spring Boot + MySQL)
 
@@ -70,25 +73,25 @@ State is managed using the Context API. Global state is stored in `AppContext.js
 Reddot follows RESTful principles for its backend API, using the following key endpoints:
 
 - **User API**:
-  - POST /auth/signup: Registers a new user.
-  - POST /auth/login: Authenticates a user and returns a JWT token.
-  - GET /users/{id}: Fetches user profile data.
+    - POST /auth/signup: Registers a new user.
+    - POST /auth/login: Authenticates a user and returns a JWT token.
+    - GET /users/{id}: Fetches user profile data.
 
 - **Question API**:
 
-  - GET /questions: Retrieve all questions.
+    - GET /questions: Retrieve all questions.
 
-  - POST /questions: Submit a new question.
+    - POST /questions: Submit a new question.
 
-  - GET /questions/{id}: Retrieve a specific question by ID
+    - GET /questions/{id}: Retrieve a specific question by ID
 
 - **Answer API**:
 
-  - POST /answers: Submit a new answer to a question.  
+    - POST /answers: Submit a new answer to a question.
 
 - **Vote API**:
 
-  - POST /questions/{id}/vote: Upvote or downvote a question.
+    - POST /questions/{id}/vote: Upvote or downvote a question.
 
 Authentication is handled via JWT tokens passed in the `Authorization` header.
 
@@ -102,23 +105,28 @@ Reddot uses MySQL as its database. The key tables include:
 
 - **Answers**: Stores answers associated with questions (e.g., ID, content, user_id, question_id).
 
-- **Votes**: Contains vote details of a subject (e.g., ID, user_id, question_id, comment_id,  vote_type_id).
+- **Votes**: Contains vote details of a subject (e.g., ID, user_id, question_id, comment_id, vote_type_id).
 
 A visual diagram of the schema can be found in the `docs/database-schema.png` file.
 
 #### Authentication
 
-Reddot uses JWT (JSON Web Tokens) for authentication. Users authenticate via the `/auth/login` endpoint, which returns a JWT token. This token is stored in localStorage on the client-side and passed with each request in the `Authorization` header for protected routes.
+Reddot uses JWT (JSON Web Tokens) for authentication. Users authenticate via the `/auth/login` endpoint, which returns a
+JWT token. This token is stored in localStorage on the client-side and passed with each request in the `Authorization`
+header for protected routes.
 
 OAuth2 can also be implemented for third-party login options (e.g., Google or GitHub).
 
 #### Error Handling
 
-- Custom exceptions are thrown in the backend for known issues (e.g., `UserNotFoundException`, `ResourceNotFoundException`).  
+- Custom exceptions are thrown in the backend for known issues (
+  e.g., `UserNotFoundException`, `ResourceNotFoundException`).
 
-- Logging: Use Slf4j for logging errors and key actions. Log error details for debugging and operational monitoring purposes.
+- Logging: Use Slf4j for logging errors and key actions. Log error details for debugging and operational monitoring
+  purposes.
 
-- Global Exception Handling: A @ControllerAdvice class catches exceptions and provides consistent error responses to the frontend.
+- Global Exception Handling: A @ControllerAdvice class catches exceptions and provides consistent error responses to the
+  frontend.
 
 ## 2. Mobile Version (Flutter)
 
@@ -147,9 +155,10 @@ OAuth2 can also be implemented for third-party login options (e.g., Google or Gi
 
 ### Navigation
 
-Reddot mobile uses `Navigator 2.0` for handling in-app navigation. Routes are defined in `lib/routes.dart`, mapping URLs to screens like `HomeScreen` and `QuestionScreen`. Use `push()` and `pop()` methods to navigate between pages.
+Reddot mobile uses `Navigator 2.0` for handling in-app navigation. Routes are defined in `lib/routes.dart`, mapping URLs
+to screens like `HomeScreen` and `QuestionScreen`. Use `push()` and `pop()` methods to navigate between pages.
 
-Example  
+Example
 
 ```dart
 Navigator.push(
@@ -160,7 +169,8 @@ Navigator.push(
 
 ### Platform-Specific Code
 
-Flutter’s platform channels are used to access native APIs for platform-specific functionality. For example, using `MethodChannel` to invoke camera or location services in Android/iOS:
+Flutter’s platform channels are used to access native APIs for platform-specific functionality. For example,
+using `MethodChannel` to invoke camera or location services in Android/iOS:
 
 ```dart
 const platform = MethodChannel('com.example.reddot/native'); 

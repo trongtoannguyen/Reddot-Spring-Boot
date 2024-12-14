@@ -26,12 +26,12 @@ public class UserOnDelete {
     @Column(name = "is_noticed")
     private Boolean isNoticed = false;
 
+    public UserOnDelete(@NonNull Integer userId) {
+        this.userId = userId;
+    }
+
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();
-    }
-
-    public UserOnDelete(@NonNull Integer userId) {
-        this.userId = userId;
     }
 }
