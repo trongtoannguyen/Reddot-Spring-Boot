@@ -1,12 +1,11 @@
 package com.reddot.app.testing.dataseed;
 
 import com.github.javafaker.Faker;
-import com.reddot.app.dto.request.RegisterRequest;
 import com.reddot.app.entity.*;
 import com.reddot.app.entity.enumeration.ROLENAME;
 import com.reddot.app.entity.enumeration.VOTETYPE;
 import com.reddot.app.repository.*;
-import com.reddot.app.service.user.UserServiceManager;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,9 +29,9 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final VoteRepository voteRepository;
     private final CommentRepository commentRepository;
     private final BookmarkRepository bookmarkRepository;
-    private final UserServiceManager userServiceManager;
 
-    public DatabaseSeeder(PasswordEncoder encoder, UserRepository userRepository, RoleRepository roleRepository, BadgeRepository badgeRepository, TagRepository tagRepository, VoteTypeRepository voteTypeRepository, QuestionRepository questionRepository, VoteRepository voteRepository, CommentRepository commentRepository, BookmarkRepository bookmarkRepository, UserServiceManager userServiceManager) {
+
+    public DatabaseSeeder(PasswordEncoder encoder, UserRepository userRepository, RoleRepository roleRepository, BadgeRepository badgeRepository, TagRepository tagRepository, VoteTypeRepository voteTypeRepository, QuestionRepository questionRepository, VoteRepository voteRepository, CommentRepository commentRepository, BookmarkRepository bookmarkRepository) {
         this.encoder = encoder;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
@@ -43,7 +42,6 @@ public class DatabaseSeeder implements CommandLineRunner {
         this.voteRepository = voteRepository;
         this.commentRepository = commentRepository;
         this.bookmarkRepository = bookmarkRepository;
-        this.userServiceManager = userServiceManager;
     }
 
 
@@ -95,10 +93,6 @@ public class DatabaseSeeder implements CommandLineRunner {
     private void seedUser() {
         log.info("");
         log.info("########## SEEDING USER ##########");
-        // seed user from the service
-        userServiceManager.userCreate(new RegisterRequest("dev", "toannguyen.fordev@gmail.com", "Dev1234@"));
-        log.info("TEST CREDENTIALS: dev - Dev1234@");
-
         log.info("<<<<<<< GETTING USER ROLEs");
         Role userRole = roleRepository.findByName(ROLENAME.ROLE_USER)
                 .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
@@ -109,7 +103,6 @@ public class DatabaseSeeder implements CommandLineRunner {
         Badge badge = badgeRepository.findByName("Newbie")
                 .orElseThrow(() -> new RuntimeException("Error: Badge is not found."));
 
-        // seed user from the repository
         log.info(">>>>>>> INITIALIZING USER DATA");
         Faker faker = new Faker();
         String username = "test user";
@@ -240,30 +233,30 @@ public class DatabaseSeeder implements CommandLineRunner {
      */
     private void seedBadge() {
         List<Badge> commonBadges = List.of(
-                new Badge("Newbie", "Just joined the community"),
-                new Badge("Beginner", "Posted your first question"),
-                new Badge("Intermediate", "Posted 10 questions"),
-                new Badge("Advanced", "Posted 100 questions"),
-                new Badge("Expert", "Posted 1000 questions"),
-                new Badge("Crazy", "Posted 10000 questions"),
-                new Badge("Enthusiast", "Posted 100000 questions"),
-                new Badge("Loyal", "Posted 1000000 questions"),
-                new Badge("Veteran", "Posted 10000000 questions"),
-                new Badge("Legend", "Posted 100000000 questions"));
+                new Badge("Newbie", "Just joined the community", "bronze"),
+                new Badge("Beginner", "Posted your first question","bronze"),
+                new Badge("Intermediate", "Posted 10 questions","bronze"),
+                new Badge("Advanced", "Posted 100 questions","bronze"),
+                new Badge("Expert", "Posted 1000 questions","bronze"),
+                new Badge("Crazy", "Posted 10000 questions","silver "),
+                new Badge("Enthusiast", "Posted 100000 questions","silver "),
+                    new Badge("Loyal", "Posted 1000000 questions","gold"),
+                new Badge("Veteran", "Posted 10000000 questions","gold"),
+                new Badge("Legend", "Posted 100000000 questions","gold"));
 
         List<Badge> featureBadges = List.of(
-                new Badge("Good Question", "Your question has been upvoted 10 times"),
-                new Badge("Great Question", "Your question has been upvoted 100 times"),
-                new Badge("Awesome Question", "Your question has been upvoted 1000 times"),
-                new Badge("Good Answer", "Your answer has been upvoted 10 times"),
-                new Badge("Great Answer", "Your answer has been upvoted 100 times"),
-                new Badge("Awesome Answer", "Your answer has been upvoted 1000 times"),
-                new Badge("Good Comment", "Your comment has been upvoted 10 times"),
-                new Badge("Great Comment", "Your comment has been upvoted 100 times"),
-                new Badge("Awesome Comment", "Your comment has been upvoted 1000 times"),
-                new Badge("Good Contribution", "Your post has been upvoted 10 times"),
-                new Badge("Great Contribution", "Your post has been upvoted 100 times"),
-                new Badge("Awesome Contribution", "Your post has been upvoted 1000 times"));
+                new Badge("Good Question", "Your question has been upvoted 10 times", "bronze"),
+                new Badge("Great Question", "Your question has been upvoted 100 times", "bronze"),
+                new Badge("Awesome Question", "Your question has been upvoted 1000 times","bronze"),
+                new Badge("Good Answer", "Your answer has been upvoted 10 times", "bronze"),
+                new Badge("Great Answer", "Your answer has been upvoted 100 times","bronze"),
+                new Badge("Awesome Answer", "Your answer has been upvoted 1000 times","bronze"),
+                new Badge("Good Comment", "Your comment has been upvoted 10 times", "bronze"),
+                new Badge("Great Comment", "Your comment has been upvoted 100 times","bronze"),
+                new Badge("Awesome Comment", "Your comment has been upvoted 1000 times" ,"bronze"),
+                new Badge("Good Contribution", "Your post has been upvoted 10 times","bronze"),
+                new Badge("Great Contribution", "Your post has been upvoted 100 times","bronze"),
+                new Badge("Awesome Contribution", "Your post has been upvoted 1000 times","bronze"));
 
         log.info("");
         log.info("N########## SEEDING BADGE ##########");
