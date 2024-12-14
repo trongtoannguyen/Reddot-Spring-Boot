@@ -1,11 +1,13 @@
 package com.reddot.app.service.user;
 
+import com.reddot.app.assembler.UserAssembler;
 import com.reddot.app.dto.UserProfileDTO;
 import com.reddot.app.dto.request.ProfileUpdateRequest;
 import com.reddot.app.dto.request.RegisterRequest;
 import com.reddot.app.dto.request.UpdatePasswordRequest;
 import com.reddot.app.entity.*;
 import com.reddot.app.entity.enumeration.ROLENAME;
+import com.reddot.app.exception.EmailNotFoundException;
 import com.reddot.app.exception.ResourceNotFoundException;
 import com.reddot.app.repository.*;
 import com.reddot.app.service.email.MailSenderManager;
@@ -37,7 +39,6 @@ public class UserServiceManagerImp implements UserServiceManager {
     private final RecoveryTokenRepository recoveryTokenRepository;
     private final ConfirmationTokenRepository confirmationTokenRepository;
     private final userDeleteRepository userDeleteRepository;
-
     private final String fullUrl;
 
     public UserServiceManagerImp(@Value("${server.address}") String appDomain,
@@ -59,15 +60,27 @@ public class UserServiceManagerImp implements UserServiceManager {
     }
 
 
+    /**
+     * Locates the user based on the username or email.
+     *
+     * @param param the username/email identifying the user whose data is required.
+     * @throws UsernameNotFoundException if the user could not be found.
+     */
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+    public UserDetails loadUserByUsername(String param) throws UsernameNotFoundException {
+        return userRepository.findByUsernameOrEmail(param, param)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with username or email: " + param));
     }
 
     // TODO: comment out these methods to implement User entity instead of UserDetails
     // protected List<GrantedAuthority> loadUserAuthorities(String username)
     // Helper method
     // protected UserDetails createUserDetails(User userFromDb, List<GrantedAuthority> combinedAuthorities)
+
+    @Override
+    public UserDetails loadUserByEmail(String email) throws EmailNotFoundException {
+        return userRepository.findByEmail(email).orElseThrow(() -> new EmailNotFoundException("User not found with mail address: " + email));
+    }
 
     /**
      * Every user must be User role when created, EVERYONE IS EQUAL
@@ -106,7 +119,7 @@ public class UserServiceManagerImp implements UserServiceManager {
     }
 
     @Override
-    public UserProfileDTO userConfirm(String token) {
+    public User userConfirm(String token) {
         try {
             ConfirmationToken confirmationToken = confirmationTokenRepository.findByToken(token).orElseThrow(() -> new ResourceNotFoundException("TOKEN_NOT_FOUND"));
             if (confirmationToken.getConfirmedAt() != null) {
@@ -125,10 +138,7 @@ public class UserServiceManagerImp implements UserServiceManager {
             confirmationToken.setConfirmedAt(LocalDateTime.now());
             confirmationTokenRepository.save(confirmationToken);
 
-            // return safely DTO
-            UserProfileDTO dto = new UserProfileDTO();
-            dto.builder(user, person);
-            return dto;
+            return user;
         } catch (ResourceNotFoundException e) {
             throw new ResourceNotFoundException(e.getMessage());
         } catch (Exception e) {
@@ -150,7 +160,7 @@ public class UserServiceManagerImp implements UserServiceManager {
             String subject = "Reddot account deletion";
             String body = """
                     Hi there,
-                    
+                                       \s
                     Your account has been marked for deletion. If you did not request this, please contact us immediately.""";
             mailSenderManager.sendEmail(user.getEmail(), subject, body);
         } catch (ResourceNotFoundException e) {
@@ -162,9 +172,9 @@ public class UserServiceManagerImp implements UserServiceManager {
 
     @Transactional
     @Override
-    public void userOnLoginUpdate(@NonNull String username) {
+    public void userOnLoginUpdate(@NonNull String email) {
         try {
-            User user = getUserByUsername(username);
+            User user = getUserByEmail(email);
             user.setLastAccess(LocalDateTime.now());
             userRepository.save(user);
 
@@ -302,10 +312,10 @@ public class UserServiceManagerImp implements UserServiceManager {
             // send email
             String subject = "Reddot password reset successful";
             String body = """
-                    Hi there,
-                    
-                    Your password has been reset successfully.
-                    """;
+                     Hi there,
+                                        \s
+                     Your password has been reset successfully.
+                    \s""";
             mailSenderManager.sendEmail(user.getEmail(), subject, body);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -313,7 +323,7 @@ public class UserServiceManagerImp implements UserServiceManager {
     }
 
     @Override
-    public UserProfileDTO profileGetBy(Integer userId) {
+    public UserProfileDTO profileGetById(Integer userId) {
         try {
             User user = getUser(userId);
             return getUserProfileDTO(user);
@@ -323,7 +333,7 @@ public class UserServiceManagerImp implements UserServiceManager {
     }
 
     @Override
-    public UserProfileDTO profileGetBy(String username) {
+    public UserProfileDTO profileGetByUsername(String username) {
         try {
             User user = getUserByUsername(username);
             return getUserProfileDTO(user);
@@ -344,9 +354,7 @@ public class UserServiceManagerImp implements UserServiceManager {
             userRepository.save(user);
             log.info("User profile updated successfully");
 
-            UserProfileDTO dto = new UserProfileDTO();
-            dto.builder(user, person);
-            return dto;
+            return UserAssembler.toUserProfileDTO(user, person);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -364,9 +372,7 @@ public class UserServiceManagerImp implements UserServiceManager {
             userRepository.save(user);
         }
 
-        UserProfileDTO dto = new UserProfileDTO();
-        dto.builder(user, person);
-        return dto;
+        return UserAssembler.toUserProfileDTO(user, person);
     }
 
     private boolean userExistsByEmail(String email) {
@@ -384,6 +390,10 @@ public class UserServiceManagerImp implements UserServiceManager {
 
     private User getUserByUsername(String username) {
         return userRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND"));
+    }
+
+    private User getUserByEmail(String email) {
+        return userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND"));
     }
 
     private Role findRoleByName(ROLENAME roleName) {

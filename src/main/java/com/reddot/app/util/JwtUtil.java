@@ -43,7 +43,7 @@ public class JwtUtil {
         log.info("encoded:{}", encoded);
     }
 
-    public String extractUsername(String jws) {
+    public String extractEmail(String jws) {
         return extractClaim(jws, Claims::getSubject);
     }
 
@@ -83,7 +83,7 @@ public class JwtUtil {
         Map<String, Object> claims = new LinkedHashMap<>();
         // add additional claims to the JWT
         claims.put("iss", "reddot");
-        claims.put("sub", user.getUsername());
+        claims.put("sub", user.getEmail());
         claims.put("aud", "end-user");
         claims.put("userId", user.getId());
         return createToken(claims);
@@ -109,7 +109,8 @@ public class JwtUtil {
     }
 
     public Boolean validateToken(String jws, UserDetails userDetails) {
-        final String username = extractUsername(jws);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(jws));
+        final String email = extractEmail(jws);
+        User user = (User) userDetails;
+        return (email.equals(user.getEmail()) && !isTokenExpired(jws));
     }
 }

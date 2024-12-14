@@ -34,19 +34,19 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
         final String authorizationHeader = request.getHeader("Authorization");
 
-        String username = null;
+        String email = null;
         String jws = null;
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             jws = authorizationHeader.substring(7);
             try {
-                username = jwtUtil.extractUsername(jws);
+                email = jwtUtil.extractEmail(jws);
             } catch (JwtException e) {
                 logger.error("Invalid JWT token");
             }
         }
 
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = this.userServiceManager.loadUserByUsername(username);
+        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            UserDetails userDetails = this.userServiceManager.loadUserByEmail(email);
 
             if (jwtUtil.validateToken(jws, userDetails)) {
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
