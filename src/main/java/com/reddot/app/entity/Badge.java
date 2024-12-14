@@ -29,4 +29,8 @@ public class Badge extends BaseEntity {
 
     @NonNull
     private String description;
+
+    @NonNull
+    @Column(name = "tier") // Thêm cột tier
+    private String tier;  // Thêm trường tier
 }
