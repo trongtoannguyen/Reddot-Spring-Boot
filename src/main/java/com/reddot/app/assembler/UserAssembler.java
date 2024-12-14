@@ -10,7 +10,6 @@ import com.reddot.app.entity.User;
 public class UserAssembler {
     /**
      * Assemble UserProfileDTO from User and Person
-     *
      * @return UserProfileDTO
      */
     public static UserProfileDTO toUserProfileDTO(User user, Person person) {
