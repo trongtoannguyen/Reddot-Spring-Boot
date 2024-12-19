@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +24,23 @@ public interface CommentRepository extends JpaRepository<Comment, Integer> {
             "GROUP BY c.id, q.id, c.createdAt " +
             "ORDER BY COUNT(v.id) DESC")
     List<Map<String, Object>> findTopCommentsWithQuestionsByUserId(@Param("userId") Integer userId, Pageable pageable);
+
+
+    // Đếm số comment theo ngày
+    @Query("SELECT COUNT(c) FROM comments c WHERE DATE(c.createdAt) = :date")
+    long countCommentsByDay(@Param("date") LocalDate date);
+
+    // Đếm số comment theo tuần
+    @Query("SELECT COUNT(c) FROM comments c WHERE YEAR(c.createdAt) = :year AND WEEK(c.createdAt) = :week")
+    long countCommentsByWeek(@Param("year") int year, @Param("week") int week);
+
+    // Đếm số comment theo tháng
+    @Query("SELECT COUNT(c) FROM comments c WHERE YEAR(c.createdAt) = :year AND MONTH(c.createdAt) = :month")
+    long countCommentsByMonth(@Param("year") int year, @Param("month") int month);
+
+    // Đếm số comment theo năm
+    @Query("SELECT COUNT(c) FROM comments c WHERE YEAR(c.createdAt) = :year")
+    long countCommentsByYear(@Param("year") int year);
 
     Boolean existsByIdAndVotes_UserIdAndVotes_VoteTypeId(Integer commentId, Integer userId, int direction);
 }
