@@ -5,7 +5,6 @@ import com.reddot.app.entity.*;
 import com.reddot.app.entity.enumeration.ROLENAME;
 import com.reddot.app.entity.enumeration.VOTETYPE;
 import com.reddot.app.repository.*;
-import jakarta.annotation.PostConstruct;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
