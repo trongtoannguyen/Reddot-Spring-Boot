@@ -8,6 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -118,17 +119,6 @@ public class StatisticsService {
         return formattedResults;
     }
 
-    //Tag trending
-    public List<Map<String, Object>> getTrendingTags() {
-        List<Object[]> results = tagRepository.findTrendingTags();
-
-        return results.stream()
-                .map(result -> Map.of(
-                        "tagName", result[0],
-                        "usageCount", result[1]
-                ))
-                .toList();
-    }
 
     //Trao badges cho user khi đủ điều kiện
     public void assignBadgesToUser(Integer userId) {
@@ -213,5 +203,93 @@ public class StatisticsService {
             // Nếu badge không tồn tại trong cơ sở dữ liệu, ném lỗi hoặc xử lý tùy chọn
             throw new RuntimeException("Badge not found");
         }
+    }
+
+    //Thống ke chung
+
+    //Tag trending
+    public List<Map<String, Object>> getTrendingTags() {
+        List<Object[]> results = tagRepository.findTrendingTags();
+
+        return results.stream()
+                .map(result -> Map.of(
+                        "tagName", result[0],
+                        "usageCount", result[1]
+                ))
+                .toList();
+    }
+
+    //Total user
+    public long getTotalUsers() {
+        return userRepository.count();
+    }
+
+    //----------------
+
+    //Thống kê câu hỏi theo ngày, theo tháng, theo năm
+    public long getTotalQuestionsByDay(LocalDate date) {
+        return questionRepository.countQuestionsByDay(date);
+    }
+
+    public long getTotalQuestionsByWeek(int year, int week) {
+        return questionRepository.countQuestionsByWeek(year, week);
+    }
+
+    public long getTotalQuestionsByMonth(int year, int month) {
+        return questionRepository.countQuestionsByMonth(year, month);
+    }
+
+    public long getTotalQuestionsByYear(int year) {
+        return questionRepository.countQuestionsByYear(year);
+    }
+
+    //---------------
+    //Thống kê comment theo ngày, theo tháng, theo năm
+    public long getTotalCommentsByDay(LocalDate date) {
+        return commentRepository.countCommentsByDay(date);
+    }
+
+    public long getTotalCommentsByWeek(int year, int week) {
+        return commentRepository.countCommentsByWeek(year, week);
+    }
+
+    public long getTotalCommentsByMonth(int year, int month) {
+        return commentRepository.countCommentsByMonth(year, month);
+    }
+
+    public long getTotalCommentsByYear(int year) {
+        return commentRepository.countCommentsByYear(year);
+    }
+
+    //Thống kê user mới theo ngày , tháng , năm
+    public long getNewUsersByDay(LocalDate date) {
+        return userRepository.countNewUsersByDay(date);
+    }
+
+    public long getNewUsersByWeek(int year, int week) {
+        return userRepository.countNewUsersByWeek(year, week);
+    }
+
+    public long getNewUsersByMonth(int year, int month) {
+        return userRepository.countNewUsersByMonth(year, month);
+    }
+
+    public long getNewUsersByYear(int year) {
+        return userRepository.countNewUsersByYear(year);
+    }
+
+    //Thong ke cau hoi hay dua theo tag
+    public List<TopQuestionByTagDTO> getTopQuestionsByTag(String tagName) {
+        List<Object[]> results = questionRepository.findTopQuestionsByTag(tagName);
+
+        // Ánh xạ dữ liệu từ Object[] sang DTO
+        return results.stream()
+                .map(row -> new TopQuestionByTagDTO(
+                        ((Number) row[0]).longValue(),    // questionId
+                        (String) row[1],                 // questionTitle
+                        ((Number) row[2]).longValue(),    // voteScore
+                        (String) row[3])                 // tagName
+                )
+                .collect(Collectors.toList());
     }
 }
