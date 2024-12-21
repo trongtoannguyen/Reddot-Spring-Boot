@@ -4,8 +4,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * The {@code Tag} class represents a tag entity.
@@ -17,24 +19,15 @@ import lombok.*;
  * <p>
  */
 @Entity(name = "tags")
-@Setter
-@Getter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode()
+@Builder
 public class Tag {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
-    @NonNull
-    @Size(min = 2, max = 21)
     private String name;
-
-    @Size(min = 3, max = 100)
     private String description;
-
     private int tagged;
-
 }

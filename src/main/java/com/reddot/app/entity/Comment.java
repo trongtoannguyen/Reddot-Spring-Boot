@@ -14,7 +14,6 @@ import java.util.List;
 @AllArgsConstructor
 public class Comment extends BaseEntity {
 
-    @NonNull
     private String text;
 
     /**
@@ -36,7 +35,6 @@ public class Comment extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "author_id")
-    @NonNull
     private User user;
 
 

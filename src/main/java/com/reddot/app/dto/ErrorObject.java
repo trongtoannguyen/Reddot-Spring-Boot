@@ -1,6 +1,8 @@
 package com.reddot.app.dto;
 
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,6 +12,8 @@ import java.time.Instant;
 @Setter
 @Getter
 @AllArgsConstructor
+//set snake case for properties in the json response
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class ErrorObject {
     private int statusCode;
     private String message;

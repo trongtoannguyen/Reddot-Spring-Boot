@@ -1,11 +1,16 @@
 package com.reddot.app.controller;
 
-import com.reddot.app.dto.*;
-import com.reddot.app.dto.response.*;
+import com.reddot.app.dto.response.UserAnswerStatisticsDTO;
+import com.reddot.app.dto.response.UserBadgeStatisticsDTO;
+import com.reddot.app.dto.response.UserFollowerStatisticsDTO;
+import com.reddot.app.dto.response.UserQuestionStatisticsDTO;
 import com.reddot.app.entity.Badge;
 import com.reddot.app.service.user.StatisticsService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;

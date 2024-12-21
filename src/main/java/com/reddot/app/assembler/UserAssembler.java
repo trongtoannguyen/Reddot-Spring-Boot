@@ -1,29 +1,29 @@
 package com.reddot.app.assembler;
 
-import com.reddot.app.dto.UserProfileDTO;
+import com.reddot.app.dto.response.ShallowUserDTO;
+import com.reddot.app.dto.response.UserProfileDTO;
 import com.reddot.app.entity.Person;
 import com.reddot.app.entity.User;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.springframework.stereotype.Component;
 
 /**
  * Assembler/Mapper: Assembling a Data Transfer Object from Domain Objects
  */
-public class UserAssembler {
-    /**
-     * Assemble UserProfileDTO from User and Person
-     *
-     * @return UserProfileDTO
-     */
-    public static UserProfileDTO toUserProfileDTO(User user, Person person) {
-        return UserProfileDTO.builder()
-                .id(user.getId())
-                .username(user.getUsername())
-                .email(user.getEmail())
-                .avatar(user.getAvatarUrl())
-                .displayName(person.getDisplayName())
-                .aboutMe(person.getAboutMe())
-                .dob(person.getDob())
-                .location(person.getLocation())
-                .websiteUrl(person.getWebsiteUrl())
-                .build();
-    }
+@Mapper(componentModel = "spring")
+@Component
+public interface UserAssembler {
+
+    @Mapping(target = "userId", source = "u.id")
+    @Mapping(target = "avatarLink", source = "u.avatarUrl")
+    UserProfileDTO toUserProfileDTO(User u, Person p);
+
+    // TODO: IMPLEMENT CountBadge() map list/set
+    @Mapping(target = "userId", source = "id")
+    @Mapping(target = "displayName", source = "person.displayName")
+    @Mapping(target = "profileImage", source = "avatarUrl")
+    @Mapping(target = "websiteLink", source = "person.websiteUrl")
+    @Mapping(target = "badgeCounts", ignore = true)
+    ShallowUserDTO userToShallowUserDTO(User u);
 }

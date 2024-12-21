@@ -3,6 +3,7 @@ package com.reddot.app.repository;
 import com.reddot.app.entity.Vote;
 import lombok.NonNull;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Meta;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -27,4 +28,7 @@ public interface VoteRepository extends JpaRepository<Vote, Integer> {
             "JOIN v.comment c " +
             "WHERE c.user.id = :userId AND v.voteType.id = 2")
     Long countDownvotesForCommentsByUserId(@NonNull Integer userId);
+
+    @Meta(comment = "exists vote based on userId and questionId")
+    boolean existsVoteByUserIdAndQuestionIdAndVoteTypeId(Integer userId, Integer questionId, Integer voteTypeId);
 }

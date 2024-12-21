@@ -1,10 +1,10 @@
 package com.reddot.app.service.user;
 
 import com.reddot.app.assembler.UserAssembler;
-import com.reddot.app.dto.UserProfileDTO;
 import com.reddot.app.dto.request.ProfileUpdateRequest;
 import com.reddot.app.dto.request.RegisterRequest;
 import com.reddot.app.dto.request.UpdatePasswordRequest;
+import com.reddot.app.dto.response.UserProfileDTO;
 import com.reddot.app.entity.*;
 import com.reddot.app.entity.enumeration.ROLENAME;
 import com.reddot.app.exception.EmailNotFoundException;
@@ -40,6 +40,7 @@ public class UserServiceManagerImp implements UserServiceManager {
     private final ConfirmationTokenRepository confirmationTokenRepository;
     private final userDeleteRepository userDeleteRepository;
     private final String fullUrl;
+    private final UserAssembler userAssembler;
 
     public UserServiceManagerImp(@Value("${server.address}") String appDomain,
                                  @Value("${server.port}") String appPort,
@@ -47,7 +48,7 @@ public class UserServiceManagerImp implements UserServiceManager {
                                  MailSenderManager mailSenderManager, UserRepository userRepository, RoleRepository roleRepository,
                                  PasswordEncoder encoder, RecoveryTokenRepository recoveryTokenRepository,
                                  ConfirmationTokenRepository confirmationTokenRepository, PersonRepository personRepository,
-                                 userDeleteRepository userDeleteRepository) {
+                                 userDeleteRepository userDeleteRepository, UserAssembler userAssembler) {
         this.mailSenderManager = mailSenderManager;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
@@ -57,6 +58,7 @@ public class UserServiceManagerImp implements UserServiceManager {
         this.fullUrl = "http://" + appDomain + ":" + appPort + appPath;
         this.personRepository = personRepository;
         this.userDeleteRepository = userDeleteRepository;
+        this.userAssembler = userAssembler;
     }
 
 
@@ -354,7 +356,7 @@ public class UserServiceManagerImp implements UserServiceManager {
             userRepository.save(user);
             log.info("User profile updated successfully");
 
-            return UserAssembler.toUserProfileDTO(user, person);
+            return userAssembler.toUserProfileDTO(user, person);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -372,7 +374,7 @@ public class UserServiceManagerImp implements UserServiceManager {
             userRepository.save(user);
         }
 
-        return UserAssembler.toUserProfileDTO(user, person);
+        return userAssembler.toUserProfileDTO(user, person);
     }
 
     private boolean userExistsByEmail(String email) {
