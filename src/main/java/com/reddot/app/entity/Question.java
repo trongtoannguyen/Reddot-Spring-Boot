@@ -2,7 +2,6 @@ package com.reddot.app.entity;
 
 import com.reddot.app.entity.enumeration.VOTETYPE;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.io.Serial;
@@ -12,11 +11,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@Builder
 @Entity(name = "questions")
-@Setter
-@Getter
+@Data
 @NoArgsConstructor
-@RequiredArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class Question extends BaseEntity {
@@ -24,11 +22,8 @@ public class Question extends BaseEntity {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @NonNull
     private String body;
 
-    @NonNull
-    @Size(min = 3, max = 100)
     private String title;
 
     @Column(name = "closed_at")
@@ -53,7 +48,8 @@ public class Question extends BaseEntity {
 
     @OneToMany(mappedBy = "question",
             cascade = CascadeType.ALL,
-            orphanRemoval = true)
+            orphanRemoval = true,
+            fetch = FetchType.LAZY)
     private List<Comment> comments = new ArrayList<>();
 
     @OneToMany(mappedBy = "question",

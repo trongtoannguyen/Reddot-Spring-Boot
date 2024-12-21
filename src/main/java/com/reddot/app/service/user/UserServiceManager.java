@@ -1,9 +1,9 @@
 package com.reddot.app.service.user;
 
-import com.reddot.app.dto.UserProfileDTO;
 import com.reddot.app.dto.request.ProfileUpdateRequest;
 import com.reddot.app.dto.request.RegisterRequest;
 import com.reddot.app.dto.request.UpdatePasswordRequest;
+import com.reddot.app.dto.response.UserProfileDTO;
 import com.reddot.app.entity.User;
 import com.reddot.app.exception.EmailNotFoundException;
 import com.reddot.app.exception.ResourceNotFoundException;

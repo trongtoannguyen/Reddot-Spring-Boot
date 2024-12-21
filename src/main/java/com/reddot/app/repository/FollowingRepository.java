@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface FollowingRepository extends JpaRepository<Follow, Integer> {
     @Query("SELECT COUNT(f) FROM following f WHERE f.followed.id = :userId")
-    Long countFollowersByUserId( Integer userId);
+    Long countFollowersByUserId(Integer userId);
 }

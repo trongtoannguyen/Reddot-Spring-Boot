@@ -26,7 +26,6 @@ public class Vote extends BaseEntity {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id")
-    @NonNull
     private User user;
 
     /**

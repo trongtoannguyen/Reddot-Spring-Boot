@@ -95,6 +95,7 @@ public class RecoveryController {
     }
 
     // resend email confirm
+    // FIXME: UPDATE LOAD PRINCIPAL WITH AUTHENTICATION
     @GetMapping("/email/resend-confirm")
     public ResponseEntity<ServiceResponse<Void>> resendEmailConfirm() {
         try {

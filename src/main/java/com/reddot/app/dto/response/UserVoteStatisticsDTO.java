@@ -13,12 +13,12 @@ public class UserVoteStatisticsDTO {
         return upvotes;
     }
 
-    public Long getDownvotes() {
-        return downvotes;
-    }
-
     public void setUpvotes(Long upvotes) {
         this.upvotes = upvotes;
+    }
+
+    public Long getDownvotes() {
+        return downvotes;
     }
 
     public void setDownvotes(Long downvotes) {

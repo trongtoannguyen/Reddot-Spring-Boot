@@ -1,8 +1,8 @@
 package com.reddot.app.controller;
 
-import com.reddot.app.dto.UserProfileDTO;
 import com.reddot.app.dto.request.ProfileUpdateRequest;
 import com.reddot.app.dto.response.ServiceResponse;
+import com.reddot.app.dto.response.UserProfileDTO;
 import com.reddot.app.entity.User;
 import com.reddot.app.exception.BadRequestException;
 import com.reddot.app.exception.ResourceNotFoundException;
