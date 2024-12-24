@@ -4,6 +4,8 @@ import com.reddot.app.entity.Comment;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -18,7 +20,7 @@ public class QuestionDTO {
     private Integer questionId;
     private String title;
     private String body;
-    private Set<TagDTO> tags;
+    private Set<TagDTO> tags = new HashSet<>();
     private ShallowUserDTO owner;
     private LocalDateTime creationDate;
     private LocalDateTime lastEditDate;
@@ -29,5 +31,5 @@ public class QuestionDTO {
     private Boolean downvoted;
     private Boolean bookmarked;
     private Integer commentCount;
-    private List<Comment> commentList;
+    private List<Comment> commentList = new ArrayList<>();
 }

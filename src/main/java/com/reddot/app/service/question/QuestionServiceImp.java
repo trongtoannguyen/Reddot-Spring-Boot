@@ -54,7 +54,7 @@ public class QuestionServiceImp implements QuestionService {
     }
 
     @Override
-    public QuestionDTO questionDetailGetById(Integer questionId, Integer userId) throws ResourceNotFoundException {
+    public QuestionDTO questionGetWithUser(Integer questionId, Integer userId) throws ResourceNotFoundException {
         try {
             Question question = questionRepository.findById(questionId).orElseThrow(() -> new ResourceNotFoundException("Question with id " + questionId + " not found"));
             QuestionDTO dto = questionAssembler.toDTO(question);

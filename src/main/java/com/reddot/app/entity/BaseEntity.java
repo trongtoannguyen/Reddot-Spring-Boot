@@ -1,5 +1,6 @@
 package com.reddot.app.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -28,6 +29,7 @@ public abstract class BaseEntity implements Persistable<Integer>, Serializable {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @JsonIgnore
     @Override
     public boolean isNew() {
         return isNew;

@@ -1,5 +1,6 @@
 package com.reddot.app.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -39,6 +40,7 @@ public class Person extends BaseEntity {
     @Column(name = "website_url")
     private String websiteUrl;
 
+    @JsonManagedReference
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;

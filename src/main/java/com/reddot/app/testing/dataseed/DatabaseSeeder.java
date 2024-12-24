@@ -175,8 +175,8 @@ public class DatabaseSeeder implements CommandLineRunner {
         log.info(">>>>>>>>>> ADMIN COMMENT ON THIS QUESTION");
         Comment comment = new Comment();
         comment.setText(faker.lorem().sentence());
-        comment.setQuestion(question);
-        seedAdmin.comment(comment);
+        question.addComment(comment);
+        seedAdmin.addComment(comment);
         commentRepository.save(comment);
 
 

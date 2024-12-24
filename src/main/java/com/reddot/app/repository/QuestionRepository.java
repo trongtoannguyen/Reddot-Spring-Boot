@@ -24,7 +24,7 @@ public interface QuestionRepository extends JpaRepository<Question, Integer> {
             "ORDER BY upvotes DESC")
     List<Object[]> findTopQuestionsByVotesForUser(@Param("userId") Integer userId, Pageable pageable);
 
-    Optional<Question> findById(Integer questionId);
+    Optional<Question> findById(Integer id);
 
     boolean existsByIdAndVotes_UserIdAndVotes_VoteTypeId(Integer questionId, Integer userId, Integer voteTypeId);
 }

@@ -26,7 +26,7 @@ public interface QuestionService {
      * @return QuestionDTO object containing the question details
      * @throws ResourceNotFoundException if the question is not found
      */
-    QuestionDTO questionDetailGetById(Integer questionId, Integer userId) throws ResourceNotFoundException;
+    QuestionDTO questionGetWithUser(Integer questionId, Integer userId) throws ResourceNotFoundException;
 
     /**
      * This method is used to get a question by its id.
