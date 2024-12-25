@@ -14,12 +14,13 @@ import java.io.Serial;
 @AllArgsConstructor
 @Setter
 @Getter
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 public class Notification extends BaseEntity {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
+    @EqualsAndHashCode.Include
     private String message;
 
     private boolean isRead;

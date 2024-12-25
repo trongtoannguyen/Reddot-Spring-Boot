@@ -7,6 +7,8 @@ import lombok.*;
 
 import java.io.Serial;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -16,7 +18,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 public class Question extends BaseEntity {
 
     @Serial
@@ -41,7 +43,7 @@ public class Question extends BaseEntity {
     @OneToMany(mappedBy = "question",
             cascade = CascadeType.ALL,
             orphanRemoval = true)
-    private List<Comment> comments;
+    private List<Comment> comments = new ArrayList<>();
 
     @ManyToMany(cascade = {
             CascadeType.DETACH,
@@ -50,14 +52,14 @@ public class Question extends BaseEntity {
     @JoinTable(name = "question_tags",
             joinColumns = @JoinColumn(name = "question_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id"))
-    private Set<Tag> tags;
+    private Set<Tag> tags = new HashSet<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "question",
             cascade = CascadeType.ALL,
             orphanRemoval = true,
             fetch = FetchType.EAGER)
-    private List<Vote> votes;
+    private List<Vote> votes = new ArrayList<>();
 
     public void addTag(Tag tag) {
         this.tags.add(tag);

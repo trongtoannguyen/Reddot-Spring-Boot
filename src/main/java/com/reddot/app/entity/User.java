@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  */
 @Setter
 @Getter
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 @Entity(name = "users")
 public class User extends BaseEntity implements UserDetails {
@@ -28,13 +28,13 @@ public class User extends BaseEntity implements UserDetails {
     private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
     @NaturalId
-    @NonNull
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
+    @EqualsAndHashCode.Include //Business key should be used in equals() and hashCode()
     private String username;
 
+    // TODO: implement hashing mail
     @NaturalId(mutable = true)
-    @NonNull
-    @Column(name = "email_hash", unique = true)
+    @Column(unique = true, nullable = false)
     private String email;
 
     @JsonIgnore
@@ -188,7 +188,7 @@ public class User extends BaseEntity implements UserDetails {
 
     public void follow(User followed) {
         Follow follow = new Follow(this, followed);
-        followings.add(follow);
+        this.followings.add(follow);
         followed.getFollowers().add(follow);
     }
 

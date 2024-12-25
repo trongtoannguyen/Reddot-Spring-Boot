@@ -9,12 +9,16 @@ import org.springframework.data.domain.Persistable;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Setter
-@EqualsAndHashCode
 @MappedSuperclass
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public abstract class BaseEntity implements Persistable<Integer>, Serializable {
+    @Transient
+    @EqualsAndHashCode.Include
+    private final String temporaryKey = UUID.randomUUID().toString();
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -54,3 +58,4 @@ public abstract class BaseEntity implements Persistable<Integer>, Serializable {
         this.setUpdatedAt(now);
     }
 }
+

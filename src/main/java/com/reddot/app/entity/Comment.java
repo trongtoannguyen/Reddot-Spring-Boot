@@ -2,7 +2,10 @@ package com.reddot.app.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,9 +13,8 @@ import java.util.List;
 @Entity(name = "comments")
 @Setter
 @Getter
-@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
-@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 public class Comment extends BaseEntity {
 
     private String text;
@@ -22,8 +24,7 @@ public class Comment extends BaseEntity {
      * Never null
      */
     @ManyToOne
-    @JoinColumn(name = "question_id")
-    @NonNull
+    @JoinColumn(name = "question_id", nullable = false, updatable = false) // prevent equals and hashCode breaking
     private Question question;
 
     /**
