@@ -24,4 +24,5 @@ public interface CommentRepository extends JpaRepository<Comment, Integer> {
             "ORDER BY COUNT(v.id) DESC")
     List<Map<String, Object>> findTopCommentsWithQuestionsByUserId(@Param("userId") Integer userId, Pageable pageable);
 
+    Boolean existsByIdAndVotes_UserIdAndVotes_VoteTypeId(Integer commentId, Integer userId, int direction);
 }

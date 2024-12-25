@@ -26,5 +26,5 @@ public interface QuestionRepository extends JpaRepository<Question, Integer> {
 
     Optional<Question> findById(Integer id);
 
-    boolean existsByIdAndVotes_UserIdAndVotes_VoteTypeId(Integer questionId, Integer userId, Integer voteTypeId);
+    boolean existsByIdAndVotes_UserIdAndVotes_VoteTypeId(Integer questionId, Integer userId, int direction);
 }

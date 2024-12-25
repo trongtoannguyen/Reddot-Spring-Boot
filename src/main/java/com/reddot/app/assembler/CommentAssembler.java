@@ -1,11 +1,14 @@
 package com.reddot.app.assembler;
 
+import com.reddot.app.assembler.decorator.CommentMapperDecorator;
 import com.reddot.app.dto.response.CommentDTO;
 import com.reddot.app.entity.Comment;
+import org.mapstruct.DecoratedWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring", uses = {UserAssembler.class})
+@DecoratedWith(CommentMapperDecorator.class)
 public interface CommentAssembler {
 
     @Mapping(target = "commentId", source = "id")

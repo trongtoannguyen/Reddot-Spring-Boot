@@ -35,10 +35,19 @@ public class QuestionServiceImp implements QuestionService {
             Set<String> tagStrings = dto.tags();
             Set<Tag> tags = null;
             if (tagStrings != null) {
-                tags = tagStrings.stream().map(tagString -> tagRepository.findByName(tagString).orElseGet(() -> tagRepository.save(Tag.builder().name(tagString).build()))).collect(java.util.stream.Collectors.toSet());
+                // fixme: this is a workaround for creating a new question with undefined tags
+                tags = tagStrings.stream().map(tagString -> tagRepository.findByName(tagString).orElseThrow(() -> new ResourceNotFoundException("Tag with name " + tagString + " not found"))).collect(java.util.stream.Collectors.toSet());
             }
             Question question = Question.builder().body(dto.body()).title(dto.title()).tags(tags).user(creator).build();
             questionRepository.save(question);
+            // update number of tag usages
+            if (tags != null) {
+                tags.forEach(tag -> {
+                    tag.setTagged(tag.getTagged() + 1);
+                    tagRepository.save(tag);
+                });
+            }
+
             QuestionDTO dto1 = questionAssembler.toDTO(question);
 
             // custom logic for user-specific properties

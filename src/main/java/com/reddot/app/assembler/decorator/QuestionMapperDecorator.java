@@ -11,7 +11,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
 
+@Service
 public abstract class QuestionMapperDecorator implements QuestionAssembler {
 
     @Autowired
@@ -24,37 +26,32 @@ public abstract class QuestionMapperDecorator implements QuestionAssembler {
     @Override
     public QuestionDTO toDTO(Question question) {
         QuestionDTO dto = delegate.toDTO(question);
-        dto.setUpvoted(isQuestionUpvoted(question));
-        dto.setDownvoted(isQuestionDownvoted(question));
-        dto.setBookmarked(isQuestionBookmark(question));
-        return dto;
-    }
-
-    private Boolean isQuestionUpvoted(Question question) {
         if (SystemAuthentication.isLoggedIn()) {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             User user = (User) authentication.getPrincipal();
-            Integer userId = user.getId();
+            dto.setUpvoted(isQuestionUpvoted(question, user.getId()));
+            dto.setDownvoted(isQuestionDownvoted(question, user.getId()));
+            dto.setBookmarked(isQuestionBookmark(question, user.getId()));
+        }
+        return dto;
+    }
+
+    private Boolean isQuestionUpvoted(Question question, Integer userId) {
+        if (userId != null) {
             return questionService.isQuestionUpvotedByUser(question.getId(), userId);
         }
         return null;
     }
 
-    private Boolean isQuestionDownvoted(Question question) {
-        if (SystemAuthentication.isLoggedIn()) {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            User user = (User) authentication.getPrincipal();
-            Integer userId = user.getId();
+    private Boolean isQuestionDownvoted(Question question, Integer userId) {
+        if (userId != null) {
             return questionService.isQuestionDownvotedByUser(question.getId(), userId);
         }
         return null;
     }
 
-    private Boolean isQuestionBookmark(Question question) {
-        if (SystemAuthentication.isLoggedIn()) {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            User user = (User) authentication.getPrincipal();
-            Integer userId = user.getId();
+    private Boolean isQuestionBookmark(Question question, Integer userId) {
+        if (userId != null) {
             return questionService.isQuestionBookmarkedByUser(question.getId(), userId);
         }
         return null;
