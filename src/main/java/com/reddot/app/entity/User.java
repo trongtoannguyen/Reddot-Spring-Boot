@@ -1,5 +1,6 @@
 package com.reddot.app.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
@@ -19,7 +20,7 @@ import java.util.stream.Collectors;
  */
 @Setter
 @Getter
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 @Entity(name = "users")
 public class User extends BaseEntity implements UserDetails {
@@ -27,13 +28,13 @@ public class User extends BaseEntity implements UserDetails {
     private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
     @NaturalId
-    @NonNull
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
+    @EqualsAndHashCode.Include //Business key should be used in equals() and hashCode()
     private String username;
 
+    // TODO: implement hashing mail
     @NaturalId(mutable = true)
-    @NonNull
-    @Column(name = "email_hash", unique = true)
+    @Column(unique = true, nullable = false)
     private String email;
 
     @JsonIgnore
@@ -57,11 +58,11 @@ public class User extends BaseEntity implements UserDetails {
     // it’s unusual to consider the User as a client-side and the Person as the parent-side
     // because the person cannot exist without an actual user.
     // So the User entity should be the parent-side and the Person entity should be the client-side.
+    @JsonBackReference
     @OneToOne(mappedBy = "user",
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
-    @JsonIgnore
     private Person person;
 
     @ManyToMany(cascade = {
@@ -73,11 +74,13 @@ public class User extends BaseEntity implements UserDetails {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user",
             cascade = CascadeType.ALL,
             orphanRemoval = true)
     private List<Notification> notifications = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user",
             cascade = {
                     CascadeType.PERSIST,
@@ -85,21 +88,25 @@ public class User extends BaseEntity implements UserDetails {
                     CascadeType.DETACH})
     private List<Question> questions = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user",
             cascade = CascadeType.ALL,
             orphanRemoval = true)
     private Set<Bookmark> bookmarks = new HashSet<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user",
             cascade = CascadeType.ALL,
             orphanRemoval = true)
     private Set<UserOAuth> userOAuths = new HashSet<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user",
             cascade = CascadeType.ALL,
             orphanRemoval = true)
     private Set<JwtToken> jwtTokens = new HashSet<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user",
             fetch = FetchType.EAGER,
             cascade = {
@@ -110,11 +117,20 @@ public class User extends BaseEntity implements UserDetails {
             orphanRemoval = true)
     private Set<UserBadge> userBadges = new HashSet<>();
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "user",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY)
+    private List<Comment> comments = new ArrayList<>();
+
+    @JsonIgnore
     @OneToMany(mappedBy = "follower",
             cascade = CascadeType.ALL,
             orphanRemoval = true, fetch = FetchType.EAGER)
     private Set<Follow> followings = new HashSet<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "followed",
             cascade = CascadeType.ALL,
             orphanRemoval = true)
@@ -172,7 +188,7 @@ public class User extends BaseEntity implements UserDetails {
 
     public void follow(User followed) {
         Follow follow = new Follow(this, followed);
-        followings.add(follow);
+        this.followings.add(follow);
         followed.getFollowers().add(follow);
     }
 
@@ -216,7 +232,9 @@ public class User extends BaseEntity implements UserDetails {
         jwtToken.setUser(null);
     }
 
-    public void comment(Comment comment) {
+    //add comment to a question
+    public void addComment(Comment comment) {
+        this.comments.add(comment);
         comment.setUser(this);
     }
 

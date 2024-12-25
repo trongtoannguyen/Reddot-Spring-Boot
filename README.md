@@ -41,8 +41,8 @@ step-by-step instructions for basic tasks.
 
 ### Voting and Tagging Posts
 
-1. Upvote or downvote questions and answers by clicking the up arrow or down arrow next to each post.
-2. Use relevant tags when posting a question to help categorize it. Tags improve searchability and help users find
+1. Up vote or down vote a question and answer by clicking the up arrow or down arrow next to each post.
+2. Use relevant tags when posting a question to help categorize it. Tags improve search ability and help users find
    content related to their expertise.
 
 ### Search and Navigation
@@ -58,15 +58,15 @@ step-by-step instructions for basic tasks.
 - Accessing Your Profile: Click on your username in the top right corner to open your profile.
 - Updating Your Bio: Add or edit your bio by clicking "Edit Profile" and entering details such as your expertise or
   professional background.
-- Reputation & Badges: Your profile shows your reputation score, which increases based on upvotes, answers, and accepted
+- Reputation & Badges: Your profile shows your reputation score, which increases based on votes, answers, and accepted
   solutions. Badges are earned for participation milestones, such as answering a certain number of questions or
-  receiving a high number of upvotes.
+  receiving a high number of votes.
 
 ### Notifications and Updates
 
 - Notifications: You will receive notifications when:
     - Someone answers your question.
-    - Your answer is upvoted or accepted.
+  - Your answer is voted or accepted.
     - Someone comments on your post.
       Notifications appear in the top-right corner as a bell icon.
 
@@ -104,7 +104,7 @@ For Android:
 ### Interactivity
 
 - Swipe Gestures: Swipe left on a question in the feed to save it for later. Swipe right to view more details or answer.
-- Tapping for Interaction: Tap a question to view the full details. Tap on upvote/downvote icons to cast your vote.
+- Tapping for Interaction: Tap a question to view the full details. Tap on up-vote/down-vote icons to cast your vote.
 
 ### Offline Capabilities
 

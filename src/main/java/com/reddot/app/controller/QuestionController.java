@@ -56,7 +56,7 @@ public class QuestionController {
                 Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
                 User user = (User) authentication.getPrincipal();
                 userId = user.getId();
-                questionDTO = questionService.questionDetailGetById(id, userId);
+                questionDTO = questionService.questionGetWithUser(id, userId);
             } else {
                 questionDTO = questionService.questionGetById(id);
             }
