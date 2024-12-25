@@ -18,6 +18,8 @@ import java.util.List;
 public class Comment extends BaseEntity {
 
     private String text;
+    private int upvotes;
+    private int downvotes;
 
     /**
      * The question that this comment is related to
@@ -45,5 +47,9 @@ public class Comment extends BaseEntity {
 
     public void respondToComment(Comment comment) {
         this.responseTo = comment;
+    }
+
+    public int getScore() {
+        return upvotes * 3 - downvotes;
     }
 }

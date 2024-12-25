@@ -18,6 +18,8 @@ import java.util.UUID;
 public abstract class BaseEntity implements Persistable<Integer>, Serializable {
     @Transient
     @EqualsAndHashCode.Include
+    @JsonIgnore
+    // this is a temporary key used for the equals and hashcode methods
     private final String temporaryKey = UUID.randomUUID().toString();
 
     @Id

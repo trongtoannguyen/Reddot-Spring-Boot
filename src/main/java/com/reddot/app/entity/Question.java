@@ -40,11 +40,13 @@ public class Question extends BaseEntity {
     private User user;
 
     @JsonIgnore
+    @Builder.Default
     @OneToMany(mappedBy = "question",
             cascade = CascadeType.ALL,
             orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 
+    @Builder.Default
     @ManyToMany(cascade = {
             CascadeType.DETACH,
             CascadeType.MERGE},
@@ -55,6 +57,7 @@ public class Question extends BaseEntity {
     private Set<Tag> tags = new HashSet<>();
 
     @JsonIgnore
+    @Builder.Default
     @OneToMany(mappedBy = "question",
             cascade = CascadeType.ALL,
             orphanRemoval = true,
