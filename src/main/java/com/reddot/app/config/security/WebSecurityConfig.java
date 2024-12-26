@@ -39,6 +39,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/hello", "/auth/**").permitAll()
                         .requestMatchers("/users", "/users/{id}").permitAll()
                         .requestMatchers("/questions", "/questions/{id}").permitAll()
+                        .requestMatchers("/comments", "/comments/{id}").permitAll()
                         .requestMatchers("/settings/reset-password/**", "/settings/email/confirm").permitAll()
 
                         // Private endpoints
