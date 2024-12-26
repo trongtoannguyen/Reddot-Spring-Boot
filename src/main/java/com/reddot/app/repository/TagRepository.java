@@ -13,6 +13,8 @@ import java.util.Optional;
 public interface TagRepository extends JpaRepository<Tag, Integer> {
     Optional<Tag> findByName(String name);
 
+    List<Tag> findByNameIn(List<String> names);
+
     @Query("SELECT t.name AS tagName, COUNT(q) AS tagCount " +
             "FROM questions q " +
             "JOIN q.tags t " +

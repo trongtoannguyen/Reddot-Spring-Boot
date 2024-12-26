@@ -1,5 +1,6 @@
 package com.reddot.app.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.reddot.app.entity.enumeration.VOTETYPE;
 import jakarta.persistence.*;
 import lombok.*;
@@ -13,10 +14,11 @@ import java.util.Set;
 
 @Builder
 @Entity(name = "questions")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 public class Question extends BaseEntity {
 
     @Serial
@@ -37,6 +39,14 @@ public class Question extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @JsonIgnore
+    @Builder.Default
+    @OneToMany(mappedBy = "question",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
+
+    @Builder.Default
     @ManyToMany(cascade = {
             CascadeType.DETACH,
             CascadeType.MERGE},
@@ -46,15 +56,12 @@ public class Question extends BaseEntity {
             inverseJoinColumns = @JoinColumn(name = "tag_id"))
     private Set<Tag> tags = new HashSet<>();
 
+    @JsonIgnore
+    @Builder.Default
     @OneToMany(mappedBy = "question",
             cascade = CascadeType.ALL,
             orphanRemoval = true,
-            fetch = FetchType.LAZY)
-    private List<Comment> comments = new ArrayList<>();
-
-    @OneToMany(mappedBy = "question",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true)
+            fetch = FetchType.EAGER)
     private List<Vote> votes = new ArrayList<>();
 
     public void addTag(Tag tag) {
@@ -72,7 +79,6 @@ public class Question extends BaseEntity {
 
     public void removeComment(Comment comment) {
         this.comments.remove(comment);
-        comment.setQuestion(null);
     }
 
     public void setVote(Vote vote) {
@@ -100,6 +106,6 @@ public class Question extends BaseEntity {
     }
 
     public int getScore() {
-        return this.upvotes - this.downvotes;
+        return this.upvotes * 3 - this.downvotes;
     }
 }

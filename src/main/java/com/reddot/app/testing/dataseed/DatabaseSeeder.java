@@ -4,11 +4,13 @@ import com.github.javafaker.Faker;
 import com.reddot.app.entity.*;
 import com.reddot.app.entity.enumeration.ROLENAME;
 import com.reddot.app.entity.enumeration.VOTETYPE;
+import com.reddot.app.exception.ResourceNotFoundException;
 import com.reddot.app.repository.*;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -28,6 +30,8 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final VoteRepository voteRepository;
     private final CommentRepository commentRepository;
     private final BookmarkRepository bookmarkRepository;
+    private final String userName = "test user";
+    private final String adminName = "test admin";
 
 
     public DatabaseSeeder(PasswordEncoder encoder, UserRepository userRepository, RoleRepository roleRepository, BadgeRepository badgeRepository, TagRepository tagRepository, VoteTypeRepository voteTypeRepository, QuestionRepository questionRepository, VoteRepository voteRepository, CommentRepository commentRepository, BookmarkRepository bookmarkRepository) {
@@ -44,6 +48,7 @@ public class DatabaseSeeder implements CommandLineRunner {
     }
 
 
+    @Transactional
     @Override
     public void run(String... args) {
 
@@ -60,11 +65,18 @@ public class DatabaseSeeder implements CommandLineRunner {
         }
 
         if (voteTypeRepository.findAll().isEmpty()) {
-            seedVoteType(voteTypeRepository);
+            seedVoteType();
         }
 
         if (userRepository.findAll().isEmpty()) {
             seedUser();
+        }
+
+        if (questionRepository.findAll().isEmpty()) {
+            seedQuestion();
+            seedComment();
+            seedVote();
+            seedBookmark();
         }
 
         log.info("");
@@ -74,15 +86,15 @@ public class DatabaseSeeder implements CommandLineRunner {
                 log.info(role.getName()));
 
         log.info("<<<<<<< GETTING ALL BADGEs");
-        userRepository.findAll().forEach(user ->
-                log.info(user.getUsername()));
+        userRepository.findAll().forEach(u ->
+                log.info(u.getUsername()));
     }
 
-    private void seedVoteType(VoteTypeRepository repository) {
+    private void seedVoteType() {
         log.info("");
         log.info("########## SEEDING VOTE TYPE ##########");
-        repository.save(new VoteType(VOTETYPE.UPVOTE));
-        repository.save(new VoteType(VOTETYPE.DOWNVOTE));
+        voteTypeRepository.save(new VoteType(VOTETYPE.UPVOTE));
+        voteTypeRepository.save(new VoteType(VOTETYPE.DOWNVOTE));
         log.info("2 VOTE TYPES added to the database.");
     }
 
@@ -94,21 +106,19 @@ public class DatabaseSeeder implements CommandLineRunner {
         log.info("########## SEEDING USER ##########");
         log.info("<<<<<<< GETTING USER ROLEs");
         Role userRole = roleRepository.findByName(ROLENAME.ROLE_USER)
-                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Error: Role is not found."));
         Role adminRole = roleRepository.findByName(ROLENAME.ROLE_ADMIN)
-                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Error: Role is not found."));
 
         log.info("<<<<<<< GETTING NEWBIE BADGE");
         Badge badge = badgeRepository.findByName("Newbie")
-                .orElseThrow(() -> new RuntimeException("Error: Badge is not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Error: Badge is not found."));
 
         log.info(">>>>>>> INITIALIZING USER DATA");
         Faker faker = new Faker();
-        String username = "test user";
         String email = faker.internet().emailAddress();
         String raw = "user";
         String password = encoder.encode(raw);
-        String admin = "test admin";
         String adminEmail = faker.internet().emailAddress();
         String raw2 = "admin";
         String adminPassword = encoder.encode(raw2);
@@ -116,73 +126,88 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         // seed the user
         log.info(">>>>>>>> SEEDING TEST USER");
-        User seedUser = new User(username, email, password);
+        User seedUser = new User(userName, email, password);
         seedUser.setRoles(new HashSet<>(Set.of(userRole)));
         seedUser.addBadge(badge);
         addPerson(faker, seedUser);
 
         // seed the admin user
         log.info(">>>>>>>>> SEEDING TEST ADMIN USER");
-        User seedAdmin = new User(admin, adminEmail, adminPassword);
+        User seedAdmin = new User(adminName, adminEmail, adminPassword);
         seedAdmin.setRoles(new HashSet<>(Set.of(userRole, adminRole)));
         seedAdmin.addBadge(badge);
         addPerson(faker, seedAdmin);
-
-        userRepository.save(seedUser);
         userRepository.save(seedAdmin);
+
+        log.info("");
+        log.info("########## SEEDING FOLLOW ##########");
+        log.info(">>>>>>> {} FOLLOWS {}", seedUser.getUsername(), seedAdmin.getUsername());
+        seedUser.follow(seedAdmin);
+        userRepository.save(seedUser);
         log.info("USERS ADDED TO THE DATABASE");
         log.warn("DO NOT USE THESE USERS IN PRODUCTION");
         log.info("{} - {} - {}", seedUser.getUsername(), seedUser.getEmail(), raw);
         log.info("{} - {} - {}", seedAdmin.getUsername(), seedAdmin.getEmail(), raw2);
+    }
 
+    private void seedComment() {
+        User user = userRepository.findByUsername(adminName)
+                .orElseThrow(() -> new ResourceNotFoundException("Error: User is not found."));
+        Question question = questionRepository.findAll().getFirst();
         log.info("");
-        log.info("########## SEEDING QUESTION ##########");
-        log.info(">>>>>>> SEED USER ASKs QUESTION");
-        Set<Tag> tags = new HashSet<>();
-        tags.add(tagRepository.findByName("java")
-                .orElseThrow(() -> new RuntimeException("Error: Tag is not found.")));
-        tags.add(tagRepository.findByName("spring")
-                .orElseThrow(() -> new RuntimeException("Error: Tag is not found.")));
-        tags.add(tagRepository.findByName("jpa")
-                .orElseThrow(() -> new RuntimeException("Error: Tag is not found.")));
-        Question question = new Question();
-        question.setBody(faker.lorem().paragraph());
-        question.setTitle(faker.lorem().sentence() + "?");
-        tags.forEach(question::addTag);
-        seedUser.ask(question);
-        questionRepository.save(question);
+        log.info("########## SEEDING COMMENT ##########");
+        log.info(">>>>>>>>>> ADMIN COMMENT ON THIS QUESTION");
+        Faker faker = new Faker();
+        Comment comment = new Comment();
+        comment.setText(faker.lorem().sentence());
+        question.addComment(comment);
+        user.addComment(comment);
+        commentRepository.save(comment);
+    }
 
-        // Bookmark
-        log.info("");
-        log.info("########## SEEDING BOOKMARK ##########");
-        log.info(">>>>>>> USER BOOKMARKs THE QUESTION");
-        Bookmark bookmark = new Bookmark(seedUser, question);
-        bookmarkRepository.save(bookmark);
-
+    private void seedVote() {
+        User user = userRepository.findByUsername(userName)
+                .orElseThrow(() -> new ResourceNotFoundException("Error: User is not found."));
+        Question question = questionRepository.findAll().getFirst();
         log.info("");
         log.info("########## SEEDING VOTE ##########");
         log.info(">>>>>>> ADMIN VOTEs THE QUESTION");
         VoteType upvote = voteTypeRepository.findByType(VOTETYPE.UPVOTE)
-                .orElseThrow(() -> new RuntimeException("Error: VoteType is not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Error: VoteType is not found."));
         Vote vote = new Vote();
         vote.setVoteType(upvote);
         vote.setQuestion(question);
-        vote.setUser(seedAdmin);
+        vote.setUser(user);
         voteRepository.save(vote);
+    }
 
+    private void seedBookmark() {
+        User user = userRepository.findByUsername(userName)
+                .orElseThrow(() -> new ResourceNotFoundException("Error: User is not found."));
+        Question question = questionRepository.findAll().getFirst();
         log.info("");
-        log.info("########## SEEDING COMMENT ##########");
-        log.info(">>>>>>>>>> ADMIN COMMENT ON THIS QUESTION");
-        Comment comment = new Comment();
-        comment.setText(faker.lorem().sentence());
-        comment.setQuestion(question);
-        seedAdmin.comment(comment);
-        commentRepository.save(comment);
+        log.info("########## SEEDING BOOKMARK ##########");
+        log.info(">>>>>>> USER bookmarks THE QUESTION");
+        Bookmark bookmark = new Bookmark(user, question);
+        bookmarkRepository.save(bookmark);
+    }
 
+    private void seedQuestion() {
+        User user = userRepository.findByUsername(userName)
+                .orElseThrow(() -> new ResourceNotFoundException("Error: User is not found."));
+        log.info("");
+        log.info("########## SEEDING QUESTION ##########");
+        log.info(">>>>>>> SEED USER ASKs QUESTION");
+        // retrieve tags
+        List<Tag> tags = tagRepository.findByNameIn(List.of("java", "spring", "spring-boot"));
+        Faker faker = new Faker();
 
-        log.info(">>>>>>>> TEST USER FOLLOWs TEST ADMIN");
-        seedUser.follow(seedAdmin);
-        userRepository.save(seedUser);
+        Question question = new Question();
+        question.setBody(faker.lorem().paragraph());
+        question.setTitle(faker.lorem().sentence() + "?");
+        question.setTags(new HashSet<>(tags));
+        user.ask(question);
+        questionRepository.save(question);
     }
 
     /**
@@ -244,18 +269,18 @@ public class DatabaseSeeder implements CommandLineRunner {
                 new Badge("Legend", "Posted 100000000 questions", "gold"));
 
         List<Badge> featureBadges = List.of(
-                new Badge("Good Question", "Your question has been upvoted 10 times", "bronze"),
-                new Badge("Great Question", "Your question has been upvoted 100 times", "bronze"),
-                new Badge("Awesome Question", "Your question has been upvoted 1000 times", "bronze"),
-                new Badge("Good Answer", "Your answer has been upvoted 10 times", "bronze"),
-                new Badge("Great Answer", "Your answer has been upvoted 100 times", "bronze"),
-                new Badge("Awesome Answer", "Your answer has been upvoted 1000 times", "bronze"),
-                new Badge("Good Comment", "Your comment has been upvoted 10 times", "bronze"),
-                new Badge("Great Comment", "Your comment has been upvoted 100 times", "bronze"),
-                new Badge("Awesome Comment", "Your comment has been upvoted 1000 times", "bronze"),
-                new Badge("Good Contribution", "Your post has been upvoted 10 times", "bronze"),
-                new Badge("Great Contribution", "Your post has been upvoted 100 times", "bronze"),
-                new Badge("Awesome Contribution", "Your post has been upvoted 1000 times", "bronze"));
+                new Badge("Good Question", "Your question has been up voted 10 times", "bronze"),
+                new Badge("Great Question", "Your question has been up voted 100 times", "bronze"),
+                new Badge("Awesome Question", "Your question has been up voted 1000 times", "bronze"),
+                new Badge("Good Answer", "Your answer has been up voted 10 times", "bronze"),
+                new Badge("Great Answer", "Your answer has been up voted 100 times", "bronze"),
+                new Badge("Awesome Answer", "Your answer has been up voted 1000 times", "bronze"),
+                new Badge("Good Comment", "Your comment has been up voted 10 times", "bronze"),
+                new Badge("Great Comment", "Your comment has been up  voted 100 times", "bronze"),
+                new Badge("Awesome Comment", "Your comment has been up voted 1000 times", "bronze"),
+                new Badge("Good Contribution", "Your post has been up voted 10 times", "bronze"),
+                new Badge("Great Contribution", "Your post has been up voted 100 times", "bronze"),
+                new Badge("Awesome Contribution", "Your post has been up voted 1000 times", "bronze"));
 
         log.info("");
         log.info("N########## SEEDING BADGE ##########");

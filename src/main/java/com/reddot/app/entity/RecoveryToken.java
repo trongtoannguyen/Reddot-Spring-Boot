@@ -15,9 +15,11 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor
 @RequiredArgsConstructor
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 public class RecoveryToken extends BaseEntity {
 
     @NonNull
+    @EqualsAndHashCode.Include
     private String token;
     @NonNull
     @Column(name = "owner_id")

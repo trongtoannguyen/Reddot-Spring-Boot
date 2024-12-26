@@ -1,7 +1,11 @@
 package com.reddot.app.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,20 +13,20 @@ import java.util.List;
 @Entity(name = "comments")
 @Setter
 @Getter
-@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
-@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 public class Comment extends BaseEntity {
 
     private String text;
+    private int upvotes;
+    private int downvotes;
 
     /**
      * The question that this comment is related to
      * Never null
      */
     @ManyToOne
-    @JoinColumn(name = "question_id")
-    @NonNull
+    @JoinColumn(name = "question_id", nullable = false, updatable = false) // prevent equals and hashCode breaking
     private Question question;
 
     /**
@@ -37,11 +41,20 @@ public class Comment extends BaseEntity {
     @JoinColumn(name = "author_id")
     private User user;
 
-
+    @JsonIgnore
     @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Vote> votes = new ArrayList<>();
 
+    public Comment(String body, User author) {
+        this.text = body;
+        this.user = author;
+    }
+
     public void respondToComment(Comment comment) {
         this.responseTo = comment;
+    }
+
+    public int getScore() {
+        return upvotes * 3 - downvotes;
     }
 }

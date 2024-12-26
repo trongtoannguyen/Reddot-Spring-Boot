@@ -12,16 +12,15 @@ import com.reddot.app.repository.QuestionRepository;
 import com.reddot.app.repository.TagRepository;
 import com.reddot.app.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class QuestionServiceImp implements QuestionService {
-    private static final Logger log = LoggerFactory.getLogger(QuestionServiceImp.class);
     private final UserRepository userRepository;
     private final QuestionRepository questionRepository;
     private final QuestionAssembler questionAssembler;
@@ -35,10 +34,19 @@ public class QuestionServiceImp implements QuestionService {
             Set<String> tagStrings = dto.tags();
             Set<Tag> tags = null;
             if (tagStrings != null) {
-                tags = tagStrings.stream().map(tagString -> tagRepository.findByName(tagString).orElseGet(() -> tagRepository.save(Tag.builder().name(tagString).build()))).collect(java.util.stream.Collectors.toSet());
+                // fixme: this is a workaround for creating a new question with undefined tags
+                tags = tagStrings.stream().map(tagString -> tagRepository.findByName(tagString).orElseThrow(() -> new ResourceNotFoundException("Tag with name " + tagString + " not found"))).collect(java.util.stream.Collectors.toSet());
             }
             Question question = Question.builder().body(dto.body()).title(dto.title()).tags(tags).user(creator).build();
             questionRepository.save(question);
+            // update number of tag usages
+            if (tags != null) {
+                tags.forEach(tag -> {
+                    tag.setTagged(tag.getTagged() + 1);
+                    tagRepository.save(tag);
+                });
+            }
+
             QuestionDTO dto1 = questionAssembler.toDTO(question);
 
             // custom logic for user-specific properties
@@ -54,7 +62,7 @@ public class QuestionServiceImp implements QuestionService {
     }
 
     @Override
-    public QuestionDTO questionDetailGetById(Integer questionId, Integer userId) throws ResourceNotFoundException {
+    public QuestionDTO questionGetWithUser(Integer questionId, Integer userId) throws ResourceNotFoundException {
         try {
             Question question = questionRepository.findById(questionId).orElseThrow(() -> new ResourceNotFoundException("Question with id " + questionId + " not found"));
             QuestionDTO dto = questionAssembler.toDTO(question);
