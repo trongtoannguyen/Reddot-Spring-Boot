@@ -45,6 +45,11 @@ public class Comment extends BaseEntity {
     @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Vote> votes = new ArrayList<>();
 
+    public Comment(String body, User author) {
+        this.text = body;
+        this.user = author;
+    }
+
     public void respondToComment(Comment comment) {
         this.responseTo = comment;
     }
