@@ -1,24 +1,29 @@
 package com.reddot.app.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
 import org.springframework.data.domain.Persistable;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Setter
-@EqualsAndHashCode
 @MappedSuperclass
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public abstract class BaseEntity implements Persistable<Integer>, Serializable {
+    @Transient
+    @EqualsAndHashCode.Include
+    @JsonIgnore
+    // this is a temporary key used for the equals and hashcode methods
+    private final String temporaryKey = UUID.randomUUID().toString();
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @NonNull
     private Integer id;
 
     @Transient
@@ -30,6 +35,7 @@ public abstract class BaseEntity implements Persistable<Integer>, Serializable {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @JsonIgnore
     @Override
     public boolean isNew() {
         return isNew;
@@ -54,3 +60,4 @@ public abstract class BaseEntity implements Persistable<Integer>, Serializable {
         this.setUpdatedAt(now);
     }
 }
+

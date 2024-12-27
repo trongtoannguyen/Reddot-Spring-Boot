@@ -29,16 +29,9 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorObject, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @ExceptionHandler({MethodArgumentTypeMismatchException.class, MethodArgumentNotValidException.class, HttpMessageNotReadableException.class})
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseEntity<ErrorObject> handleMethodArgumentNotValidExceptions(Exception ex, WebRequest request) {
-        ErrorObject errorObject = new ErrorObject(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage(), request.getDescription(false));
-        return new ResponseEntity<>(errorObject, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @ExceptionHandler({BadRequestException.class})
+    @ExceptionHandler({BadRequestException.class, MethodArgumentTypeMismatchException.class, MethodArgumentNotValidException.class, HttpMessageNotReadableException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<ErrorObject> handleBadRequestException(BadRequestException ex, WebRequest request) {
+    public ResponseEntity<ErrorObject> handleMethodArgumentNotValidExceptions(Exception ex, WebRequest request) {
         ErrorObject errorObject = new ErrorObject(HttpStatus.BAD_REQUEST.value(), ex.getMessage(), request.getDescription(false));
         return new ResponseEntity<>(errorObject, HttpStatus.BAD_REQUEST);
     }

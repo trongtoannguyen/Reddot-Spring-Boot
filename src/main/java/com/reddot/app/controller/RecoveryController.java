@@ -4,6 +4,7 @@ import com.reddot.app.dto.request.EmailRequest;
 import com.reddot.app.dto.request.UpdatePasswordRequest;
 import com.reddot.app.dto.response.ServiceResponse;
 import com.reddot.app.entity.User;
+import com.reddot.app.exception.BadRequestException;
 import com.reddot.app.exception.ResourceNotFoundException;
 import com.reddot.app.service.user.UserServiceManager;
 import jakarta.validation.Valid;
@@ -59,6 +60,8 @@ public class RecoveryController {
             // Confirm password reset
             userServiceManager.pwReset(request);
             return new ResponseEntity<>(new ServiceResponse<>(HttpStatus.OK.value(), "Password reset successfully"), HttpStatus.OK);
+        } catch (ResourceNotFoundException | BadRequestException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
@@ -95,6 +98,7 @@ public class RecoveryController {
     }
 
     // resend email confirm
+    // FIXME: UPDATE LOAD PRINCIPAL WITH AUTHENTICATION
     @GetMapping("/email/resend-confirm")
     public ResponseEntity<ServiceResponse<Void>> resendEmailConfirm() {
         try {

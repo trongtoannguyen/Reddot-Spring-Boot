@@ -1,5 +1,9 @@
 package com.reddot.app.service.user;
-import com.reddot.app.dto.response.*;
+
+import com.reddot.app.dto.response.UserAnswerStatisticsDTO;
+import com.reddot.app.dto.response.UserBadgeStatisticsDTO;
+import com.reddot.app.dto.response.UserFollowerStatisticsDTO;
+import com.reddot.app.dto.response.UserQuestionStatisticsDTO;
 import com.reddot.app.entity.Badge;
 import com.reddot.app.entity.User;
 import com.reddot.app.entity.UserBadge;
@@ -21,8 +25,8 @@ public class StatisticsService {
     private final FollowingRepository followingRepository;
     private final TagRepository tagRepository;
     private final UserBadgeRepository userBadgeRepository;
-    private  final UserRepository userRepository;
-    private  final  BadgeRepository badgeRepository;
+    private final UserRepository userRepository;
+    private final BadgeRepository badgeRepository;
 
     public StatisticsService(QuestionRepository questionRepository,
                              CommentRepository commentRepository,

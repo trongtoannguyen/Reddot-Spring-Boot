@@ -20,13 +20,13 @@ import java.io.Serial;
 @Getter
 @RequiredArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 public class Vote extends BaseEntity {
     @Serial
     private static final long serialVersionUID = 1L;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id")
-    @NonNull
     private User user;
 
     /**

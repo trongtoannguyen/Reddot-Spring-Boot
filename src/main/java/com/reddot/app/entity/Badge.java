@@ -13,7 +13,7 @@ import java.io.Serial;
 @NoArgsConstructor
 @AllArgsConstructor
 @RequiredArgsConstructor
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 public class Badge extends BaseEntity {
 
     @Serial
@@ -22,6 +22,7 @@ public class Badge extends BaseEntity {
     @NonNull
     @Size(min = 3, max = 50)
     @Column(unique = true)
+    @EqualsAndHashCode.Include
     private String name;
 
     @Column(name = "logo_url")

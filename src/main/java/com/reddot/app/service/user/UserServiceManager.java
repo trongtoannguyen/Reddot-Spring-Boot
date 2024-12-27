@@ -1,15 +1,15 @@
 package com.reddot.app.service.user;
 
-import com.reddot.app.dto.UserProfileDTO;
 import com.reddot.app.dto.request.ProfileUpdateRequest;
 import com.reddot.app.dto.request.RegisterRequest;
 import com.reddot.app.dto.request.UpdatePasswordRequest;
+import com.reddot.app.dto.response.UserProfileDTO;
 import com.reddot.app.entity.User;
+import com.reddot.app.exception.BadRequestException;
 import com.reddot.app.exception.EmailNotFoundException;
 import com.reddot.app.exception.ResourceNotFoundException;
 import jakarta.validation.Valid;
 import lombok.NonNull;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
@@ -18,7 +18,6 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public interface UserServiceManager extends UserDetailsService {
-
     /**
      * Locates the user based on the email.
      *
@@ -26,7 +25,7 @@ public interface UserServiceManager extends UserDetailsService {
      * @return a fully populated user record (never <code>null</code>)
      * @throws EmailNotFoundException if the user could not be found.
      */
-    UserDetails loadUserByEmail(String email) throws EmailNotFoundException;
+    User loadUserByEmail(String email) throws EmailNotFoundException;
 
     void userCreate(RegisterRequest request);
 
@@ -44,7 +43,7 @@ public interface UserServiceManager extends UserDetailsService {
 
     void pwForgot(String email) throws ResourceNotFoundException;
 
-    void pwReset(UpdatePasswordRequest request);
+    void pwReset(UpdatePasswordRequest request) throws ResourceNotFoundException, BadRequestException;
 
     void emailUpdate(Integer userId, String newEmail) throws ResourceNotFoundException;
 

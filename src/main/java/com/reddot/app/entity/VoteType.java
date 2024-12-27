@@ -9,6 +9,7 @@ import lombok.*;
 @Getter
 @NoArgsConstructor
 @RequiredArgsConstructor
+@EqualsAndHashCode
 public class VoteType {
 
     @Id

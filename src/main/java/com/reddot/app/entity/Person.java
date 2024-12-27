@@ -1,5 +1,6 @@
 package com.reddot.app.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -19,6 +20,7 @@ import java.time.LocalDate;
 @Setter
 @NoArgsConstructor
 @RequiredArgsConstructor
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 public class Person extends BaseEntity {
     @Serial
     private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
@@ -39,6 +41,7 @@ public class Person extends BaseEntity {
     @Column(name = "website_url")
     private String websiteUrl;
 
+    @JsonManagedReference
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
