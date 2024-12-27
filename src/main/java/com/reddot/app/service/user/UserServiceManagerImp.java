@@ -7,11 +7,11 @@ import com.reddot.app.dto.request.UpdatePasswordRequest;
 import com.reddot.app.dto.response.UserProfileDTO;
 import com.reddot.app.entity.*;
 import com.reddot.app.entity.enumeration.ROLENAME;
+import com.reddot.app.exception.BadRequestException;
 import com.reddot.app.exception.EmailNotFoundException;
 import com.reddot.app.exception.ResourceNotFoundException;
 import com.reddot.app.repository.*;
 import com.reddot.app.service.email.MailSenderManager;
-import com.reddot.app.util.Validator;
 import jakarta.validation.Valid;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
@@ -289,12 +289,9 @@ public class UserServiceManagerImp implements UserServiceManager {
     }
 
     @Override
-    public void pwReset(UpdatePasswordRequest request) {
+    public void pwReset(UpdatePasswordRequest request) throws ResourceNotFoundException, BadRequestException {
         try {
             RecoveryToken recoveryToken = recoveryTokenRepository.findByToken(request.getToken()).orElseThrow(() -> new ResourceNotFoundException("TOKEN_NOT_FOUND"));
-            if (!Validator.isPasswordValid(request.getPassword())) {
-                throw new Exception("INVALID_PASSWORD_FORMAT");
-            }
             if (recoveryToken.isUsed()) {
                 throw new Exception("TOKEN_ALREADY_USED");
             }
@@ -302,6 +299,11 @@ public class UserServiceManagerImp implements UserServiceManager {
                 throw new Exception("TOKEN_EXPIRED");
             }
             User user = getUser(recoveryToken.getOwnerId());
+
+            // prevent user from using the old password
+            if (encoder.matches(request.getPassword(), user.getPassword())) {
+                throw new BadRequestException("You cannot use the old password");
+            }
             user.setPassword(encoder.encode(request.getPassword()));
             userRepository.save(user);
             recoveryToken.setUsed(true);
@@ -315,6 +317,9 @@ public class UserServiceManagerImp implements UserServiceManager {
                      Your password has been reset successfully.
                     \s""";
             mailSenderManager.sendEmail(user.getEmail(), subject, body);
+        } catch (ResourceNotFoundException | BadRequestException e) {
+            log.error(e.getMessage());
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -400,20 +405,12 @@ public class UserServiceManagerImp implements UserServiceManager {
 
     private List<String> validateUser(RegisterRequest user) {
         List<String> messages = new ArrayList<>();
-        if (!Validator.isUsernameValid(user.getUsername())) {
-            messages.add("Invalid Username Format");
-        } else if (userRepository.existsByUsername(user.getUsername())) {
+        if (userRepository.existsByUsername(user.getUsername())) {
             messages.add("Username already exists in the system!");
         }
 
-        if (!Validator.isEmailValid(user.getEmail())) {
-            messages.add("Invalid Email Format");
-        } else if (userRepository.existsByEmail(user.getEmail())) {
+        if (userRepository.existsByEmail(user.getEmail())) {
             messages.add("Email already exists in the system");
-        }
-
-        if (!Validator.isPasswordValid(user.getPassword())) {
-            messages.add("Invalid Password Format");
         }
 
         return messages;
