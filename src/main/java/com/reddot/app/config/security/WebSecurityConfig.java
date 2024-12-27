@@ -34,17 +34,18 @@ public class WebSecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
 
                 // Set permissions for different endpoints
+                .securityMatcher("/questions/**", "/comments/**", "/answers/**", "/users/**", "/settings/**", "/private/**", "/admin/**")
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints
                         .requestMatchers("/hello", "/auth/**").permitAll()
-                        .requestMatchers("/users", "/users/{id}").permitAll()
-                        .requestMatchers("/questions", "/questions/{id}").permitAll()
-                        .requestMatchers("/comments", "/comments/{id}").permitAll()
-                        .requestMatchers("/settings/reset-password/**", "/settings/email/confirm").permitAll()
+                        .requestMatchers("/users", "/users/{id:[0-9]+}").permitAll()
+                        .requestMatchers("/questions", "/questions/{id:[0-9]+}").permitAll()
+                        .requestMatchers("/comments/{id:[0-9]+}").permitAll()
+                        .requestMatchers("/settings/reset-password", "/settings/reset-password/confirm", "/settings/email/confirm").permitAll()
 
-                        // Private endpoints
-                        .requestMatchers("/api/private/**").hasRole("ADMIN")
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        // Private endpoints accessible by role
+                        .requestMatchers("/private/**").hasRole("ADMIN")
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
 
                         // OpenAPI endpoints
                         .requestMatchers("/v3/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
