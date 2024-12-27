@@ -4,9 +4,12 @@ import com.reddot.app.assembler.QuestionAssembler;
 import com.reddot.app.dto.request.QuestionCreateDTO;
 import com.reddot.app.dto.response.QuestionDTO;
 import com.reddot.app.entity.Question;
+import com.reddot.app.entity.Role;
 import com.reddot.app.entity.Tag;
 import com.reddot.app.entity.User;
+import com.reddot.app.entity.enumeration.ROLENAME;
 import com.reddot.app.entity.enumeration.VOTETYPE;
+import com.reddot.app.exception.BadRequestException;
 import com.reddot.app.exception.ResourceNotFoundException;
 import com.reddot.app.repository.QuestionRepository;
 import com.reddot.app.repository.TagRepository;
@@ -15,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Set;
 
 @Slf4j
@@ -99,6 +103,33 @@ public class QuestionServiceImp implements QuestionService {
     }
 
     @Override
+    public void questionDelete(Integer questionId, Integer userId) throws ResourceNotFoundException, BadRequestException {
+        try {
+            Question question = getQuestion(questionId);
+            User user = getUser(userId);
+            List<Role> roleList = List.copyOf(user.getRoles());
+
+            // Check if the user is the owner, admin, or moderator
+            assert question.getUser().getId() != null;
+            boolean isOwner = question.getUser().getId().equals(userId);
+            boolean isSuperUser = roleList.stream().anyMatch(role -> role.getName().equals(ROLENAME.ROLE_ADMIN) || role.getName().equals(ROLENAME.ROLE_MODERATOR));
+            if (!isOwner && !isSuperUser) {
+                throw new BadRequestException("You are not permitted to delete this question");
+            }
+            if (question.isClosed()) {
+                throw new BadRequestException("You cannot delete a closed question");
+            }
+            questionRepository.delete(question);
+        } catch (ResourceNotFoundException | BadRequestException e) {
+            log.error(e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            log.error("An error occurred while deleting the question", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
     public boolean isQuestionUpvotedByUser(Integer questionId, Integer userId) {
         return questionRepository.existsByIdAndVotes_UserIdAndVotes_VoteTypeId(questionId, userId, VOTETYPE.UPVOTE.getDirection());
     }
@@ -111,6 +142,10 @@ public class QuestionServiceImp implements QuestionService {
     @Override
     public boolean isQuestionBookmarkedByUser(Integer questionId, Integer userId) {
         return false;
+    }
+
+    private Question getQuestion(Integer id) {
+        return questionRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Question with id " + id + " not found"));
     }
 
     private User getUser(Integer userId) {

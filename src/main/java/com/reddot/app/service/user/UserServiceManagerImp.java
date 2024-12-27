@@ -74,14 +74,10 @@ public class UserServiceManagerImp implements UserServiceManager {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username or email: " + param));
     }
 
-    // TODO: comment out these methods to implement User entity instead of UserDetails
-    // protected List<GrantedAuthority> loadUserAuthorities(String username)
-    // Helper method
-    // protected UserDetails createUserDetails(User userFromDb, List<GrantedAuthority> combinedAuthorities)
-
     @Override
-    public UserDetails loadUserByEmail(String email) throws EmailNotFoundException {
-        return userRepository.findByEmail(email).orElseThrow(() -> new EmailNotFoundException("User not found with mail address: " + email));
+    public User loadUserByEmail(String email) throws EmailNotFoundException {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new EmailNotFoundException("User not found with mail address: " + email));
     }
 
     /**

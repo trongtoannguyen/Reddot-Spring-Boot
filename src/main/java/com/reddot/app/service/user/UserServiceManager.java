@@ -10,7 +10,6 @@ import com.reddot.app.exception.EmailNotFoundException;
 import com.reddot.app.exception.ResourceNotFoundException;
 import jakarta.validation.Valid;
 import lombok.NonNull;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +18,6 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public interface UserServiceManager extends UserDetailsService {
-
     /**
      * Locates the user based on the email.
      *
@@ -27,7 +25,7 @@ public interface UserServiceManager extends UserDetailsService {
      * @return a fully populated user record (never <code>null</code>)
      * @throws EmailNotFoundException if the user could not be found.
      */
-    UserDetails loadUserByEmail(String email) throws EmailNotFoundException;
+    User loadUserByEmail(String email) throws EmailNotFoundException;
 
     void userCreate(RegisterRequest request);
 
