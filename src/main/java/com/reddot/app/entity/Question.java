@@ -38,7 +38,8 @@ public class Question extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
-
+    @Column(name = "report_count", nullable = false)
+    private int reportCount = 0;
     @JsonIgnore
     @Builder.Default
     @OneToMany(mappedBy = "question",

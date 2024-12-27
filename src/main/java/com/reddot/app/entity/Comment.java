@@ -40,7 +40,8 @@ public class Comment extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "author_id")
     private User user;
-
+    @Column(name = "report_count", nullable = false)
+    private int reportCount = 0;
     @JsonIgnore
     @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Vote> votes = new ArrayList<>();

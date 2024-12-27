@@ -54,7 +54,8 @@ public class User extends BaseEntity implements UserDetails {
 
     @Column(name = "last_access")
     private LocalDateTime lastAccess;
-
+    @Column(name = "violation_count", nullable = false)
+    private int violationCount = 0;
     // it’s unusual to consider the User as a client-side and the Person as the parent-side
     // because the person cannot exist without an actual user.
     // So the User entity should be the parent-side and the Person entity should be the client-side.
