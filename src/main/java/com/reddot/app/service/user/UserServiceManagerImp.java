@@ -282,12 +282,23 @@ public class UserServiceManagerImp implements UserServiceManager {
                 throw new Exception("EMAIL_ALREADY_CONFIRMED");
             }
 
-            // Send mail confirm
+            // Send HTML email confirmation
             ConfirmationToken confirmationToken = new ConfirmationToken(user.getId());
             String subject = "Reddot email confirmation";
-            String body = "Hi there,\n\n" +
-                    "To confirm your email, click the link below:\n"
-                    + fullUrl + "/settings/email/confirm?token=" + confirmationToken.getToken();
+
+            // HTML body content
+            String body = "<html>" +
+                    "<body>" +
+                    "<h2>Confirm your new email address</h2>" +
+                    "<p>To confirm your new email, click the link below:</p>" +
+                    "<a href='" + fullUrl + "/settings/email/confirm?token=" + confirmationToken.getToken() + "' " +
+                    "style=\"padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;\">Confirm Email</a>" +
+                    "<br><br>" +
+                    "<img src='https://www.reddotcorp.com/uploads/1/2/7/5/12752286/reddotlogo.png' alt='Welcome' width='300'/>" +
+                    "<p>Best regards,<br>The Reddot Team</p>" +
+                    "</body>" +
+                    "</html>";
+
             mailSenderManager.sendEmail(user.getEmail(), subject, body);
 
             // Save confirmation token
@@ -297,6 +308,7 @@ public class UserServiceManagerImp implements UserServiceManager {
             throw new RuntimeException(e);
         }
     }
+
 
     @Override
     public void pwForgot(String email) throws ResourceNotFoundException {
