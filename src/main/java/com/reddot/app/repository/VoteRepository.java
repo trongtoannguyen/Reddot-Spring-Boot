@@ -35,6 +35,7 @@ public interface VoteRepository extends JpaRepository<Vote, Integer> {
 
     @Meta(comment = "exists vote based on userId and questionId")
     boolean existsVoteByUserIdAndQuestionIdAndVoteTypeId(Integer userId, Integer questionId, Integer voteTypeId);
+
     Optional<Vote> findByUserIdAndQuestionId(Integer userId, Integer questionId);
 
     Optional<Vote> findByUserIdAndCommentId(Integer userId, Integer commentId);
