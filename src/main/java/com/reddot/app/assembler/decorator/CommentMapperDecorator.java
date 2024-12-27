@@ -25,8 +25,8 @@ public abstract class CommentMapperDecorator implements CommentAssembler {
     @Override
     public CommentDTO toDTO(Comment comment) {
         CommentDTO dto = delegate.toDTO(comment);
-        if (SystemAuthentication.isLoggedIn()) {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (SystemAuthentication.isLoggedIn(authentication)) {
             User user = (User) authentication.getPrincipal();
             dto.setUpvoted(isCommentUpvoted(comment, user.getId()));
             dto.setDownvoted(isCommentDownvoted(comment, user.getId()));

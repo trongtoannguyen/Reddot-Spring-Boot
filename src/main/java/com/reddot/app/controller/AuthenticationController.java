@@ -45,7 +45,7 @@ public class AuthenticationController {
             SecurityContext context = SecurityContextHolder.createEmptyContext();
             context.setAuthentication(authentication);
             SecurityContextHolder.setContext(context);
-            final User user = (User) userServiceManager.loadUserByEmail(request.getEmail());
+            final User user = userServiceManager.loadUserByEmail(request.getEmail());
             userServiceManager.userOnLoginUpdate(request.getEmail());
             return jwtUtil.generateToken(user);
         } catch (DisabledException e) {

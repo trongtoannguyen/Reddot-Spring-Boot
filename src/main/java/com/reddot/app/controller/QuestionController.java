@@ -5,6 +5,7 @@ import com.reddot.app.dto.response.CommentDTO;
 import com.reddot.app.dto.response.QuestionDTO;
 import com.reddot.app.dto.response.ServiceResponse;
 import com.reddot.app.entity.User;
+import com.reddot.app.exception.BadRequestException;
 import com.reddot.app.exception.ResourceNotFoundException;
 import com.reddot.app.service.comment.CommentService;
 import com.reddot.app.service.question.QuestionService;
@@ -36,11 +37,14 @@ public class QuestionController {
     public ResponseEntity<ServiceResponse<QuestionDTO>> createQuestion(@Valid @RequestBody QuestionCreateDTO dto) {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (!SystemAuthentication.isLoggedIn(authentication)) {
+                throw new BadRequestException("You must be logged in to create a question");
+            }
             User user = (User) authentication.getPrincipal();
             QuestionDTO questionDTO = questionService.questionCreate(user.getId(), dto);
             return ResponseEntity.ok(new ServiceResponse<>(200, "Question created successfully", questionDTO));
-        } catch (ResourceNotFoundException e) {
-            throw new ResourceNotFoundException(e.getMessage());
+        } catch (BadRequestException | ResourceNotFoundException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -55,8 +59,8 @@ public class QuestionController {
         try {
             Integer userId;
             QuestionDTO questionDTO;
-            if (SystemAuthentication.isLoggedIn()) {
-                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (SystemAuthentication.isLoggedIn(authentication)) {
                 User user = (User) authentication.getPrincipal();
                 userId = user.getId();
                 questionDTO = questionService.questionGetWithUser(id, userId);
@@ -80,7 +84,7 @@ public class QuestionController {
                                  \s
                     This method returns the question with the new comment.
                     """)
-    @PostMapping("/{id}/answers/add")
+    @PostMapping("/{id}/comments/add")
     public ResponseEntity<ServiceResponse<CommentDTO>> addComment(@PathVariable Integer id, String body) {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -91,6 +95,24 @@ public class QuestionController {
             throw new ResourceNotFoundException(e.getMessage());
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    @Operation(summary = "Deletes the question identified in {id}. [auth required]",
+            description = """
+                    Use this method to delete a question by its ID.
+                    This method returns a success message.""")
+    @DeleteMapping("/{id}/delete")
+    public ResponseEntity<ServiceResponse<String>> deleteQuestion(@PathVariable Integer id) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            User user = (User) authentication.getPrincipal();
+            questionService.questionDelete(id, user.getId());
+            return ResponseEntity.ok(new ServiceResponse<>(200, "Question deleted successfully", "Question deleted successfully"));
+        } catch (BadRequestException | ResourceNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 }

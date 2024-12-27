@@ -28,8 +28,8 @@ public class CommentController {
 
             CommentDTO dto;
             Integer userId;
-            if (SystemAuthentication.isLoggedIn()) {
-                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (SystemAuthentication.isLoggedIn(authentication)) {
                 User user = (User) authentication.getPrincipal();
                 userId = user.getId();
                 dto = commentService.commentGetWithUser(id, userId);

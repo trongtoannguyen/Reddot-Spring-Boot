@@ -26,8 +26,8 @@ public abstract class QuestionMapperDecorator implements QuestionAssembler {
     @Override
     public QuestionDTO toDTO(Question question) {
         QuestionDTO dto = delegate.toDTO(question);
-        if (SystemAuthentication.isLoggedIn()) {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (SystemAuthentication.isLoggedIn(authentication)) {
             User user = (User) authentication.getPrincipal();
             dto.setUpvoted(isQuestionUpvoted(question, user.getId()));
             dto.setDownvoted(isQuestionDownvoted(question, user.getId()));
