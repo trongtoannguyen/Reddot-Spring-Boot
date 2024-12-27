@@ -5,6 +5,7 @@ import com.reddot.app.dto.request.RegisterRequest;
 import com.reddot.app.dto.request.UpdatePasswordRequest;
 import com.reddot.app.dto.response.UserProfileDTO;
 import com.reddot.app.entity.User;
+import com.reddot.app.exception.BadRequestException;
 import com.reddot.app.exception.EmailNotFoundException;
 import com.reddot.app.exception.ResourceNotFoundException;
 import jakarta.validation.Valid;
@@ -44,7 +45,7 @@ public interface UserServiceManager extends UserDetailsService {
 
     void pwForgot(String email) throws ResourceNotFoundException;
 
-    void pwReset(UpdatePasswordRequest request);
+    void pwReset(UpdatePasswordRequest request) throws ResourceNotFoundException, BadRequestException;
 
     void emailUpdate(Integer userId, String newEmail) throws ResourceNotFoundException;
 
