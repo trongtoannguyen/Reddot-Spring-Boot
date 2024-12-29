@@ -15,9 +15,19 @@ import org.springframework.stereotype.Component;
 @Component
 public interface UserAssembler {
 
-    @Mapping(target = "userId", source = "u.id")
-    @Mapping(target = "avatarLink", source = "u.avatarUrl")
-    UserProfileDTO toUserProfileDTO(User u, Person p);
+    public static UserProfileDTO toUserProfileDTO(User user, Person person) {
+        return UserProfileDTO.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .avatar(user.getAvatarUrl())
+                .displayName(person.getDisplayName())
+                .aboutMe(person.getAboutMe())
+                .dob(person.getDob())
+                .location(person.getLocation())
+                .websiteUrl(person.getWebsiteUrl())
+                .build();
+    }
 
     // TODO: IMPLEMENT CountBadge() map list/set
     @Mapping(target = "userId", source = "id")
