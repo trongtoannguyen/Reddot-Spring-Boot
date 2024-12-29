@@ -40,7 +40,6 @@ public class UserServiceManagerImp implements UserServiceManager {
     private final ConfirmationTokenRepository confirmationTokenRepository;
     private final userDeleteRepository userDeleteRepository;
     private final String fullUrl;
-    private final UserAssembler userAssembler;
 
     public UserServiceManagerImp(@Value("${server.address}") String appDomain,
                                  @Value("${server.port}") String appPort,
@@ -48,7 +47,7 @@ public class UserServiceManagerImp implements UserServiceManager {
                                  MailSenderManager mailSenderManager, UserRepository userRepository, RoleRepository roleRepository,
                                  PasswordEncoder encoder, RecoveryTokenRepository recoveryTokenRepository,
                                  ConfirmationTokenRepository confirmationTokenRepository, PersonRepository personRepository,
-                                 userDeleteRepository userDeleteRepository, UserAssembler userAssembler) {
+                                 userDeleteRepository userDeleteRepository) {
         this.mailSenderManager = mailSenderManager;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
@@ -58,7 +57,6 @@ public class UserServiceManagerImp implements UserServiceManager {
         this.fullUrl = "http://" + appDomain + ":" + appPort + appPath;
         this.personRepository = personRepository;
         this.userDeleteRepository = userDeleteRepository;
-        this.userAssembler = userAssembler;
     }
 
 
@@ -83,6 +81,7 @@ public class UserServiceManagerImp implements UserServiceManager {
     /**
      * Every user must be User role when created, EVERYONE IS EQUAL
      */
+
     @Override
     public void userCreate(RegisterRequest request) {
         try {
@@ -91,9 +90,9 @@ public class UserServiceManagerImp implements UserServiceManager {
                 log.error(String.valueOf(errorMessages));
                 throw new Exception(String.valueOf(errorMessages));
             }
-            User user = new User(request.getUsername(), request.getEmail(),
-                    encoder.encode(request.getPassword())
-            );
+
+            // Create a new user
+            User user = new User(request.getUsername(), request.getEmail(), encoder.encode(request.getPassword()));
 
             ROLENAME roleUser = ROLENAME.ROLE_USER;
             Role role = findRoleByName(roleUser);
@@ -103,18 +102,33 @@ public class UserServiceManagerImp implements UserServiceManager {
             // Send confirmation email
             Assert.notNull(user.getId(), "User id must not be null");
             ConfirmationToken token = new ConfirmationToken(user.getId());
-            String subject = "Reddot account confirmation";
-            String body = "Hi there,\n\n" +
-                    "To confirm your account, click the link below:\n"
-                    + fullUrl + "/auth/confirm-account?token=" + token.getToken();
+
+            // Construct the email subject and body in HTML
+            String subject = "Reddot Account Confirmation";
+            String body = "<html>" +
+                    "<body>" +
+                    "<h2 style=\"color: #4CAF50;\">Welcome to Reddot, " + user.getUsername() + "!</h2>" +
+                    "<p>Thank you for signing up. To confirm your account, please click the link below:</p>" +
+                    "<a href='" + fullUrl + "/auth/confirm-account?token=" + token.getToken() + "' " +
+                    "style=\"padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;\">Confirm Account</a>" +
+                    "<br><br>" +
+                    "<img src='https://www.reddotcorp.com/uploads/1/2/7/5/12752286/reddotlogo.png' alt='Welcome' width='300'/>" +
+                    "<p>If you did not request this, please ignore this email.</p>" +
+                    "<p>Best Regards,<br>The Reddot Team</p>" +
+                    "</body>" +
+                    "</html>";
+
             mailSenderManager.sendEmail(user.getEmail(), subject, body);
 
-            // Save confirmation token
             confirmationTokenRepository.save(token);
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
+
+
+
 
     @Override
     public User userConfirm(String token) {
@@ -154,12 +168,18 @@ public class UserServiceManagerImp implements UserServiceManager {
             UserOnDelete userOnDelete = new UserOnDelete(userId);
             userDeleteRepository.save(userOnDelete);
 
-            // send warning mail
-            String subject = "Reddot account deletion";
-            String body = """
-                    Hi there,
-                                       \s
-                    Your account has been marked for deletion. If you did not request this, please contact us immediately.""";
+            // send warning mail in HTML format
+            String subject = "Reddot Account Deletion Request";
+            String body = "<html>" +
+                    "<body>" +
+                    "<h2>Your account has been marked for deletion</h2>" +
+                    "<p>If you did not request this, please contact us immediately.</p>" +
+                    "<br><br>" +
+                    "<img src='https://www.reddotcorp.com/uploads/1/2/7/5/12752286/reddotlogo.png' alt='Welcome' width='300'/>" +
+                    "<p>Best regards,<br>The Reddot Team</p>" +
+                    "</body>" +
+                    "</html>";
+
             mailSenderManager.sendEmail(user.getEmail(), subject, body);
         } catch (ResourceNotFoundException e) {
             throw new ResourceNotFoundException(e.getMessage());
@@ -167,6 +187,7 @@ public class UserServiceManagerImp implements UserServiceManager {
             throw new RuntimeException(e);
         }
     }
+
 
     @Transactional
     @Override
@@ -202,12 +223,21 @@ public class UserServiceManagerImp implements UserServiceManager {
             user.setEmailVerified(false);
             userRepository.save(user);
 
-            // Send mail confirm
+            // Send mail confirmation in HTML format
             ConfirmationToken confirmationToken = new ConfirmationToken(user.getId());
-            String subject = "Reddot email confirmation";
-            String body = "Hi there,\n\n" +
-                    "To confirm your new email, click the link below:\n"
-                    + fullUrl + "/settings/email/confirm?token=" + confirmationToken.getToken();
+            String subject = "Reddot Email Confirmation";
+            String body = "<html>" +
+                    "<body>" +
+                    "<h2>Confirm your new email address</h2>" +
+                    "<p>To confirm your new email, click the link below:</p>" +
+                    "<a href='" + fullUrl + "/settings/email/confirm?token=" + confirmationToken.getToken() + "' " +
+                    "style=\"padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;\">Confirm Email</a>" +
+                    "<br><br>" +
+                    "<img src='https://www.reddotcorp.com/uploads/1/2/7/5/12752286/reddotlogo.png' alt='Welcome' width='300'/>" +
+                    "<p>Best regards,<br>The Reddot Team</p>" +
+                    "</body>" +
+                    "</html>";
+
             mailSenderManager.sendEmail(newEmail, subject, body);
 
             // Save confirmation token
@@ -216,6 +246,7 @@ public class UserServiceManagerImp implements UserServiceManager {
             throw new RuntimeException(e);
         }
     }
+
 
     @Override
     public void emailConfirm(@NonNull String token) throws ResourceNotFoundException {
@@ -247,12 +278,23 @@ public class UserServiceManagerImp implements UserServiceManager {
                 throw new Exception("EMAIL_ALREADY_CONFIRMED");
             }
 
-            // Send mail confirm
+            // Send HTML email confirmation
             ConfirmationToken confirmationToken = new ConfirmationToken(user.getId());
             String subject = "Reddot email confirmation";
-            String body = "Hi there,\n\n" +
-                    "To confirm your email, click the link below:\n"
-                    + fullUrl + "/settings/email/confirm?token=" + confirmationToken.getToken();
+
+            // HTML body content
+            String body = "<html>" +
+                    "<body>" +
+                    "<h2>Confirm your new email address</h2>" +
+                    "<p>To confirm your new email, click the link below:</p>" +
+                    "<a href='" + fullUrl + "/settings/email/confirm?token=" + confirmationToken.getToken() + "' " +
+                    "style=\"padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;\">Confirm Email</a>" +
+                    "<br><br>" +
+                    "<img src='https://www.reddotcorp.com/uploads/1/2/7/5/12752286/reddotlogo.png' alt='Welcome' width='300'/>" +
+                    "<p>Best regards,<br>The Reddot Team</p>" +
+                    "</body>" +
+                    "</html>";
+
             mailSenderManager.sendEmail(user.getEmail(), subject, body);
 
             // Save confirmation token
@@ -263,6 +305,7 @@ public class UserServiceManagerImp implements UserServiceManager {
         }
     }
 
+
     @Override
     public void pwForgot(String email) throws ResourceNotFoundException {
         try {
@@ -271,12 +314,22 @@ public class UserServiceManagerImp implements UserServiceManager {
             }
             User user = getUser(email);
 
-            // send password reset email
+            // send password reset email in HTML format
             RecoveryToken recoveryToken = new RecoveryToken(user.getId());
-            String subject = "Reddot password reset";
-            String body = "Hi there,\n\n" +
-                    "To reset your password, click the link below:\n"
-                    + fullUrl + "/settings/reset-password?token=" + recoveryToken.getToken();
+            String subject = "Reddot Password Reset";
+            String body = "<html>" +
+                    "<body>" +
+                    "<h2>Password Reset Request</h2>" +
+                    "<p>To reset your password, click the link below:</p>" +
+                    "<a href='" + fullUrl + "/settings/reset-password?token=" + recoveryToken.getToken() + "' " +
+                    "style=\"padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;\">Reset Password</a>" +
+                    "<br><br>" +
+                    "<img src='https://www.reddotcorp.com/uploads/1/2/7/5/12752286/reddotlogo.png' alt='Welcome' width='300'/>" +
+                    "<p>If you did not request this, please ignore this email.</p>" +
+                    "<p>Best regards,<br>The Reddot Team</p>" +
+                    "</body>" +
+                    "</html>";
+
             mailSenderManager.sendEmail(email, subject, body);
 
             // save recovery token
@@ -287,6 +340,7 @@ public class UserServiceManagerImp implements UserServiceManager {
             throw new RuntimeException(e);
         }
     }
+
 
     @Override
     public void pwReset(UpdatePasswordRequest request) throws ResourceNotFoundException, BadRequestException {
@@ -309,13 +363,18 @@ public class UserServiceManagerImp implements UserServiceManager {
             recoveryToken.setUsed(true);
             recoveryTokenRepository.save(recoveryToken);
 
-            // send email
-            String subject = "Reddot password reset successful";
-            String body = """
-                     Hi there,
-                                        \s
-                     Your password has been reset successfully.
-                    \s""";
+            // send success email in HTML format
+            String subject = "Reddot Password Reset Successful";
+            String body = "<html>" +
+                    "<body>" +
+                    "<h2>Your password has been reset successfully.</h2>" +
+                    "<p>If you did not initiate this, please contact support immediately.</p>" +
+                    "<br><br>" +
+                    "<img src='https://www.reddotcorp.com/uploads/1/2/7/5/12752286/reddotlogo.png' alt='Welcome' width='300'/>" +
+                    "<p>Best regards,<br>The Reddot Team</p>" +
+                    "</body>" +
+                    "</html>";
+
             mailSenderManager.sendEmail(user.getEmail(), subject, body);
         } catch (ResourceNotFoundException | BadRequestException e) {
             log.error(e.getMessage());
@@ -324,6 +383,7 @@ public class UserServiceManagerImp implements UserServiceManager {
             throw new RuntimeException(e);
         }
     }
+
 
     @Override
     public UserProfileDTO profileGetById(Integer userId) {
@@ -357,7 +417,7 @@ public class UserServiceManagerImp implements UserServiceManager {
             userRepository.save(user);
             log.info("User profile updated successfully");
 
-            return userAssembler.toUserProfileDTO(user, person);
+            return UserAssembler.toUserProfileDTO(user, person);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -375,7 +435,7 @@ public class UserServiceManagerImp implements UserServiceManager {
             userRepository.save(user);
         }
 
-        return userAssembler.toUserProfileDTO(user, person);
+        return UserAssembler.toUserProfileDTO(user, person);
     }
 
     private boolean userExistsByEmail(String email) {
