@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import java.util.Objects;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -32,7 +34,19 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({BadRequestException.class, MethodArgumentTypeMismatchException.class, MethodArgumentNotValidException.class, HttpMessageNotReadableException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ErrorObject> handleMethodArgumentNotValidExceptions(Exception ex, WebRequest request) {
-        ErrorObject errorObject = new ErrorObject(HttpStatus.BAD_REQUEST.value(), ex.getMessage(), request.getDescription(false));
+        ErrorObject errorObject;
+        switch (ex) {
+            case MethodArgumentNotValidException methodArgumentNotValidException -> {
+                String errorMessage = Objects.requireNonNull(methodArgumentNotValidException.getBindingResult().getFieldError()).getDefaultMessage();
+                errorObject = new ErrorObject(HttpStatus.BAD_REQUEST.value(), errorMessage, request.getDescription(false));
+            }
+            case MethodArgumentTypeMismatchException _ ->
+                    errorObject = new ErrorObject(HttpStatus.BAD_REQUEST.value(), "Invalid parameter type", request.getDescription(false));
+            case HttpMessageNotReadableException _ ->
+                    errorObject = new ErrorObject(HttpStatus.BAD_REQUEST.value(), "Invalid request body", request.getDescription(false));
+            case null, default ->
+                    errorObject = new ErrorObject(HttpStatus.BAD_REQUEST.value(), ex.getMessage(), request.getDescription(false));
+        }
         return new ResponseEntity<>(errorObject, HttpStatus.BAD_REQUEST);
     }
 

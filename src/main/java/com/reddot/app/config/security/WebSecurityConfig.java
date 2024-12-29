@@ -43,7 +43,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/users", "/users/{id:[0-9]+}").permitAll()
                         .requestMatchers("/questions", "/questions/{id:[0-9]+}").permitAll()
                         .requestMatchers("/comments/{id:[0-9]+}").permitAll()
-                        .requestMatchers("/settings/reset-password", "/settings/reset-password/confirm", "/settings/email/confirm").permitAll()
+                        .requestMatchers("/settings/reset-password", "/settings/reset-password/confirm", "/settings/email/confirm", "/settings/email/resend-confirm").permitAll()
 
                         // Private endpoints accessible by role
                         .requestMatchers("/private/**").hasRole("ADMIN")

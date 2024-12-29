@@ -1,8 +1,13 @@
 package com.reddot.app.exception;
 
-import org.springframework.security.core.AuthenticationException;
+public class EmailNotFoundException extends ResourceNotFoundException {
 
-public class EmailNotFoundException extends AuthenticationException {
+    private static final String message = "Email not found exception";
+
+    public EmailNotFoundException() {
+        super(message);
+    }
+
     public EmailNotFoundException(String msg) {
         super(msg);
     }
