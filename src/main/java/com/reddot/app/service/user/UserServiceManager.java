@@ -8,6 +8,7 @@ import com.reddot.app.entity.User;
 import com.reddot.app.exception.BadRequestException;
 import com.reddot.app.exception.EmailNotFoundException;
 import com.reddot.app.exception.ResourceNotFoundException;
+import com.reddot.app.exception.UserNotFoundException;
 import jakarta.validation.Valid;
 import lombok.NonNull;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -49,5 +50,5 @@ public interface UserServiceManager extends UserDetailsService {
 
     void emailConfirm(@NonNull String token) throws ResourceNotFoundException;
 
-    void emailConfirmResend(Integer userId) throws ResourceNotFoundException;
+    void emailConfirmResend(Integer userId) throws UserNotFoundException, BadRequestException;
 }

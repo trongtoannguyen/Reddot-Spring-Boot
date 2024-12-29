@@ -10,6 +10,7 @@ import com.reddot.app.entity.enumeration.ROLENAME;
 import com.reddot.app.exception.BadRequestException;
 import com.reddot.app.exception.EmailNotFoundException;
 import com.reddot.app.exception.ResourceNotFoundException;
+import com.reddot.app.exception.UserNotFoundException;
 import com.reddot.app.repository.*;
 import com.reddot.app.service.email.MailSenderManager;
 import jakarta.validation.Valid;
@@ -136,7 +137,7 @@ public class UserServiceManagerImp implements UserServiceManager {
             if (confirmationToken.getConfirmedAt() != null) {
                 throw new Exception("EMAIL_ALREADY_CONFIRMED");
             }
-            User user = getUser(confirmationToken.getOwnerId());
+            User user = getUserById(confirmationToken.getOwnerId());
             user.setEnabled(true);
             user.setEmailVerified(true);
 
@@ -163,7 +164,7 @@ public class UserServiceManagerImp implements UserServiceManager {
             if (userDeleteRepository.existsByUserId(userId)) {
                 throw new Exception("USER ALREADY IN DELETE QUEUE");
             }
-            User user = getUser(userId);
+            User user = getUserById(userId);
             UserOnDelete userOnDelete = new UserOnDelete(userId);
             userDeleteRepository.save(userOnDelete);
 
@@ -209,7 +210,7 @@ public class UserServiceManagerImp implements UserServiceManager {
     @Override
     public void emailUpdate(Integer userId, String newEmail) throws ResourceNotFoundException {
         try {
-            User user = getUser(userId);
+            User user = getUserById(userId);
             if (userExistsByEmail(newEmail)) {
                 if (user.getEmail().equals(newEmail) && !user.isEmailVerified()) {
                     throw new Exception("Please check your mail box or spam folder to confirm your email." +
@@ -255,7 +256,7 @@ public class UserServiceManagerImp implements UserServiceManager {
             if (confirmationToken.getValidBefore().isBefore(LocalDateTime.now())) {
                 throw new Exception("TOKEN_EXPIRED");
             }
-            User user = getUser(confirmationToken.getOwnerId());
+            User user = getUserById(confirmationToken.getOwnerId());
             user.setEmailVerified(true);
             userRepository.save(user);
 
@@ -268,11 +269,11 @@ public class UserServiceManagerImp implements UserServiceManager {
     }
 
     @Override
-    public void emailConfirmResend(Integer userId) throws ResourceNotFoundException {
+    public void emailConfirmResend(Integer userId) throws UserNotFoundException, BadRequestException {
         try {
-            User user = getUser(userId);
+            User user = getUserById(userId);
             if (user.isEmailVerified()) {
-                throw new Exception("EMAIL_ALREADY_CONFIRMED");
+                throw new BadRequestException("EMAIL_ALREADY_CONFIRMED");
             }
 
             // Send HTML email confirmation
@@ -297,6 +298,8 @@ public class UserServiceManagerImp implements UserServiceManager {
             // Save confirmation token
             confirmationTokenRepository.save(confirmationToken);
 
+        } catch (UserNotFoundException | BadRequestException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -309,7 +312,7 @@ public class UserServiceManagerImp implements UserServiceManager {
             if (!userExistsByEmail(email)) {
                 throw new ResourceNotFoundException("EMAIL_NOT_FOUND");
             }
-            User user = getUser(email);
+            User user = getUserByEmail(email);
 
             // send password reset email in HTML format
             RecoveryToken recoveryToken = new RecoveryToken(user.getId());
@@ -348,7 +351,7 @@ public class UserServiceManagerImp implements UserServiceManager {
             if (recoveryToken.getValidBefore().isBefore(LocalDateTime.now())) {
                 throw new Exception("TOKEN_EXPIRED");
             }
-            User user = getUser(recoveryToken.getOwnerId());
+            User user = getUserById(recoveryToken.getOwnerId());
 
             // prevent user from using the old password
             if (encoder.matches(request.getPassword(), user.getPassword())) {
@@ -383,7 +386,7 @@ public class UserServiceManagerImp implements UserServiceManager {
     @Override
     public UserProfileDTO profileGetById(Integer userId) {
         try {
-            User user = getUser(userId);
+            User user = getUserById(userId);
             return getUserProfileDTO(user);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -403,7 +406,7 @@ public class UserServiceManagerImp implements UserServiceManager {
     @Override
     public UserProfileDTO profileUpdate(Integer userId, @Valid ProfileUpdateRequest updateRequest) {
         try {
-            User user = getUser(userId);
+            User user = getUserById(userId);
             Person person = personRepository.findByUserId(user.getId()).orElse(new Person(user.getUsername()));
             user.setAvatarUrl(updateRequest.getAvatar());
 
@@ -438,20 +441,16 @@ public class UserServiceManagerImp implements UserServiceManager {
         return userRepository.findByEmail(email).isPresent();
     }
 
-    private User getUser(Integer ownerId) {
-        return userRepository.findById(ownerId).orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND"));
-    }
-
-    private User getUser(String email) {
-        return userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND"));
+    private User getUserById(Integer ownerId) {
+        return userRepository.findById(ownerId).orElseThrow(UserNotFoundException::new);
     }
 
     private User getUserByUsername(String username) {
-        return userRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND"));
+        return userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
     }
 
     private User getUserByEmail(String email) {
-        return userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND"));
+        return userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
     }
 
     private Role findRoleByName(ROLENAME roleName) {
