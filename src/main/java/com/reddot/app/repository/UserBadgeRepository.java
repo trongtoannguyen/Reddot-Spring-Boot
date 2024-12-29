@@ -1,12 +1,14 @@
 package com.reddot.app.repository;
 
 import com.reddot.app.entity.Badge;
+import com.reddot.app.entity.User;
 import com.reddot.app.entity.UserBadge;
 import lombok.NonNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface UserBadgeRepository extends JpaRepository<UserBadge, Integer> {
@@ -27,4 +29,5 @@ public interface UserBadgeRepository extends JpaRepository<UserBadge, Integer> {
     UserBadge save(UserBadge userBadge);
 
 
+    Collection<Object> findByUserAndBadge(User user, Badge badge);
 }

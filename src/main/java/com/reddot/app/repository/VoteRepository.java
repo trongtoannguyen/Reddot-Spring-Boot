@@ -1,11 +1,15 @@
 package com.reddot.app.repository;
 
+import com.reddot.app.entity.Question;
+import com.reddot.app.entity.User;
 import com.reddot.app.entity.Vote;
 import lombok.NonNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Meta;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
 
 @Repository
 public interface VoteRepository extends JpaRepository<Vote, Integer> {
@@ -31,4 +35,10 @@ public interface VoteRepository extends JpaRepository<Vote, Integer> {
 
     @Meta(comment = "exists vote based on userId and questionId")
     boolean existsVoteByUserIdAndQuestionIdAndVoteTypeId(Integer userId, Integer questionId, Integer voteTypeId);
+
+    Optional<Vote> findByUserIdAndQuestionId(Integer userId, Integer questionId);
+
+    Optional<Vote> findByUserIdAndCommentId(Integer userId, Integer commentId);
+
+    Optional<Vote> findByUserAndQuestion(User user, Question question);
 }

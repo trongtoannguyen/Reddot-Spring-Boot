@@ -16,6 +16,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @EnableWebSecurity
@@ -34,16 +36,18 @@ public class WebSecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
 
                 // Set permissions for different endpoints
+                .securityMatcher("/questions/**", "/comments/**", "/answers/**", "/users/**", "/settings/**", "/private/**", "/admin/**")
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints
                         .requestMatchers("/hello", "/auth/**").permitAll()
-                        .requestMatchers("/users", "/users/{id}").permitAll()
-                        .requestMatchers("/questions", "/questions/{id}").permitAll()
-                        .requestMatchers("/settings/reset-password/**", "/settings/email/confirm").permitAll()
+                        .requestMatchers("/users", "/users/{id:[0-9]+}").permitAll()
+                        .requestMatchers("/questions", "/questions/{id:[0-9]+}").permitAll()
+                        .requestMatchers("/comments/{id:[0-9]+}").permitAll()
+                        .requestMatchers("/settings/reset-password", "/settings/reset-password/confirm", "/settings/email/confirm").permitAll()
 
-                        // Private endpoints
-                        .requestMatchers("/api/private/**").hasRole("ADMIN")
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        // Private endpoints accessible by role
+                        .requestMatchers("/private/**").hasRole("ADMIN")
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
 
                         // OpenAPI endpoints
                         .requestMatchers("/v3/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
@@ -76,4 +80,21 @@ public class WebSecurityConfig {
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
+
+
+    /* cac endpiont truy cap tu  frontend*/
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**") // Áp dụng cho tất cả các endpoint
+                        .allowedOrigins("http://localhost:3000") // Cho phép ReactJS frontend
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Cho phép các phương thức
+                        .allowedHeaders("*") // Cho phép tất cả headers
+                        .allowCredentials(true); // Cho phép gửi cookies (nếu có)
+            }
+        };
+    }
+
 }
