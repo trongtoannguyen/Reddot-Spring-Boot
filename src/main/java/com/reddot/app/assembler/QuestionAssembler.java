@@ -8,12 +8,23 @@ import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.List;
+
 /**
  * QuestionAssembler class is used to convert Question entity to QuestionDTO record and vice versa.
  */
 @Mapper(componentModel = "spring", uses = {UserAssembler.class, CommentAssembler.class}, injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 @DecoratedWith(QuestionMapperDecorator.class)
 public interface QuestionAssembler {
+    /**
+     * Reference resources:
+     * <ol>
+     *     <li>
+     *         <a href="https://mapstruct.org/documentation/stable/reference/html/#invoking-custom-mapping-method">
+     *             MapStruct - Invoking custom mapping method</a>
+     *     </li>
+     * </ol>
+     */
 
     @Mapping(target = "questionId", source = "question.id")
     @Mapping(target = "author", source = "user")
@@ -27,9 +38,10 @@ public interface QuestionAssembler {
     @Mapping(target = "bookmarked", ignore = true)
     QuestionDTO toDTO(Question question);
 
+    List<QuestionDTO> toDTOList(List<Question> list);
+
     // count total number of comments
     default Integer countComments(Question question) {
-        // https://mapstruct.org/documentation/stable/reference/html/#invoking-custom-mapping-method
         return (question.getComments() == null) ? 0 : question.getComments().size();
     }
 }

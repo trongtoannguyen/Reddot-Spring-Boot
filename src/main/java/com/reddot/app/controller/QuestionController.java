@@ -1,6 +1,7 @@
 package com.reddot.app.controller;
 
 import com.reddot.app.dto.request.QuestionCreateDTO;
+import com.reddot.app.dto.request.QuestionUpdateDTO;
 import com.reddot.app.dto.response.CommentDTO;
 import com.reddot.app.dto.response.QuestionDTO;
 import com.reddot.app.dto.response.ServiceResponse;
@@ -18,6 +19,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/questions")
 @RequiredArgsConstructor
@@ -26,12 +29,35 @@ public class QuestionController {
     private final QuestionService questionService;
     private final CommentService commentService;
 
+    @Operation(summary = "Creates a comment on the given question. [auth required] ",
+            description = """
+                    In the API, any "low quality" checks that are triggered cause the write request to fail.
+                    This includes situations where a CAPTCHA or guidance text would be displayed on the websites.
+                    
+                    Use an access_token with role_user to create a new comment.
+                    
+                    This method returns the question with the new comment.
+                    """)
+    @PostMapping("/{id}/comments/add")
+    public ResponseEntity<ServiceResponse<CommentDTO>> addComment(@PathVariable Integer id, String body) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            User user = (User) authentication.getPrincipal();
+            CommentDTO commentDTO = commentService.commentCreateOnQuestion(user.getId(), id, body);
+            return ResponseEntity.ok(new ServiceResponse<>(200, "Question retrieved successfully", commentDTO));
+        } catch (ResourceNotFoundException e) {
+            throw new ResourceNotFoundException(e.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
     @Operation(summary = "Create a new question", description = """
             In the API, any "low quality" checks that are triggered cause the write request to fail.
             This includes situations where a CAPTCHA or guidance text would be displayed on the websites.
-                       \s
+            
             Use an access_token with role_user to create a new question.
-                       \s
+            
             This method returns the created question.""")
     @PostMapping("/add")
     public ResponseEntity<ServiceResponse<QuestionDTO>> createQuestion(@Valid @RequestBody QuestionCreateDTO dto) {
@@ -50,9 +76,34 @@ public class QuestionController {
         }
     }
 
+    @Operation(summary = "Gets all the questions on the site.",
+            description = """
+                    Use this method to retrieve all questions include some user-specific properties related to the questions.
+                    
+                    This method returns a list of questions.""")
+    @GetMapping
+    public ResponseEntity<ServiceResponse<List<QuestionDTO>>> getAllQuestion() {
+        try {
+            Integer userId;
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            List<QuestionDTO> list;
+            if (SystemAuthentication.isLoggedIn(authentication)) {
+                User user = (User) authentication.getPrincipal();
+                userId = user.getId();
+                list = questionService.questionGetAllWithUser(userId);
+            } else {
+                list = questionService.questionGetAll();
+            }
+            return ResponseEntity.ok(new ServiceResponse<>(200, "Questions retrieved successfully", list));
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
     @Operation(summary = "Returns the question identified in {id}.",
             description = """
-                    Use this method to retrieve a question by its ID.
+                    Use this method to retrieve a question by its ID include some user-specific properties related to the question.
+                    
                     This method returns the question.""")
     @GetMapping("/{id}")
     public ResponseEntity<ServiceResponse<QuestionDTO>> getQuestion(@PathVariable Integer id) {
@@ -75,33 +126,37 @@ public class QuestionController {
         }
     }
 
-    @Operation(summary = "Creates a comment on the given question. [auth required] ",
+    @Operation(summary = "Edit an existing question. [auth required]",
             description = """
-                    In the API, any "low quality" checks that are triggered cause the write request to fail.
-                    This includes situations where a CAPTCHA or guidance text would be displayed on the websites.
-                               \s
-                    Use an access_token with role_user to create a new comment.
-                                 \s
-                    This method returns the question with the new comment.
-                    """)
-    @PostMapping("/{id}/comments/add")
-    public ResponseEntity<ServiceResponse<CommentDTO>> addComment(@PathVariable Integer id, String body) {
+                    Use this method to edit a question identified by its ID.
+                    
+                    This method returns the updated question.""")
+    @PutMapping("/{id}/update")
+    public ResponseEntity<ServiceResponse<QuestionDTO>> updateQuestion(@PathVariable Integer id, @RequestBody QuestionUpdateDTO dto) {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             User user = (User) authentication.getPrincipal();
-            CommentDTO commentDTO = commentService.commentCreateOnQuestion(user.getId(), id, body);
-            return ResponseEntity.ok(new ServiceResponse<>(200, "Question retrieved successfully", commentDTO));
-        } catch (ResourceNotFoundException e) {
-            throw new ResourceNotFoundException(e.getMessage());
+            dto.setId(id);
+            QuestionDTO questionDTO = questionService.questionUpdate(user.getId(), dto);
+            return ResponseEntity.ok(new ServiceResponse<>(200, "Question updated successfully", questionDTO));
+        } catch (ResourceNotFoundException | BadRequestException e) {
+            throw e;
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+            throw new RuntimeException(e);
         }
     }
 
     @Operation(summary = "Deletes the question identified in {id}. [auth required]",
             description = """
-                    Use this method to delete a question by its ID.
-                    This method returns a success message.""")
+                    Note that only question owners can delete their questions, this is not equivalent to casting a delete vote.
+                    Also be aware that there are conditions when even a question's owner cannot delete it, and this method will respect those limits.
+                    
+                    Use an access_token to delete a question.
+                    
+                    It is not possible to undelete a question.
+                    
+                    In practice, this method will never return an object.
+                    """)
     @DeleteMapping("/{id}/delete")
     public ResponseEntity<ServiceResponse<String>> deleteQuestion(@PathVariable Integer id) {
         try {

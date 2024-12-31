@@ -23,14 +23,14 @@ public interface VoteRepository extends JpaRepository<Vote, Integer> {
 
     // Đếm số upvotes cho các câu trả lời (comments) mà người dùng sở hữu
     @Query("SELECT COUNT(v) FROM votes v " +
-            "JOIN v.comment c " +
-            "WHERE c.user.id = :userId AND v.voteType.id = 1")
+           "JOIN v.comment c " +
+           "WHERE c.user.id = :userId AND v.voteType.id = 1")
     Long countUpvotesForCommentsByUserId(@NonNull Integer userId);
 
     // Đếm số downvotes cho các câu trả lời (comments) mà người dùng sở hữu
     @Query("SELECT COUNT(v) FROM votes v " +
-            "JOIN v.comment c " +
-            "WHERE c.user.id = :userId AND v.voteType.id = 2")
+           "JOIN v.comment c " +
+           "WHERE c.user.id = :userId AND v.voteType.id = 2")
     Long countDownvotesForCommentsByUserId(@NonNull Integer userId);
 
     @Meta(comment = "exists vote based on userId and questionId")

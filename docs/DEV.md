@@ -12,8 +12,8 @@ and technical infrastructure of Reddot.
 1. Clone the repository:
 
       ```bash
-      git clone https://github.com/trongtoannguyen/Reddot-React.git
-      cd Reddot-React
+      git clone https://github.com/trongtoannguyen/Reddot-Client.git
+      cd Reddot-Client
       ```
 
 2. Install dependencies:
@@ -34,32 +34,12 @@ and technical infrastructure of Reddot.
 
 - **QuestionFeed**: Displays a list of questions posted by users.
 - **UserProfile**: Allows users to view and edit their profile information.
-- **VotingMechanism**: Implements upvoting and downvoting functionality for both questions and answers.
+- **VotingMechanism**: Implements up voting and down voting functionality for both questions and answers.
 
 #### Routing
 
 Reddot uses React Router for client-side navigation. Routes are configured in `src/routes.js`, mapping URLs to different
 components.
-For example:
-
-```jsx
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'; 
-
-function App() { 
-
-  return ( 
-    <Router> 
-      <Switch> 
-        <Route path="/" exact component={Home} />
-        <Route path="/questions" component={QuestionFeed} />
-        <Route path="/question/:id" component={QuestionDetail} />
-        <Route path="/profile/:id" component={UserProfile} />
-      </Switch>
-    </Router>
-  );
-} 
-
-```
 
 #### State Management
 
@@ -72,26 +52,34 @@ user information, questions, and answers across components.
 
 Reddot follows RESTful principles for its backend API, using the following key endpoints:
 
-- **User API**:
-    - POST /auth/signup: Registers a new user.
+- **Authentication API**:
+    - GET /auth/confirm-account: Confirms a user's account.
     - POST /auth/login: Authenticates a user and returns a JWT token.
-    - GET /users/{id}: Fetches user profile data.
+    - POST /auth/register: Registers a new user.
+
+- **Recovery API**:
+    - GET /settings/email/resend-confirm: Resends a confirmation email.
+    - GET /settings/email/confirm: Confirms a user's email address.
+    - POST /settings/reset-password: Sends a password reset email.
+    - POST /settings/reset-password/confirm: Resets a user's password.
+    - PUT /settings/email/edit/{id}: Updates a user's email address.
+
+- **User Management API**:
+    - GET /users : Fetches user profile by username.
+    - GET /users/{id}: Fetches user profile by user id.
+    - POST /users/delete: Deletes a user account.
+    - PUT /users/edit/{id}: Updates a user's profile.
 
 - **Question API**:
+    - GET /questions: Gets all the questions on the site.
+    - GET /questions/{id}: Gets a specific question by ID.
+    - POST /questions/add: Submit a new question.
+    - POST /questions/{id}/comments/add: Add a comment to a question.
+    - PUT /questions/{id}/update: Updates a question.
+    - DELETE /questions/{id}/delete: Deletes the question identified by ID.
 
-    - GET /questions: Retrieve all questions.
-
-    - POST /questions: Submit a new question.
-
-    - GET /questions/{id}: Retrieve a specific question by ID
-
-- **Answer API**:
-
-    - POST /answers: Submit a new answer to a question.
-
-- **Vote API**:
-
-    - POST /questions/{id}/vote: Upvote or downvote a question.
+- **Comment API**:
+    - GET /comments/{id}: Fetches a comment by ID.
 
 Authentication is handled via JWT tokens passed in the `Authorization` header.
 
@@ -107,7 +95,7 @@ Reddot uses MySQL as its database. The key tables include:
 
 - **Votes**: Contains vote details of a subject (e.g., ID, user_id, question_id, comment_id, vote_type_id).
 
-A visual diagram of the schema can be found in the `docs/database-schema.png` file.
+A visual diagram of the schema can be found in the [database-scheme](database-schema.png) file.
 
 #### Authentication
 
@@ -120,7 +108,7 @@ OAuth2 can also be implemented for third-party login options (e.g., Google or Gi
 #### Error Handling
 
 - Custom exceptions are thrown in the backend for known issues (
-  e.g., `UserNotFoundException`, `ResourceNotFoundException`).
+  e.g., `EmailFoundException`, `ResourceNotFoundException`, `BadRequestException`).
 
 - Logging: Use Slf4j for logging errors and key actions. Log error details for debugging and operational monitoring
   purposes.

@@ -6,6 +6,6 @@ import org.springframework.security.core.Authentication;
 public class SystemAuthentication {
     public static boolean isLoggedIn(Authentication authentication) {
         return authentication != null && authentication.isAuthenticated()
-                && !(authentication instanceof AnonymousAuthenticationToken);
+               && !(authentication instanceof AnonymousAuthenticationToken);
     }
 }

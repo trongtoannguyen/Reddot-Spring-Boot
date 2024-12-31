@@ -105,8 +105,8 @@ public class UserServiceManagerImp implements UserServiceManager {
             ConfirmationToken token = new ConfirmationToken(user.getId());
             String subject = "Reddot account confirmation";
             String body = "Hi there,\n\n" +
-                    "To confirm your account, click the link below:\n"
-                    + fullUrl + "/auth/confirm-account?token=" + token.getToken();
+                          "To confirm your account, click the link below:\n"
+                          + fullUrl + "/auth/confirm-account?token=" + token.getToken();
             mailSenderManager.sendEmail(user.getEmail(), subject, body);
 
             // Save confirmation token
@@ -194,7 +194,7 @@ public class UserServiceManagerImp implements UserServiceManager {
             if (userExistsByEmail(newEmail)) {
                 if (user.getEmail().equals(newEmail) && !user.isEmailVerified()) {
                     throw new Exception("Please check your mail box or spam folder to confirm your email." +
-                            " Or you may need to resend the confirmation email.");
+                                        " Or you may need to resend the confirmation email.");
                 }
                 throw new Exception("EMAIL_ALREADY_EXISTS");
             }
@@ -206,8 +206,8 @@ public class UserServiceManagerImp implements UserServiceManager {
             ConfirmationToken confirmationToken = new ConfirmationToken(user.getId());
             String subject = "Reddot email confirmation";
             String body = "Hi there,\n\n" +
-                    "To confirm your new email, click the link below:\n"
-                    + fullUrl + "/settings/email/confirm?token=" + confirmationToken.getToken();
+                          "To confirm your new email, click the link below:\n"
+                          + fullUrl + "/settings/email/confirm?token=" + confirmationToken.getToken();
             mailSenderManager.sendEmail(newEmail, subject, body);
 
             // Save confirmation token
@@ -251,8 +251,8 @@ public class UserServiceManagerImp implements UserServiceManager {
             ConfirmationToken confirmationToken = new ConfirmationToken(user.getId());
             String subject = "Reddot email confirmation";
             String body = "Hi there,\n\n" +
-                    "To confirm your email, click the link below:\n"
-                    + fullUrl + "/settings/email/confirm?token=" + confirmationToken.getToken();
+                          "To confirm your email, click the link below:\n"
+                          + fullUrl + "/settings/email/confirm?token=" + confirmationToken.getToken();
             mailSenderManager.sendEmail(user.getEmail(), subject, body);
 
             // Save confirmation token
@@ -275,8 +275,8 @@ public class UserServiceManagerImp implements UserServiceManager {
             RecoveryToken recoveryToken = new RecoveryToken(user.getId());
             String subject = "Reddot password reset";
             String body = "Hi there,\n\n" +
-                    "To reset your password, click the link below:\n"
-                    + fullUrl + "/settings/reset-password?token=" + recoveryToken.getToken();
+                          "To reset your password, click the link below:\n"
+                          + fullUrl + "/settings/reset-password?token=" + recoveryToken.getToken();
             mailSenderManager.sendEmail(email, subject, body);
 
             // save recovery token

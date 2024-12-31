@@ -18,11 +18,11 @@ public interface CommentRepository extends JpaRepository<Comment, Integer> {
     Long countAnswersByUserId(@NonNull Integer userId);
 
     @Query("SELECT c.id AS commentId, c.text AS commentText, q.id AS questionId, q.title AS questionTitle, COUNT(v.id) AS voteCount, c.createdAt AS createdAt FROM comments c " +
-            "JOIN votes v ON c.id = v.comment.id " +
-            "JOIN questions q ON c.question.id = q.id " +
-            "WHERE c.user.id = :userId " +
-            "GROUP BY c.id, q.id, c.createdAt " +
-            "ORDER BY COUNT(v.id) DESC")
+           "JOIN votes v ON c.id = v.comment.id " +
+           "JOIN questions q ON c.question.id = q.id " +
+           "WHERE c.user.id = :userId " +
+           "GROUP BY c.id, q.id, c.createdAt " +
+           "ORDER BY COUNT(v.id) DESC")
     List<Map<String, Object>> findTopCommentsWithQuestionsByUserId(@Param("userId") Integer userId, Pageable pageable);
 
 
