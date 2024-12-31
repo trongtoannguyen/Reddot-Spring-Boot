@@ -38,10 +38,10 @@ public class RecoveryToken extends BaseEntity {
     @Override
     public String toString() {
         return "RecoveryToken{" +
-                "token='" + token + '\'' +
-                ", ownerId=" + ownerId +
-                ", used=" + used +
-                ", validBefore=" + validBefore +
-                '}';
+               "token='" + token + '\'' +
+               ", ownerId=" + ownerId +
+               ", used=" + used +
+               ", validBefore=" + validBefore +
+               '}';
     }
 }

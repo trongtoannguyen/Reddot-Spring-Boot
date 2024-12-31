@@ -32,14 +32,39 @@ public interface UserServiceManager extends UserDetailsService {
 
     User userConfirm(String token);
 
+    /**
+     * Deletes the user identified by the given id.
+     *
+     * @param userId the id of the user.
+     * @throws ResourceNotFoundException if the user is not found.
+     */
     void userDeleteRequest(Integer userId) throws ResourceNotFoundException;
 
     void userOnLoginUpdate(@NonNull String email);
 
+    /**
+     * Gets the user identified by the given id.
+     *
+     * @param userId the id of the user.
+     * @return UserProfileDTO object containing the user details.
+     */
     UserProfileDTO profileGetById(Integer userId);
 
+    /**
+     * Gets the user identified by the given username.
+     *
+     * @param username the username of the user.
+     * @return UserProfileDTO object containing the user details.
+     */
     UserProfileDTO profileGetByUsername(String username);
 
+    /**
+     * Updates the user profile.
+     *
+     * @param userId  the id of the user.
+     * @param request ProfileUpdateRequest object containing the updated user details.
+     * @return UserProfileDTO object containing the updated user details.
+     */
     UserProfileDTO profileUpdate(Integer userId, @Valid ProfileUpdateRequest request);
 
     void pwForgot(String email) throws ResourceNotFoundException;

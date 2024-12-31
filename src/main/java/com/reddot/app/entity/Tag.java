@@ -30,4 +30,8 @@ public class Tag {
     private String name;
     private String description;
     private int tagged;
+
+    public void incrementTagged() {
+        tagged++;
+    }
 }

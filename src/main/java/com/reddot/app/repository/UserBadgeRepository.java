@@ -16,9 +16,9 @@ public interface UserBadgeRepository extends JpaRepository<UserBadge, Integer> {
     Long countBadgesByUserId(@NonNull Integer userId);
 
     @Query("SELECT b FROM badges b " +
-            "JOIN user_badges ub ON b.id = ub.badge.id " +
-            "WHERE ub.user.id = :userId " +
-            "ORDER BY b.tier ASC")
+           "JOIN user_badges ub ON b.id = ub.badge.id " +
+           "WHERE ub.user.id = :userId " +
+           "ORDER BY b.tier ASC")
     List<Badge> findBadgesByUserId(@Param("userId") Integer userId);
 
     // Kiểm tra xem người dùng đã nhận badge này chưa

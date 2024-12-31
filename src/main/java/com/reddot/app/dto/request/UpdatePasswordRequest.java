@@ -18,6 +18,6 @@ public class UpdatePasswordRequest {
     @Size(min = 8, max = 30)
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,30}$",
             message = "Password must contain minimum 8 characters, at least one uppercase letter," +
-                    "one lowercase letter, one number and one special character")
+                      "one lowercase letter, one number and one special character")
     private String password;
 }

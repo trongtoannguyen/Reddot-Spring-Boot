@@ -7,6 +7,7 @@ import com.reddot.app.entity.User;
 import com.reddot.app.exception.BadRequestException;
 import com.reddot.app.exception.ResourceNotFoundException;
 import com.reddot.app.service.user.UserServiceManager;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,8 @@ public class UserManagementController {
         this.userServiceManager = userServiceManager;
     }
 
+    @Operation(summary = "Get user profile by username",
+            description = "Get user profile by username")
     @GetMapping
     public ResponseEntity<ServiceResponse<UserProfileDTO>> getUserProfile(@RequestParam String username) {
         try {
@@ -35,7 +38,8 @@ public class UserManagementController {
         }
     }
 
-    // Get user by id
+    @Operation(summary = "Get user profile by id",
+            description = "Get user profile by id")
     @GetMapping("/{id}")
     public ResponseEntity<ServiceResponse<UserProfileDTO>> getUserProfileById(@PathVariable Integer id) {
         try {

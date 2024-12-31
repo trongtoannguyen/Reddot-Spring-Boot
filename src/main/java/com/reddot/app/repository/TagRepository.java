@@ -16,19 +16,19 @@ public interface TagRepository extends JpaRepository<Tag, Integer> {
     List<Tag> findByNameIn(List<String> names);
 
     @Query("SELECT t.name AS tagName, COUNT(q) AS tagCount " +
-            "FROM questions q " +
-            "JOIN q.tags t " +
-            "WHERE q.user.id = :userId " +
-            "GROUP BY t.name " +
-            "ORDER BY COUNT(q) DESC")
+           "FROM questions q " +
+           "JOIN q.tags t " +
+           "WHERE q.user.id = :userId " +
+           "GROUP BY t.name " +
+           "ORDER BY COUNT(q) DESC")
     List<Object[]> findTopTagsByUserId(@Param("userId") Integer userId);
 
 
     @Query(value = "SELECT t.name AS tagName, COUNT(qt.tag_id) AS usageCount " +
-            "FROM tags t " +
-            "JOIN question_tags qt ON t.id = qt.tag_id " +
-            "GROUP BY t.name " +
-            "ORDER BY usageCount DESC " +
-            "LIMIT 10", nativeQuery = true)
+                   "FROM tags t " +
+                   "JOIN question_tags qt ON t.id = qt.tag_id " +
+                   "GROUP BY t.name " +
+                   "ORDER BY usageCount DESC " +
+                   "LIMIT 10", nativeQuery = true)
     List<Object[]> findTrendingTags();
 }

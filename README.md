@@ -66,9 +66,9 @@ step-by-step instructions for basic tasks.
 
 - Notifications: You will receive notifications when:
     - Someone answers your question.
-  - Your answer is voted or accepted.
-    - Someone comments on your post.
-      Notifications appear in the top-right corner as a bell icon.
+    - Your answer is voted or accepted.
+        - Someone comments on your post.
+          Notifications appear in the top-right corner as a bell icon.
 
 - Email Updates: You can enable email notifications for new answers, comments, or direct messages by going to your
   profile settings and adjusting your Notification Preferences.
