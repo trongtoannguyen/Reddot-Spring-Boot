@@ -100,15 +100,16 @@ public class RecoveryController {
     // resend email confirm
     // FIXME: UPDATE LOAD PRINCIPAL WITH AUTHENTICATION
     @GetMapping("/email/resend-confirm")
-    public ResponseEntity<ServiceResponse<Void>> resendEmailConfirm() {
+    public ResponseEntity<ServiceResponse<Void>> resendEmailConfirm(@Valid @RequestBody EmailRequest request) {
         try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String currentPrincipalName = authentication.getName();
-            User user = (User) userServiceManager.loadUserByUsername(currentPrincipalName);
+            User user = userServiceManager.loadUserByEmail(request.getEmail());
             userServiceManager.emailConfirmResend(user.getId());
             return new ResponseEntity<>(new ServiceResponse<>(HttpStatus.OK.value(), "Check your email or spam to confirm the new email"), HttpStatus.OK);
-        } catch (UsernameNotFoundException | ResourceNotFoundException e) {
-            throw new ResourceNotFoundException(e.getMessage());
+        } catch (ResourceNotFoundException e) {
+            // return 200 OK even if email not found
+            return new ResponseEntity<>(new ServiceResponse<>(HttpStatus.OK.value(), "Check your email or spam to confirm the new email"), HttpStatus.OK);
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
         }
     }
 }
