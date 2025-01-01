@@ -108,7 +108,7 @@ public class QuestionServiceImp implements QuestionService {
     }
 
     @Override
-    public List<QuestionDTO> questionGetWithUser(List<Integer> ids, @NonNull User user) throws ResourceNotFoundException {
+    public List<QuestionDTO> questionGetByIdsWithUser(List<Integer> ids, @NonNull User user) throws ResourceNotFoundException {
         try {
             List<Question> list = getQuestionByIds(ids);
             return getQuestionDTOS(user, list);
@@ -135,7 +135,7 @@ public class QuestionServiceImp implements QuestionService {
     @Override
     public List<QuestionDTO> questionGetAllWithUser(@NonNull User user) throws ResourceNotFoundException {
         try {
-            Assert.notNull(user, "User id cannot be null");
+            Assert.notNull(user, "User cannot be null");
             List<Question> list = questionRepository.findAll();
             return getQuestionDTOS(user, list);
         } catch (ResourceNotFoundException e) {
@@ -247,10 +247,6 @@ public class QuestionServiceImp implements QuestionService {
 
     private List<Question> getQuestionByIds(List<Integer> ids) {
         return questionRepository.findAllById(ids);
-    }
-
-    private User getUserById(Integer userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User with id `" + userId + "` not found"));
     }
 
     private Tag getTagByName(String tagString) {

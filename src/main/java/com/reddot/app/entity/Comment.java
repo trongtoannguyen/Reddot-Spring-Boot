@@ -30,12 +30,11 @@ public class Comment extends BaseEntity {
     private Question question;
 
     /**
-     * The comment that this comment is a response to
+     * The comment id that this comment is a response to
      * Null if this comment responds to a question
      */
-    @ManyToOne
-    @JoinColumn(name = "response_to")
-    private Comment responseTo;
+    @Column(name = "response_to_id")
+    private Integer responseTo;
 
     @ManyToOne
     @JoinColumn(name = "author_id")
@@ -49,10 +48,6 @@ public class Comment extends BaseEntity {
     public Comment(String body, User author) {
         this.text = body;
         this.user = author;
-    }
-
-    public void respondToComment(Comment comment) {
-        this.responseTo = comment;
     }
 
     public int getScore() {

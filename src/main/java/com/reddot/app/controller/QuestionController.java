@@ -1,5 +1,6 @@
 package com.reddot.app.controller;
 
+import com.reddot.app.dto.request.CommentPostDTO;
 import com.reddot.app.dto.request.QuestionCreateDTO;
 import com.reddot.app.dto.request.QuestionUpdateDTO;
 import com.reddot.app.dto.response.CommentDTO;
@@ -39,10 +40,11 @@ public class QuestionController {
                     This method returns the question with the new comment.
                     """)
     @PostMapping("/{id}/comments/add")
-    public ResponseEntity<ServiceResponse<CommentDTO>> addComment(@PathVariable Integer id, String body) {
+    public ResponseEntity<ServiceResponse<CommentDTO>> addComment(@PathVariable Integer id, CommentPostDTO dto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
-        CommentDTO commentDTO = commentService.commentCreateOnQuestion(user.getId(), id, body);
+        dto.setId(id);
+        CommentDTO commentDTO = commentService.commentCreateOnQuestion(user, dto);
         return ResponseEntity.ok(new ServiceResponse<>(200, "Question retrieved successfully", commentDTO));
     }
 
@@ -106,7 +108,7 @@ public class QuestionController {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if (SystemAuthentication.isLoggedIn(authentication)) {
                 User user = (User) authentication.getPrincipal();
-                dtos = questionService.questionGetWithUser(ids, user);
+                dtos = questionService.questionGetByIdsWithUser(ids, user);
             } else {
                 dtos = questionService.questionGetByIds(ids);
             }

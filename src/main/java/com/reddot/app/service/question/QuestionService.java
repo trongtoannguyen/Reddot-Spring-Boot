@@ -42,7 +42,7 @@ public interface QuestionService {
      * @return QuestionDTO object containing the question details
      * @throws ResourceNotFoundException if the question is not found
      */
-    List<QuestionDTO> questionGetWithUser(List<Integer> ids, @NonNull User user) throws ResourceNotFoundException;
+    List<QuestionDTO> questionGetByIdsWithUser(List<Integer> ids, @NonNull User user) throws ResourceNotFoundException;
 
     /**
      * Get all questions on the site.

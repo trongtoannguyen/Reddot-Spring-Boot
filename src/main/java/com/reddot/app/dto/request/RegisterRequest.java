@@ -13,7 +13,8 @@ public class RegisterRequest {
 
     @NonNull
     @Size(min = 3, max = 30)
-    @Pattern(regexp = "^[a-zA-Z0-9_]{3,30}$")
+    @Pattern(regexp = "^[a-zA-Z0-9_]{3,30}$",
+            message = "Username must contain only letters, numbers and underscores")
     private String username;
     @NonNull
     @Email
