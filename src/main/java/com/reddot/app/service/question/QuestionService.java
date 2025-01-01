@@ -86,7 +86,7 @@ public interface QuestionService {
     boolean isQuestionBookmarkedByUser(Integer questionId, Integer userId);
 
     List<QuestionDTO> searchByKeyword(String content);
-    List<QuestionDTO> searchByUsername(String username);
+    List<QuestionDTO> searchByDisplayName(String displayName);
 
     List<QuestionDTO> getQuestionsByUserId(Integer userId,String sort);
     List<QuestionDTO> getAllQuestions();

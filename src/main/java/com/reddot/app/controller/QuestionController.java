@@ -92,7 +92,7 @@ public class QuestionController {
                 userId = user.getId();
                 list = questionService.questionGetAllWithUser(userId);
             } else {
-                list = questionService.questionGetAll();
+                list = questionService.getAllQuestions();
             }
             return ResponseEntity.ok(new ServiceResponse<>(200, "Questions retrieved successfully", list));
         } catch (Exception e) {
@@ -174,12 +174,12 @@ public class QuestionController {
     @GetMapping("/search")
     public List<QuestionDTO> searchQuestions(
             @RequestParam(value = "content" , required = false)String content,
-            @RequestParam(value = "username",required = false)String username){
+            @RequestParam(value = "displayName",required = false)String displayName){
 
         if(content != null && !content.isBlank()){
             return questionService.searchByKeyword(content);
-        } else if(username != null && !username.isBlank()){
-            return questionService.searchByUsername(username);
+        } else if(displayName != null && !displayName.isBlank()){
+            return questionService.searchByDisplayName(displayName);
         }else {
             return questionService.getAllQuestions();
         }

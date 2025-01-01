@@ -149,6 +149,11 @@ public class QuestionServiceImp implements QuestionService {
         try {
             Assert.notNull(userId, "User id cannot be null");
             List<Question> list = questionRepository.findAll();
+
+            list = list.stream()
+                    .filter(question -> question.getVisibility() == Question.Visibility.PUBLIC)
+                    .collect(Collectors.toList());
+
             List<QuestionDTO> dtoList = questionAssembler.toDTOList(list);
 
             dtoList.forEach(questionDTO -> {
@@ -251,7 +256,7 @@ public class QuestionServiceImp implements QuestionService {
     }
 
     private Question getQuestionById(Integer id) {
-        return questionRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Question with id `" + id + "` not found"));
+        return questionRepository.findById(id).filter(question -> question.getVisibility() == Question.Visibility.PUBLIC ).orElseThrow(() -> new ResourceNotFoundException("Question with id `" + id + "` not found"));
     }
 
     private User getUserById(Integer userId) {
@@ -265,13 +270,23 @@ public class QuestionServiceImp implements QuestionService {
     @Override
     public List<QuestionDTO> searchByKeyword(String content) {
         List<Question> questions = questionRepository.findByKeyword(content.toLowerCase());
-        return questions.stream().map(questionAssembler::toDTO).toList();
+
+        questions = questions.stream()
+                .filter(question -> question.getVisibility() == Question.Visibility.PUBLIC)
+                .toList();
+
+        return questions.stream().map(questionAssembler::toDTO).collect(Collectors.toList());
     }
 
     @Override
-    public List<QuestionDTO> searchByUsername(String username) {
-        List<Question> questions = questionRepository.findByUsername(username.toLowerCase());
-        return questions.stream().map(questionAssembler::toDTO).toList();
+    public List<QuestionDTO> searchByDisplayName(String displayName) {
+        List<Question> questions = questionRepository.findByDisplayName(displayName.toLowerCase());
+
+        questions = questions.stream()
+                .filter(question -> question.getVisibility() == Question.Visibility.PUBLIC)
+                .toList();
+
+        return questions.stream().map(questionAssembler::toDTO).collect(Collectors.toList());
     }
 
     @Override
@@ -282,6 +297,10 @@ public class QuestionServiceImp implements QuestionService {
         }
 
         List<Question> questions = questionRepository.findByUserId(userId);
+
+        questions = questions.stream()
+                .filter(question -> question.getVisibility() == Question.Visibility.PUBLIC)
+                .collect(Collectors.toList());
 
         if("score".equalsIgnoreCase(sort)){
             questions.sort((q1, q2) -> Integer.compare(q2.getScore(), q1.getScore()));
@@ -298,10 +317,17 @@ public class QuestionServiceImp implements QuestionService {
 
     @Override
     public List<QuestionDTO> getAllQuestions() {
-        return questionRepository.findAll().stream()
+        List<Question> questions = questionRepository.findAll();
+
+        questions = questions.stream()
+                .filter(question -> question.getVisibility() == Question.Visibility.PUBLIC)
+                .toList();
+
+        return questions.stream()
                 .map(questionAssembler::toDTO)
                 .collect(Collectors.toList());
     }
+
 
     @Override
     public QuestionDTO toggleVisibiliy(Integer questionId, Integer userId) throws ResourceNotFoundException, BadRequestException {
