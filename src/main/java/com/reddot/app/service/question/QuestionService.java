@@ -25,25 +25,24 @@ public interface QuestionService {
     QuestionDTO questionCreate(User user, QuestionCreateDTO dto) throws ResourceNotFoundException;
 
     /**
-     * Get the question identified by the given id.
+     * Get the questions identified by a list of ids.
      *
-     * @param id the id of the question
+     * @param ids the id of the question
      * @return QuestionDTO object containing the question details
-     * @throws ResourceNotFoundException if the question is not found
      */
     // todo: https://api.stackexchange.com/docs/questions-by-ids
-    QuestionDTO questionGetById(Integer id) throws ResourceNotFoundException;
+    List<QuestionDTO> questionGetByIds(List<Integer> ids);
 
     /**
-     * Get the question identified by the given id.
+     * Get questions identified by id in a list.
      * Method returns some user-specific properties related to the question.
      *
-     * @param questionId the id of the question
-     * @param user       the user requesting the question
+     * @param ids  a list of ids of the questions
+     * @param user the user requesting the question
      * @return QuestionDTO object containing the question details
      * @throws ResourceNotFoundException if the question is not found
      */
-    QuestionDTO questionGetWithUser(Integer questionId, @NonNull User user) throws ResourceNotFoundException;
+    List<QuestionDTO> questionGetWithUser(List<Integer> ids, @NonNull User user) throws ResourceNotFoundException;
 
     /**
      * Get all questions on the site.

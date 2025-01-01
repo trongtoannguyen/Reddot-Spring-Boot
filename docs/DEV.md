@@ -72,14 +72,15 @@ Reddot follows RESTful principles for its backend API, using the following key e
 
 - **Question API**:
     - GET /questions: Gets all the questions on the site.
-    - GET /questions/{id}: Gets a specific question by ID.
-    - POST /questions/add: Submit a new question.
-    - POST /questions/{id}/comments/add: Add a comment to a question.
-    - PUT /questions/{id}/update: Updates a question.
-    - DELETE /questions/{id}/delete: Deletes the question identified by ID.
+    - GET /questions/{ids}: Gets questions in a list of ids.
+        - POST /questions/add: Submit a new question.
+        - POST /questions/{id}/comments/add: Add a comment to a question.
+        - PUT /questions/{id}/update: Updates a question.
+        - DELETE /questions/{id}/delete: Deletes the question identified by ID.
 
 - **Comment API**:
-    - GET /comments/{id}: Fetches a comment by ID.
+    - GET /comments: Get all comments on the site.
+    - GET /comments/{ids}: Get the comments identified by a set of IDs.
 
 Authentication is handled via JWT tokens passed in the `Authorization` header.
 

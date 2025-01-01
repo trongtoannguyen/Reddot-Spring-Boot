@@ -5,6 +5,7 @@ import com.reddot.app.service.user.UserServiceManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -41,8 +42,8 @@ public class WebSecurityConfig {
                         // Public endpoints
                         .requestMatchers("/hello", "/auth/**").permitAll()
                         .requestMatchers("/users", "/users/{id:[0-9]+}").permitAll()
-                        .requestMatchers("/questions", "/questions/{id:[0-9]+}").permitAll()
-                        .requestMatchers("/comments/{id:[0-9]+}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/questions", "/questions/*").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/comments", "/comments/*").permitAll()
                         .requestMatchers("/settings/reset-password", "/settings/reset-password/confirm", "/settings/email/confirm", "/settings/email/resend-confirm").permitAll()
 
                         // Private endpoints accessible by role

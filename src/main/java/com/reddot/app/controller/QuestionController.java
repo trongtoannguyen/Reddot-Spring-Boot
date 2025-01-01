@@ -94,23 +94,23 @@ public class QuestionController {
         }
     }
 
-    @Operation(summary = "Returns the question identified in {id}.",
+    @Operation(summary = "Returns questions identified in {ids}.",
             description = """
-                    Use this method to retrieve a question by its ID include some user-specific properties related to the question.
+                    Use this method to retrieve a list of questions by a list of ids, include some user-specific properties related to the question.
                     
-                    This method returns the question.""")
-    @GetMapping("/{id}")
-    public ResponseEntity<ServiceResponse<QuestionDTO>> getQuestion(@PathVariable Integer id) {
+                    This method returns a list of questions.""")
+    @GetMapping("/{ids}")
+    public ResponseEntity<ServiceResponse<List<QuestionDTO>>> getQuestionByIds(@PathVariable List<Integer> ids) {
         try {
-            QuestionDTO questionDTO;
+            List<QuestionDTO> dtos;
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if (SystemAuthentication.isLoggedIn(authentication)) {
                 User user = (User) authentication.getPrincipal();
-                questionDTO = questionService.questionGetWithUser(id, user);
+                dtos = questionService.questionGetWithUser(ids, user);
             } else {
-                questionDTO = questionService.questionGetById(id);
+                dtos = questionService.questionGetByIds(ids);
             }
-            return ResponseEntity.ok(new ServiceResponse<>(200, "Question retrieved successfully", questionDTO));
+            return ResponseEntity.ok(new ServiceResponse<>(200, "Question retrieved successfully", dtos));
         } catch (ResourceNotFoundException e) {
             throw new ResourceNotFoundException(e.getMessage());
         } catch (Exception e) {
