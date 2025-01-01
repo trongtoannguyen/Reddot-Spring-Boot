@@ -53,15 +53,15 @@ public class QuestionServiceImp implements QuestionService {
     /**
      * Create a new question with a set of maximum 5 tags.
      *
-     * @param creatorId the id of the user creating the question
-     * @param dto       QuestionPostDTO object containing the question details
+     * @param creator the id of the user creating the question
+     * @param dto     QuestionPostDTO object containing the question details
      * @return QuestionDTO the created question
      */
     @Transactional
     @Override
-    public QuestionDTO questionCreate(Integer creatorId, QuestionCreateDTO dto) throws ResourceNotFoundException {
+    public QuestionDTO questionCreate(User creator, QuestionCreateDTO dto) throws ResourceNotFoundException {
         try {
-            User creator = getUserById(creatorId);
+            Assert.notNull(creator, "User cannot be null");
             // question can have at most 5 tags
             Set<Tag> tags = new HashSet<>(5);
             if (!dto.getTags().isEmpty()) {
@@ -84,11 +84,9 @@ public class QuestionServiceImp implements QuestionService {
             QuestionDTO dto1 = questionAssembler.toDTO(question);
 
             // custom logic for user-specific properties
-            if (creatorId != null) {
-                dto1.setUpvoted(isQuestionUpvotedByUser(question.getId(), creatorId));
-                dto1.setDownvoted(isQuestionDownvotedByUser(question.getId(), creatorId));
-                dto1.setBookmarked(isQuestionBookmarkedByUser(question.getId(), creatorId));
-            }
+            dto1.setUpvoted(isQuestionUpvotedByUser(question.getId(), creator.getId()));
+            dto1.setDownvoted(isQuestionDownvotedByUser(question.getId(), creator.getId()));
+            dto1.setBookmarked(isQuestionBookmarkedByUser(question.getId(), creator.getId()));
             return dto1;
         } catch (ResourceNotFoundException e) {
             log.error(e.getMessage());
@@ -113,15 +111,15 @@ public class QuestionServiceImp implements QuestionService {
     }
 
     @Override
-    public QuestionDTO questionGetWithUser(Integer questionId, @NonNull Integer userId) throws ResourceNotFoundException {
+    public QuestionDTO questionGetWithUser(Integer questionId, @NonNull User user) throws ResourceNotFoundException {
         try {
             Question question = getQuestionById(questionId);
             QuestionDTO dto = questionAssembler.toDTO(question);
 
             // custom logic for user-specific properties
-            dto.setUpvoted(isQuestionUpvotedByUser(questionId, userId));
-            dto.setDownvoted(isQuestionDownvotedByUser(questionId, userId));
-            dto.setBookmarked(isQuestionBookmarkedByUser(questionId, userId));
+            dto.setUpvoted(isQuestionUpvotedByUser(questionId, user.getId()));
+            dto.setDownvoted(isQuestionDownvotedByUser(questionId, user.getId()));
+            dto.setBookmarked(isQuestionBookmarkedByUser(questionId, user.getId()));
             return dto;
         } catch (ResourceNotFoundException e) {
             log.error(e.getMessage());
@@ -144,16 +142,16 @@ public class QuestionServiceImp implements QuestionService {
     }
 
     @Override
-    public List<QuestionDTO> questionGetAllWithUser(@NonNull Integer userId) throws ResourceNotFoundException {
+    public List<QuestionDTO> questionGetAllWithUser(@NonNull User user) throws ResourceNotFoundException {
         try {
-            Assert.notNull(userId, "User id cannot be null");
+            Assert.notNull(user, "User id cannot be null");
             List<Question> list = questionRepository.findAll();
             List<QuestionDTO> dtoList = questionAssembler.toDTOList(list);
 
             dtoList.forEach(questionDTO -> {
-                questionDTO.setUpvoted(isQuestionUpvotedByUser(questionDTO.getQuestionId(), userId));
-                questionDTO.setDownvoted(isQuestionDownvotedByUser(questionDTO.getQuestionId(), userId));
-                questionDTO.setBookmarked(isQuestionBookmarkedByUser(questionDTO.getQuestionId(), userId));
+                questionDTO.setUpvoted(isQuestionUpvotedByUser(questionDTO.getQuestionId(), user.getId()));
+                questionDTO.setDownvoted(isQuestionDownvotedByUser(questionDTO.getQuestionId(), user.getId()));
+                questionDTO.setBookmarked(isQuestionBookmarkedByUser(questionDTO.getQuestionId(), user.getId()));
             });
             return dtoList;
         } catch (ResourceNotFoundException e) {
@@ -166,10 +164,9 @@ public class QuestionServiceImp implements QuestionService {
     }
 
     @Override
-    public QuestionDTO questionUpdate(Integer userId, QuestionUpdateDTO dto) throws ResourceNotFoundException, BadRequestException {
+    public QuestionDTO questionUpdate(User user, QuestionUpdateDTO dto) throws ResourceNotFoundException, BadRequestException {
         try {
             Question question = getQuestionById(dto.getId());
-            User user = getUserById(userId);
 
             // Check if the user is the owner, admin, or moderator
             boolean isOwner = isOwner(user, question);
@@ -210,10 +207,10 @@ public class QuestionServiceImp implements QuestionService {
     }
 
     @Override
-    public void questionDelete(Integer questionId, Integer userId) throws ResourceNotFoundException, BadRequestException {
+    public void questionDelete(Integer questionId, User user) throws ResourceNotFoundException, BadRequestException {
         try {
+            Assert.notNull(user, "User cannot be null");
             Question question = getQuestionById(questionId);
-            User user = getUserById(userId);
 
             // Check if the user is the owner, admin, or moderator
             boolean isOwner = isOwner(user, question);
