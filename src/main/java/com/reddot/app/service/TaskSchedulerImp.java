@@ -55,7 +55,7 @@ public class TaskSchedulerImp {
     public void userDeleteSendAlertMail() {
         log.info(logMsg + " - DELETE ALERT");
         String subject = "Account Deletion Alert";
-        String body = "Your Reddit account will be deleted in " + (DELETE_DAYS - WARNING_DAYS) * 24 + " hours. Please carefully consider this action.";
+        String emailBody = "Your Reddot account will be deleted in " + (DELETE_DAYS - WARNING_DAYS) * 24 + " hours. Please carefully consider this action.";
         try {
             Set<UserOnDelete> deleteRequestSet = getOnDeletesBefore(warningDate, false);
             if (deleteRequestSet.isEmpty()) {
@@ -67,7 +67,7 @@ public class TaskSchedulerImp {
                 if (user == null) {
                     userDeleteRepository.delete(request);
                 } else {
-                    mailSenderManager.sendEmail(user.getEmail(), subject, body);
+                    mailSenderManager.sendEmail(user.getEmail(), subject, emailBody);
                     request.setIsNoticed(true);
                     userDeleteRepository.save(request);
                     log.info("ALERT EMAIL SENT - ID: {}", request.getUserId());
