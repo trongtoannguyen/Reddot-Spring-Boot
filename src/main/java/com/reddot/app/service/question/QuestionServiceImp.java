@@ -14,6 +14,7 @@ import com.reddot.app.exception.ResourceNotFoundException;
 import com.reddot.app.repository.QuestionRepository;
 import com.reddot.app.repository.TagRepository;
 import com.reddot.app.repository.UserRepository;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -112,9 +113,8 @@ public class QuestionServiceImp implements QuestionService {
     }
 
     @Override
-    public QuestionDTO questionGetWithUser(Integer questionId, Integer userId) throws ResourceNotFoundException {
+    public QuestionDTO questionGetWithUser(Integer questionId, @NonNull Integer userId) throws ResourceNotFoundException {
         try {
-            Assert.notNull(userId, "User id cannot be null");
             Question question = getQuestionById(questionId);
             QuestionDTO dto = questionAssembler.toDTO(question);
 
@@ -144,7 +144,7 @@ public class QuestionServiceImp implements QuestionService {
     }
 
     @Override
-    public List<QuestionDTO> questionGetAllWithUser(Integer userId) throws ResourceNotFoundException {
+    public List<QuestionDTO> questionGetAllWithUser(@NonNull Integer userId) throws ResourceNotFoundException {
         try {
             Assert.notNull(userId, "User id cannot be null");
             List<Question> list = questionRepository.findAll();

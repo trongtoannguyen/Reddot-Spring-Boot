@@ -5,6 +5,7 @@ import com.reddot.app.dto.request.QuestionUpdateDTO;
 import com.reddot.app.dto.response.QuestionDTO;
 import com.reddot.app.exception.BadRequestException;
 import com.reddot.app.exception.ResourceNotFoundException;
+import lombok.NonNull;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -41,7 +42,7 @@ public interface QuestionService {
      * @return QuestionDTO object containing the question details
      * @throws ResourceNotFoundException if the question is not found
      */
-    QuestionDTO questionGetWithUser(Integer questionId, Integer userId) throws ResourceNotFoundException;
+    QuestionDTO questionGetWithUser(Integer questionId, @NonNull Integer userId) throws ResourceNotFoundException;
 
     /**
      * Get all questions on the site.
@@ -57,7 +58,7 @@ public interface QuestionService {
      * @param userId the id of the user
      * @return List of QuestionDTO objects containing the question details
      */
-    List<QuestionDTO> questionGetAllWithUser(Integer userId) throws ResourceNotFoundException;
+    List<QuestionDTO> questionGetAllWithUser(@NonNull Integer userId) throws ResourceNotFoundException;
 
     /**
      * Edits the given question.
