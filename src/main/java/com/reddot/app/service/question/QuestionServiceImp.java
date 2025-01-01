@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -260,4 +261,66 @@ public class QuestionServiceImp implements QuestionService {
     private Tag getTagByName(String tagString) {
         return tagRepository.findByName(tagString).orElseThrow(() -> new ResourceNotFoundException("Tag with name `" + tagString + "` not found"));
     }
+
+    @Override
+    public List<QuestionDTO> searchByKeyword(String content) {
+        List<Question> questions = questionRepository.findByKeyword(content.toLowerCase());
+        return questions.stream().map(questionAssembler::toDTO).toList();
+    }
+
+    @Override
+    public List<QuestionDTO> searchByUsername(String username) {
+        List<Question> questions = questionRepository.findByUsername(username.toLowerCase());
+        return questions.stream().map(questionAssembler::toDTO).toList();
+    }
+
+    @Override
+    public List<QuestionDTO> getQuestionsByUserId(Integer userId,String sort) {
+        User loggedInUser = getUser(userId);
+        if(loggedInUser == null) {
+            throw new ResourceNotFoundException("User with id " + userId + " not found");
+        }
+
+        List<Question> questions = questionRepository.findByUserId(userId);
+
+        if("score".equalsIgnoreCase(sort)){
+            questions.sort((q1, q2) -> Integer.compare(q2.getScore(), q1.getScore()));
+        }else if("newest".equalsIgnoreCase(sort)){
+            questions.sort((q1,q2)->q2.getCreatedAt().compareTo(q1.getCreatedAt()));
+        }else {
+            questions.sort((q1, q2) -> Integer.compare(q2.getScore(), q1.getScore()));
+        }
+
+        return questions.stream()
+                .map(questionAssembler::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<QuestionDTO> getAllQuestions() {
+        return questionRepository.findAll().stream()
+                .map(questionAssembler::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public QuestionDTO toggleVisibiliy(Integer questionId, Integer userId) throws ResourceNotFoundException, BadRequestException {
+        Question question = questionRepository.findById(questionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Question Not Found"));
+
+        if(!question.getUser().getId().equals(userId)) {
+            throw new BadRequestException("You are not permitted to change this question");
+        }
+
+        if(question.getVisibility() == Question.Visibility.PUBLIC){
+            question.setVisibility(Question.Visibility.PRIVATE);
+        }else {
+            question.setVisibility(Question.Visibility.PUBLIC);
+        }
+
+        questionRepository.save(question);
+
+        return questionAssembler.toDTO(question);
+    }
+
 }

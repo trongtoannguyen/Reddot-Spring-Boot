@@ -170,4 +170,25 @@ public class QuestionController {
             throw new RuntimeException(e);
         }
     }
+
+    @GetMapping("/search")
+    public List<QuestionDTO> searchQuestions(
+            @RequestParam(value = "content" , required = false)String content,
+            @RequestParam(value = "username",required = false)String username){
+
+        if(content != null && !content.isBlank()){
+            return questionService.searchByKeyword(content);
+        } else if(username != null && !username.isBlank()){
+            return questionService.searchByUsername(username);
+        }else {
+            return questionService.getAllQuestions();
+        }
+    }
+
+    @PutMapping("/questions/{questionId}/visibility")
+    public ResponseEntity<QuestionDTO> togggleQuestionVisibility(@PathVariable Integer questionId,@RequestParam Integer loggedInUserId) throws  ResourceNotFoundException, BadRequestException {
+        QuestionDTO updatedQuestion = questionService.toggleVisibiliy(questionId,loggedInUserId);
+
+        return ResponseEntity.ok(updatedQuestion);
+    }
 }

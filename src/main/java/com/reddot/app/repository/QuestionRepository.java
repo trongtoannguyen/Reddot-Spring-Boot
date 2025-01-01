@@ -57,4 +57,12 @@ public interface QuestionRepository extends JpaRepository<Question, Integer> {
     boolean existsByIdAndVotes_UserIdAndVotes_VoteTypeId(Integer questionId, Integer userId, int direction);
 
     Long countUpvotesForQuestionsByUserId(Integer id);
+
+    @Query("SELECT q FROM questions q WHERE LOWER(q.title) LIKE %:content% OR LOWER(q.body) LIKE %:content%")
+    List<Question> findByKeyword(@Param("query") String content);
+
+    @Query("SELECT q FROM questions q WHERE LOWER(q.user.username) LIKE %:username%")
+    List<Question> findByUsername(@Param("query") String username);
+
+    List<Question> findByUserId(Integer userId);
 }
