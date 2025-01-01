@@ -109,4 +109,16 @@ public class Question extends BaseEntity {
     public int getScore() {
         return this.upvotes * 3 - this.downvotes;
     }
+
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Visibility visibility = Visibility.PUBLIC;
+
+    public enum Visibility {
+        PUBLIC,
+        PRIVATE
+    }
+
 }
+

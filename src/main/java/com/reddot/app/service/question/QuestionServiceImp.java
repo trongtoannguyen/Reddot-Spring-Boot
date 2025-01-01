@@ -46,7 +46,7 @@ public class QuestionServiceImp implements QuestionService {
             return false;
         }
         return user.getRoles().stream().anyMatch(role -> role.getName().equals(ROLENAME.ROLE_ADMIN)
-                                                         || role.getName().equals(ROLENAME.ROLE_MODERATOR));
+                || role.getName().equals(ROLENAME.ROLE_MODERATOR));
     }
 
     /**
