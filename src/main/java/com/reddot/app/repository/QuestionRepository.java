@@ -59,10 +59,10 @@ public interface QuestionRepository extends JpaRepository<Question, Integer> {
     Long countUpvotesForQuestionsByUserId(Integer id);
 
     @Query("SELECT q FROM questions q WHERE LOWER(q.title) LIKE %:content% OR LOWER(q.body) LIKE %:content%")
-    List<Question> findByKeyword(@Param("query") String content);
+    List<Question> findByKeyword(@Param("content") String content);
 
     @Query("SELECT q FROM questions q WHERE LOWER(q.user.username) LIKE %:username%")
-    List<Question> findByUsername(@Param("query") String username);
+    List<Question> findByUsername(@Param("username") String username);
 
     List<Question> findByUserId(Integer userId);
 }

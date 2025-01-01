@@ -276,7 +276,7 @@ public class QuestionServiceImp implements QuestionService {
 
     @Override
     public List<QuestionDTO> getQuestionsByUserId(Integer userId,String sort) {
-        User loggedInUser = getUser(userId);
+        User loggedInUser = getUserById(userId);
         if(loggedInUser == null) {
             throw new ResourceNotFoundException("User with id " + userId + " not found");
         }
