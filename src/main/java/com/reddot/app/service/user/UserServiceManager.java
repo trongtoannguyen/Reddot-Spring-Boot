@@ -5,6 +5,7 @@ import com.reddot.app.dto.request.RegisterRequest;
 import com.reddot.app.dto.request.UpdatePasswordRequest;
 import com.reddot.app.dto.response.UserProfileDTO;
 import com.reddot.app.entity.User;
+import com.reddot.app.entity.enumeration.MembershipRank;
 import com.reddot.app.exception.BadRequestException;
 import com.reddot.app.exception.EmailNotFoundException;
 import com.reddot.app.exception.ResourceNotFoundException;
@@ -76,4 +77,8 @@ public interface UserServiceManager extends UserDetailsService {
     void emailConfirm(@NonNull String token) throws ResourceNotFoundException;
 
     void emailConfirmResend(Integer userId) throws UserNotFoundException, BadRequestException;
+
+    void membershipUpgrade(User user, MembershipRank rank);
+
+    void membershipDowngrade(User user);
 }

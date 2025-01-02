@@ -53,6 +53,17 @@ public interface QuestionService {
 
     /**
      * Get all questions on the site with user id.
+     * <p>
+     * This method useful when fetching questions in profile page of a specific user.
+     *
+     * @param userId the id of the user
+     * @param sort   the sorting order.
+     * @return List of QuestionDTO objects containing the question details
+     */
+    List<QuestionDTO> questionGetAllByUserId(Integer userId, String sort);
+
+    /**
+     * Get all questions on the site with user id.
      * Method returns some user-specific properties related to the questions.
      *
      * @param user the user requesting the questions
@@ -80,6 +91,12 @@ public interface QuestionService {
      * @throws BadRequestException       if the user is not permitted to delete the question
      */
     void questionDelete(Integer questionId, User user) throws ResourceNotFoundException, BadRequestException;
+
+    List<QuestionDTO> searchByKeyword(String content);
+
+    List<QuestionDTO> searchByDisplayName(String displayName);
+
+    QuestionDTO toggleVisibility(Integer questionId, Integer userId) throws ResourceNotFoundException, BadRequestException;
 
     boolean isQuestionUpvotedByUser(Integer questionId, Integer userId);
 

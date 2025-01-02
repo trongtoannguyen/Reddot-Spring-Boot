@@ -1,11 +1,13 @@
 package com.reddot.app.controller;
 
 import com.reddot.app.dto.request.ProfileUpdateRequest;
+import com.reddot.app.dto.response.QuestionDTO;
 import com.reddot.app.dto.response.ServiceResponse;
 import com.reddot.app.dto.response.UserProfileDTO;
 import com.reddot.app.entity.User;
 import com.reddot.app.exception.BadRequestException;
 import com.reddot.app.exception.ResourceNotFoundException;
+import com.reddot.app.service.question.QuestionService;
 import com.reddot.app.service.user.UserServiceManager;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -16,14 +18,18 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/users")
 public class UserManagementController {
 
     private final UserServiceManager userServiceManager;
+    private final QuestionService questionService;
 
-    public UserManagementController(UserServiceManager userServiceManager) {
+    public UserManagementController(UserServiceManager userServiceManager, QuestionService questionService) {
         this.userServiceManager = userServiceManager;
+        this.questionService = questionService;
     }
 
     @Operation(summary = "Get user profile by username",
@@ -81,6 +87,25 @@ public class UserManagementController {
             throw new ResourceNotFoundException(e.getMessage());
         } catch (Exception e) {
             throw new BadRequestException(e.getMessage());
+        }
+    }
+
+    @GetMapping("/{userId}/questions")
+    public ResponseEntity<ServiceResponse<List<QuestionDTO>>> getUserQuestions(
+            @PathVariable Integer userId,
+            @RequestParam(required = false, defaultValue = "score") String sort) {
+        try {
+            List<QuestionDTO> questions = questionService.questionGetAllByUserId(userId, sort);
+            return new ResponseEntity<>(
+                    new ServiceResponse<>(
+                            HttpStatus.OK.value(),
+                            "Retrieved questions successfully",
+                            questions
+                    ),
+                    HttpStatus.OK
+            );
+        } catch (ResourceNotFoundException e) {
+            throw new ResourceNotFoundException(e.getMessage());
         }
     }
 }

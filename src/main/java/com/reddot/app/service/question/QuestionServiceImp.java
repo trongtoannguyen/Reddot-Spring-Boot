@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -136,7 +137,9 @@ public class QuestionServiceImp implements QuestionService {
     public List<QuestionDTO> questionGetAllWithUser(@NonNull User user) throws ResourceNotFoundException {
         try {
             Assert.notNull(user, "User cannot be null");
-            List<Question> list = questionRepository.findAll();
+            List<Question> list = questionRepository.findAll().stream()
+                    .filter(question -> question.getVisibility() == Question.Visibility.PUBLIC)
+                    .collect(Collectors.toList());
             return getQuestionDTOS(user, list);
         } catch (ResourceNotFoundException e) {
             log.error(e.getMessage());
@@ -230,9 +233,87 @@ public class QuestionServiceImp implements QuestionService {
         return false;
     }
 
+    @Override
+    public List<QuestionDTO> searchByKeyword(String content) {
+        List<Question> questions = questionRepository.findByKeyword(content.toLowerCase());
+
+        questions = questions.stream()
+                .filter(question -> question.getVisibility() == Question.Visibility.PUBLIC)
+                .toList();
+
+        return questions.stream().map(questionAssembler::toDTO).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<QuestionDTO> searchByDisplayName(String displayName) {
+        List<Question> questions = questionRepository.findByDisplayName(displayName.toLowerCase());
+
+        questions = questions.stream()
+                .filter(question -> question.getVisibility() == Question.Visibility.PUBLIC)
+                .toList();
+
+        return questions.stream().map(questionAssembler::toDTO).collect(Collectors.toList());
+    }
+
+    /**
+     * Get all questions on the site with user id.
+     *
+     * @param userId the id of the user
+     * @param sort   the sorting order, default is by score.
+     * @return
+     */
+    @Override
+    public List<QuestionDTO> questionGetAllByUserId(Integer userId, String sort) {
+        User loggedInUser = getUserById(userId);
+        if (loggedInUser == null) {
+            throw new ResourceNotFoundException("User with id " + userId + " not found");
+        }
+
+        List<Question> questions = questionRepository.findByUserId(userId).stream()
+                .filter(question -> question.getVisibility() == Question.Visibility.PUBLIC)
+                .collect(Collectors.toList());
+
+        if ("score".equalsIgnoreCase(sort)) {
+            questions.sort((q1, q2) -> Integer.compare(q2.getScore(), q1.getScore()));
+        } else if ("newest".equalsIgnoreCase(sort)) {
+            questions.sort((q1, q2) -> q2.getCreatedAt().compareTo(q1.getCreatedAt()));
+        } else {
+            questions.sort((q1, q2) -> Integer.compare(q2.getScore(), q1.getScore()));
+        }
+
+        return getQuestionDTOS(loggedInUser, questions);
+    }
+
+    @Override
+    public QuestionDTO toggleVisibility(Integer questionId, Integer userId) throws ResourceNotFoundException, BadRequestException {
+        Question question = questionRepository.findById(questionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Question Not Found"));
+
+        if (!question.getUser().getId().equals(userId)) {
+            throw new BadRequestException("You are not permitted to change this question");
+        }
+
+        if (question.getVisibility() == Question.Visibility.PUBLIC) {
+            question.setVisibility(Question.Visibility.PRIVATE);
+        } else {
+            question.setVisibility(Question.Visibility.PUBLIC);
+        }
+
+        questionRepository.save(question);
+
+        return questionAssembler.toDTO(question);
+    }
+
+    private Question getSingleQuestionById(Integer id) {
+        return questionRepository.findById(id).filter(question -> question.getVisibility() == Question.Visibility.PUBLIC).orElseThrow(() -> new ResourceNotFoundException("Question with id `" + id + "` not found"));
+    }
+
+    private List<Question> getQuestionByIds(List<Integer> ids) {
+        return questionRepository.findAllById(ids);
+    }
+
     private List<QuestionDTO> getQuestionDTOS(@NonNull User user, List<Question> list) {
         List<QuestionDTO> dtoList = questionAssembler.toDTOList(list);
-
         dtoList.forEach(questionDTO -> {
             questionDTO.setUpvoted(isQuestionUpvotedByUser(questionDTO.getQuestionId(), user.getId()));
             questionDTO.setDownvoted(isQuestionDownvotedByUser(questionDTO.getQuestionId(), user.getId()));
@@ -241,15 +322,12 @@ public class QuestionServiceImp implements QuestionService {
         return dtoList;
     }
 
-    private Question getSingleQuestionById(Integer id) {
-        return questionRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Question with id `" + id + "` not found"));
-    }
-
-    private List<Question> getQuestionByIds(List<Integer> ids) {
-        return questionRepository.findAllById(ids);
-    }
-
     private Tag getTagByName(String tagString) {
         return tagRepository.findByName(tagString).orElseThrow(() -> new ResourceNotFoundException("Tag with name `" + tagString + "` not found"));
     }
+
+    private User getUserById(Integer userId) {
+        return userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User with id `" + userId + "` not found"));
+    }
+
 }

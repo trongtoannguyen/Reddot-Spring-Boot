@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface QuestionRepository extends JpaRepository<Question, Integer> {
@@ -52,9 +51,15 @@ public interface QuestionRepository extends JpaRepository<Question, Integer> {
                    "LIMIT 5", nativeQuery = true)
     List<Object[]> findTopQuestionsByTag(@Param("tagName") String tagName);
 
-    Optional<Question> findById(Integer id);
-
     boolean existsByIdAndVotes_UserIdAndVotes_VoteTypeId(Integer questionId, Integer userId, int direction);
 
     Long countUpvotesForQuestionsByUserId(Integer id);
+
+    @Query("SELECT q FROM questions q WHERE (LOWER(q.title) LIKE %:content% OR LOWER(q.body) LIKE %:content%) AND q.visibility = 'PUBLIC'")
+    List<Question> findByKeyword(@Param("content") String content);
+
+    @Query("SELECT q FROM questions q WHERE LOWER(q.user.person.displayName) LIKE LOWER(CONCAT('%', :displayName, '%')) AND q.visibility = 'PUBLIC'")
+    List<Question> findByDisplayName(@Param("displayName") String displayName);
+
+    List<Question> findByUserId(Integer userId);
 }

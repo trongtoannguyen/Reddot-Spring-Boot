@@ -1,5 +1,6 @@
 package com.reddot.app.dto.response;
 
+import com.reddot.app.entity.Question;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -36,4 +37,5 @@ public class QuestionDTO {
     private int commentCount;
     private int score;
     private List<CommentDTO> commentList = new ArrayList<>();
+    private Question.Visibility visibility;
 }

@@ -40,7 +40,7 @@ public class WebSecurityConfig {
                 .securityMatcher("/questions/**", "/comments/**", "/answers/**", "/users/**", "/settings/**", "/private/**", "/admin/**")
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints
-                        .requestMatchers("/hello", "/auth/**").permitAll()
+                        .requestMatchers("/hello", "/auth/**", "/questions/search").permitAll()
                         .requestMatchers("/users", "/users/{id:[0-9]+}").permitAll()
                         .requestMatchers(HttpMethod.GET, "/questions", "/questions/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/comments", "/comments/*").permitAll()

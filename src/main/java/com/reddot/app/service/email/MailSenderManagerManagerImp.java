@@ -28,7 +28,7 @@ public class MailSenderManagerManagerImp implements MailSenderManager {
             mimeMessage.setRecipient(Message.RecipientType.TO, new InternetAddress(to));
             mimeMessage.setFrom(new InternetAddress("Reddot"));
             mimeMessage.setSubject(subject);
-            mimeMessage.setText(body);
+            mimeMessage.setContent(body, "text/html;charset=UTF-8");
         };
 
         this.send(preparator);
@@ -36,15 +36,7 @@ public class MailSenderManagerManagerImp implements MailSenderManager {
 
     @Override
     public void sendEmails(Set<String> emails, String subject, String body) {
-        SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
-        simpleMailMessage.setFrom("Reddot");
-        simpleMailMessage.setSubject(subject);
-        simpleMailMessage.setText(body);
-
-        for (String email : emails) {
-            simpleMailMessage.setTo(email);
-            this.send(simpleMailMessage);
-        }
+        emails.forEach(email -> sendEmail(email, subject, body));
     }
 
     private void send(SimpleMailMessage simpleMailMessage) throws MailSendException {

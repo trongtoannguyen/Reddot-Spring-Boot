@@ -65,6 +65,10 @@ public class Question extends BaseEntity {
             fetch = FetchType.EAGER)
     private List<Vote> votes = new ArrayList<>();
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Visibility visibility = Visibility.PUBLIC;
+
     public void addTag(Tag tag) {
         this.tags.add(tag);
     }
@@ -108,5 +112,10 @@ public class Question extends BaseEntity {
 
     public int getScore() {
         return this.upvotes * 3 - this.downvotes;
+    }
+
+    public enum Visibility {
+        PUBLIC,
+        PRIVATE
     }
 }
