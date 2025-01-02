@@ -22,8 +22,4 @@ public class CommentDTO {
     private int downvotes;
     private Boolean downvoted;
     private int score;
-
-    public CommentDTO(Integer commentId) {
-        this.commentId = commentId;
-    }
 }

@@ -78,7 +78,7 @@ public interface UserServiceManager extends UserDetailsService {
 
     void emailConfirmResend(Integer userId) throws UserNotFoundException, BadRequestException;
 
-    void upgradeMembership(User user, MembershipRank rank);
+    void membershipUpgrade(User user, MembershipRank rank);
 
-    void downgradeMembership(User user);
+    void membershipDowngrade(User user);
 }

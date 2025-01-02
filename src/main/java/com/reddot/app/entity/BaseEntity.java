@@ -53,7 +53,6 @@ public abstract class BaseEntity implements Persistable<Integer>, Serializable {
         this.isNew = false;
         LocalDateTime now = LocalDateTime.now();
         this.setCreatedAt(now);
-        this.setUpdatedAt(now);
     }
 
     @PreUpdate

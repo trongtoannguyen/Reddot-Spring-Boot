@@ -95,7 +95,7 @@ public class UserManagementController {
             @PathVariable Integer userId,
             @RequestParam(required = false, defaultValue = "score") String sort) {
         try {
-            List<QuestionDTO> questions = questionService.getQuestionsByUserId(userId, sort);
+            List<QuestionDTO> questions = questionService.questionGetAllByUserId(userId, sort);
             return new ResponseEntity<>(
                     new ServiceResponse<>(
                             HttpStatus.OK.value(),
@@ -104,7 +104,7 @@ public class UserManagementController {
                     ),
                     HttpStatus.OK
             );
-        }catch (ResourceNotFoundException e) {
+        } catch (ResourceNotFoundException e) {
             throw new ResourceNotFoundException(e.getMessage());
         }
     }

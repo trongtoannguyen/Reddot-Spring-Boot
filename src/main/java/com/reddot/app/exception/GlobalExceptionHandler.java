@@ -17,13 +17,6 @@ import java.util.Objects;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(ResourceNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<ErrorObject> handleResourceNotFoundException(ResourceNotFoundException ex, WebRequest request) {
-        ErrorObject errorObject = new ErrorObject(HttpStatus.NOT_FOUND.value(), ex.getMessage(), request.getDescription(false));
-        return new ResponseEntity<>(errorObject, HttpStatus.NOT_FOUND);
-    }
-
     @ExceptionHandler({Exception.class, RuntimeException.class})
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<ErrorObject> handleGeneralException(Exception ex, WebRequest request) {
@@ -55,5 +48,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorObject> handleAccessDeniedException(AccessDeniedException ex, WebRequest request) {
         ErrorObject errorObject = new ErrorObject(HttpStatus.FORBIDDEN.value(), ex.getMessage(), request.getDescription(false));
         return new ResponseEntity<>(errorObject, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<ErrorObject> handleResourceNotFoundException(ResourceNotFoundException ex, WebRequest request) {
+        ErrorObject errorObject = new ErrorObject(HttpStatus.NOT_FOUND.value(), ex.getMessage(), request.getDescription(false));
+        return new ResponseEntity<>(errorObject, HttpStatus.NOT_FOUND);
     }
 }

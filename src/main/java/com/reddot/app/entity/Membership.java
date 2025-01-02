@@ -7,8 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -21,15 +19,17 @@ public class Membership {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "membership_rank" , nullable = false)
+    @Column(name = "membership_rank", nullable = false)
     private MembershipRank rank;
 
     private LocalDateTime startDate;
+
     private LocalDateTime endDate;
 
     private boolean isActive;
 
     @OneToOne
-    @JoinColumn(name = "user_id",nullable = false , unique = true) // Ensures that each user can only have one active membership
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    // Ensures that each user can only have one active membership
     private User user;
 }

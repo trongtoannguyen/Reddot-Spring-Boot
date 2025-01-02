@@ -137,6 +137,9 @@ public class User extends BaseEntity implements UserDetails {
             orphanRemoval = true)
     private Set<Follow> followers = new HashSet<>();
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Membership membership;
+
     public User(@NonNull String username, @NonNull String email, @NonNull String password) {
         this.username = username;
         this.email = email;
@@ -238,8 +241,5 @@ public class User extends BaseEntity implements UserDetails {
         this.comments.add(comment);
         comment.setUser(this);
     }
-
-    @OneToOne(mappedBy = "user",cascade = CascadeType.ALL)
-    private Membership membership;
 
 }

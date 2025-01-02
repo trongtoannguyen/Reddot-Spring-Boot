@@ -28,7 +28,6 @@ import org.springframework.util.Assert;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,12 +46,12 @@ public class UserServiceManagerImp implements UserServiceManager {
     private final UserAssembler userAssembler;
 
     public UserServiceManagerImp(@Value("${server.address}") String appDomain,
-            @Value("${server.port}") String appPort,
-            @Value("${server.servlet.context-path}") String appPath,
-            MailSenderManager mailSenderManager, UserRepository userRepository, RoleRepository roleRepository,
-            PasswordEncoder encoder, RecoveryTokenRepository recoveryTokenRepository,
-            ConfirmationTokenRepository confirmationTokenRepository, PersonRepository personRepository,
-            userDeleteRepository userDeleteRepository, UserAssembler userAssembler) {
+                                 @Value("${server.port}") String appPort,
+                                 @Value("${server.servlet.context-path}") String appPath,
+                                 MailSenderManager mailSenderManager, UserRepository userRepository, RoleRepository roleRepository,
+                                 PasswordEncoder encoder, RecoveryTokenRepository recoveryTokenRepository,
+                                 ConfirmationTokenRepository confirmationTokenRepository, PersonRepository personRepository,
+                                 userDeleteRepository userDeleteRepository, UserAssembler userAssembler) {
         this.mailSenderManager = mailSenderManager;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
@@ -86,94 +85,94 @@ public class UserServiceManagerImp implements UserServiceManager {
     /**
      * Every user must be User role when created, EVERYONE IS EQUAL
      */
-            @Override
-            public void userCreate(RegisterRequest request) {
-                try {
-                    List<String> errorMessages = validateUser(request);
-                    if (!errorMessages.isEmpty()) {
-                        log.error(String.valueOf(errorMessages));
-                        throw new Exception(String.valueOf(errorMessages));
-                    }
-                    User user = new User(request.getUsername(), request.getEmail(),
-                            encoder.encode(request.getPassword()));
-
-                    ROLENAME roleUser = ROLENAME.ROLE_USER;
-                    Role role = findRoleByName(roleUser);
-                    user.addRole(role);
-
-                    Membership membership = new Membership();
-                    membership.setRank(MembershipRank.NONE);
-                    membership.setActive(false);
-                    membership.setStartDate(null);
-                    membership.setEndDate(null);
-                    membership.setUser(user);
-
-                    user.setMembership(membership);
-                    userRepository.save(user);
-
-                    // Send confirmation email
-                    Assert.notNull(user.getId(), "User id must not be null");
-                    ConfirmationToken token = new ConfirmationToken(user.getId());
-
-                    // Construct the email subject and body in HTML
-                    String subject = "Reddot Account Confirmation";
-                    String body = String.format(
-                            """
-                                    <html>
-                                             <body style="font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f6f8;">
-                                                 <div style="max-width: 600px; margin: 40px auto; background: #ffffff; padding: 40px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-                                                     <div style="text-align: center; margin-bottom: 30px;">
-                                                         <img src="https://www.reddotcorp.com/uploads/1/2/7/5/12752286/reddotlogo.png" alt="Reddot Logo" style="max-width: 200px; height: auto;" />
-                                                     </div>
-                                    
-                                                     <h2 style="text-align: center; color: #2E7D32; margin: 0 0 30px 0; font-size: 28px; font-weight: 600;">
-                                                         Welcome to Reddot, %s!
-                                                     </h2>
-                                    
-                                                     <p style="color: #333333; font-size: 16px; line-height: 1.6; margin-bottom: 25px;">
-                                                         Thank you for signing up. To get started with your Reddot journey, please confirm your account by clicking the button below:
-                                                     </p>
-                                    
-                                                     <div style="text-align: center; margin: 35px 0;">
-                                                         <a href="%s/auth/confirm-account?token=%s"
-                                                            style="display: inline-block;
-                                                                   padding: 14px 32px;
-                                                                   background-color: #2E7D32;
-                                                                   color: white;
-                                                                   text-decoration: none;
-                                                                   border-radius: 6px;
-                                                                   font-weight: 600;
-                                                                   font-size: 16px;
-                                                                   transition: background-color 0.3s ease;
-                                                                   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
-                                                             Confirm Your Account
-                                                         </a>
-                                                     </div>
-                                    
-                                                     <p style="color: #666666; font-size: 14px; line-height: 1.5; margin: 25px 0; text-align: center;">
-                                                         If you did not create an account with Reddot, please disregard this email.
-                                                     </p>
-                                    
-                                                     <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 30px 0;">
-                                    
-                                                     <div style="text-align: center;">
-                                                         <p style="color: #2E7D32; font-weight: 600; margin: 0;">Best Regards,</p>
-                                                         <p style="color: #666666; margin: 5px 0;">The Reddot Team</p>
-                                                     </div>
-                                                 </div>
-                                             </body>
-                                             </html>
-                                    """,
-                            user.getUsername(), fullUrl, token.getToken());
-                    mailSenderManager.sendEmail(user.getEmail(), subject, body);
-
-                    // Save confirmation token
-                    confirmationTokenRepository.save(token);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    throw new RuntimeException(e);
-                }
+    @Override
+    public void userCreate(RegisterRequest request) {
+        try {
+            List<String> errorMessages = validateUser(request);
+            if (!errorMessages.isEmpty()) {
+                log.error(String.valueOf(errorMessages));
+                throw new Exception(String.valueOf(errorMessages));
             }
+            User user = new User(request.getUsername(), request.getEmail(),
+                    encoder.encode(request.getPassword()));
+
+            ROLENAME roleUser = ROLENAME.ROLE_USER;
+            Role role = findRoleByName(roleUser);
+            user.addRole(role);
+
+            Membership membership = new Membership();
+            membership.setRank(MembershipRank.NONE);
+            membership.setActive(false);
+            membership.setStartDate(null);
+            membership.setEndDate(null);
+            membership.setUser(user);
+
+            user.setMembership(membership);
+            userRepository.save(user);
+
+            // Send confirmation email
+            Assert.notNull(user.getId(), "User id must not be null");
+            ConfirmationToken token = new ConfirmationToken(user.getId());
+
+            // Construct the email subject and body in HTML
+            String subject = "Reddot Account Confirmation";
+            String body = String.format(
+                    """
+                            <html>
+                                     <body style="font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f6f8;">
+                                         <div style="max-width: 600px; margin: 40px auto; background: #ffffff; padding: 40px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                                             <div style="text-align: center; margin-bottom: 30px;">
+                                                 <img src="https://www.reddotcorp.com/uploads/1/2/7/5/12752286/reddotlogo.png" alt="Reddot Logo" style="max-width: 200px; height: auto;" />
+                                             </div>
+                            
+                                             <h2 style="text-align: center; color: #2E7D32; margin: 0 0 30px 0; font-size: 28px; font-weight: 600;">
+                                                 Welcome to Reddot, %s!
+                                             </h2>
+                            
+                                             <p style="color: #333333; font-size: 16px; line-height: 1.6; margin-bottom: 25px;">
+                                                 Thank you for signing up. To get started with your Reddot journey, please confirm your account by clicking the button below:
+                                             </p>
+                            
+                                             <div style="text-align: center; margin: 35px 0;">
+                                                 <a href="%s/auth/confirm-account?token=%s"
+                                                    style="display: inline-block;
+                                                           padding: 14px 32px;
+                                                           background-color: #2E7D32;
+                                                           color: white;
+                                                           text-decoration: none;
+                                                           border-radius: 6px;
+                                                           font-weight: 600;
+                                                           font-size: 16px;
+                                                           transition: background-color 0.3s ease;
+                                                           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+                                                     Confirm Your Account
+                                                 </a>
+                                             </div>
+                            
+                                             <p style="color: #666666; font-size: 14px; line-height: 1.5; margin: 25px 0; text-align: center;">
+                                                 If you did not create an account with Reddot, please disregard this email.
+                                             </p>
+                            
+                                             <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 30px 0;">
+                            
+                                             <div style="text-align: center;">
+                                                 <p style="color: #2E7D32; font-weight: 600; margin: 0;">Best Regards,</p>
+                                                 <p style="color: #666666; margin: 5px 0;">The Reddot Team</p>
+                                             </div>
+                                         </div>
+                                     </body>
+                                     </html>
+                            """,
+                    user.getUsername(), fullUrl, token.getToken());
+            mailSenderManager.sendEmail(user.getEmail(), subject, body);
+
+            // Save confirmation token
+            confirmationTokenRepository.save(token);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
 
     @Override
     public User userConfirm(String token) {
@@ -217,15 +216,15 @@ public class UserServiceManagerImp implements UserServiceManager {
             // send warning mail in HTML format
             String subject = "Reddot Account Deletion Request";
             String body = "<html>" +
-                    "<body>" +
-                    "<h2>Your account has been marked for deletion</h2>" +
-                    "<p>If you did not request this, please contact us immediately.</p>" +
-                    "<br><br>" +
-                    "<img src='https://www.reddotcorp.com/uploads/1/2/7/5/12752286/reddotlogo.png' alt='Welcome' width='300'/>"
-                    +
-                    "<p>Best regards,<br>The Reddot Team</p>" +
-                    "</body>" +
-                    "</html>";
+                          "<body>" +
+                          "<h2>Your account has been marked for deletion</h2>" +
+                          "<p>If you did not request this, please contact us immediately.</p>" +
+                          "<br><br>" +
+                          "<img src='https://www.reddotcorp.com/uploads/1/2/7/5/12752286/reddotlogo.png' alt='Welcome' width='300'/>"
+                          +
+                          "<p>Best regards,<br>The Reddot Team</p>" +
+                          "</body>" +
+                          "</html>";
 
             mailSenderManager.sendEmail(user.getEmail(), subject, body);
         } catch (ResourceNotFoundException e) {
@@ -261,7 +260,7 @@ public class UserServiceManagerImp implements UserServiceManager {
             if (userExistsByEmail(newEmail)) {
                 if (user.getEmail().equals(newEmail) && !user.isEmailVerified()) {
                     throw new Exception("Please check your mail box or spam folder to confirm your email." +
-                            " Or you may need to resend the confirmation email.");
+                                        " Or you may need to resend the confirmation email.");
                 }
                 throw new Exception("EMAIL_ALREADY_EXISTS");
             }
@@ -273,18 +272,18 @@ public class UserServiceManagerImp implements UserServiceManager {
             ConfirmationToken confirmationToken = new ConfirmationToken(user.getId());
             String subject = "Reddot Email Confirmation";
             String body = "<html>" +
-                    "<body>" +
-                    "<h2>Confirm your new email address</h2>" +
-                    "<p>To confirm your new email, click the link below:</p>" +
-                    "<a href='" + fullUrl + "/settings/email/confirm?token=" + confirmationToken.getToken() + "' " +
-                    "style=\"padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;\">Confirm Email</a>"
-                    +
-                    "<br><br>" +
-                    "<img src='https://www.reddotcorp.com/uploads/1/2/7/5/12752286/reddotlogo.png' alt='Welcome' width='300'/>"
-                    +
-                    "<p>Best regards,<br>The Reddot Team</p>" +
-                    "</body>" +
-                    "</html>";
+                          "<body>" +
+                          "<h2>Confirm your new email address</h2>" +
+                          "<p>To confirm your new email, click the link below:</p>" +
+                          "<a href='" + fullUrl + "/settings/email/confirm?token=" + confirmationToken.getToken() + "' " +
+                          "style=\"padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;\">Confirm Email</a>"
+                          +
+                          "<br><br>" +
+                          "<img src='https://www.reddotcorp.com/uploads/1/2/7/5/12752286/reddotlogo.png' alt='Welcome' width='300'/>"
+                          +
+                          "<p>Best regards,<br>The Reddot Team</p>" +
+                          "</body>" +
+                          "</html>";
 
             mailSenderManager.sendEmail(newEmail, subject, body);
 
@@ -332,18 +331,18 @@ public class UserServiceManagerImp implements UserServiceManager {
 
             // HTML body content
             String body = "<html>" +
-                    "<body>" +
-                    "<h2>Confirm your new email address</h2>" +
-                    "<p>To confirm your new email, click the link below:</p>" +
-                    "<a href='" + fullUrl + "/settings/email/confirm?token=" + confirmationToken.getToken() + "' " +
-                    "style=\"padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;\">Confirm Email</a>"
-                    +
-                    "<br><br>" +
-                    "<img src='https://www.reddotcorp.com/uploads/1/2/7/5/12752286/reddotlogo.png' alt='Welcome' width='300'/>"
-                    +
-                    "<p>Best regards,<br>The Reddot Team</p>" +
-                    "</body>" +
-                    "</html>";
+                          "<body>" +
+                          "<h2>Confirm your new email address</h2>" +
+                          "<p>To confirm your new email, click the link below:</p>" +
+                          "<a href='" + fullUrl + "/settings/email/confirm?token=" + confirmationToken.getToken() + "' " +
+                          "style=\"padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;\">Confirm Email</a>"
+                          +
+                          "<br><br>" +
+                          "<img src='https://www.reddotcorp.com/uploads/1/2/7/5/12752286/reddotlogo.png' alt='Welcome' width='300'/>"
+                          +
+                          "<p>Best regards,<br>The Reddot Team</p>" +
+                          "</body>" +
+                          "</html>";
 
             mailSenderManager.sendEmail(user.getEmail(), subject, body);
 
@@ -358,9 +357,9 @@ public class UserServiceManagerImp implements UserServiceManager {
     }
 
     @Override
-    public void upgradeMembership(User user, MembershipRank rank) {
+    public void membershipUpgrade(User user, MembershipRank rank) {
         Membership currentMembership = user.getMembership();
-        if(currentMembership.getRank().ordinal() >= rank.ordinal()) {
+        if (currentMembership.getRank().ordinal() >= rank.ordinal()) {
             throw new IllegalArgumentException("Cannot upgrade to the same rank or lower");
         }
 
@@ -373,8 +372,8 @@ public class UserServiceManagerImp implements UserServiceManager {
     }
 
     @Override
-    public void downgradeMembership(User user) {
-        if(user == null){
+    public void membershipDowngrade(User user) {
+        if (user == null) {
             throw new IllegalArgumentException("User not found");
         }
 
@@ -399,19 +398,19 @@ public class UserServiceManagerImp implements UserServiceManager {
             RecoveryToken recoveryToken = new RecoveryToken(user.getId());
             String subject = "Reddot Password Reset";
             String body = "<html>" +
-                    "<body>" +
-                    "<h2>Password Reset Request</h2>" +
-                    "<p>To reset your password, click the link below:</p>" +
-                    "<a href='" + fullUrl + "/settings/reset-password?token=" + recoveryToken.getToken() + "' " +
-                    "style=\"padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;\">Reset Password</a>"
-                    +
-                    "<br><br>" +
-                    "<img src='https://www.reddotcorp.com/uploads/1/2/7/5/12752286/reddotlogo.png' alt='Welcome' width='300'/>"
-                    +
-                    "<p>If you did not request this, please ignore this email.</p>" +
-                    "<p>Best regards,<br>The Reddot Team</p>" +
-                    "</body>" +
-                    "</html>";
+                          "<body>" +
+                          "<h2>Password Reset Request</h2>" +
+                          "<p>To reset your password, click the link below:</p>" +
+                          "<a href='" + fullUrl + "/settings/reset-password?token=" + recoveryToken.getToken() + "' " +
+                          "style=\"padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;\">Reset Password</a>"
+                          +
+                          "<br><br>" +
+                          "<img src='https://www.reddotcorp.com/uploads/1/2/7/5/12752286/reddotlogo.png' alt='Welcome' width='300'/>"
+                          +
+                          "<p>If you did not request this, please ignore this email.</p>" +
+                          "<p>Best regards,<br>The Reddot Team</p>" +
+                          "</body>" +
+                          "</html>";
 
             mailSenderManager.sendEmail(email, subject, body);
 
@@ -449,15 +448,15 @@ public class UserServiceManagerImp implements UserServiceManager {
             // send success email in HTML format
             String subject = "Reddot Password Reset Successful";
             String body = "<html>" +
-                    "<body>" +
-                    "<h2>Your password has been reset successfully.</h2>" +
-                    "<p>If you did not initiate this, please contact support immediately.</p>" +
-                    "<br><br>" +
-                    "<img src='https://www.reddotcorp.com/uploads/1/2/7/5/12752286/reddotlogo.png' alt='Welcome' width='300'/>"
-                    +
-                    "<p>Best regards,<br>The Reddot Team</p>" +
-                    "</body>" +
-                    "</html>";
+                          "<body>" +
+                          "<h2>Your password has been reset successfully.</h2>" +
+                          "<p>If you did not initiate this, please contact support immediately.</p>" +
+                          "<br><br>" +
+                          "<img src='https://www.reddotcorp.com/uploads/1/2/7/5/12752286/reddotlogo.png' alt='Welcome' width='300'/>"
+                          +
+                          "<p>Best regards,<br>The Reddot Team</p>" +
+                          "</body>" +
+                          "</html>";
 
             mailSenderManager.sendEmail(user.getEmail(), subject, body);
         } catch (ResourceNotFoundException | BadRequestException e) {
@@ -556,16 +555,16 @@ public class UserServiceManagerImp implements UserServiceManager {
     }
 
     @Scheduled(cron = "0 0 0 * * ?")
-    public void handleMembershipDowngrades(){
-                List<User> users = userRepository.findAll();
-                LocalDateTime now = LocalDateTime.now();
+    protected void handleMembershipDowngrades() {
+        List<User> users = userRepository.findAll();
+        LocalDateTime now = LocalDateTime.now();
 
-                for (User user : users) {
-                    Membership membership = user.getMembership();
+        for (User user : users) {
+            Membership membership = user.getMembership();
 
-                    if(membership.isActive() && membership.getEndDate() != null && membership.getEndDate().isBefore(now)){
-                        downgradeMembership(user);
-                    }
-                }
+            if (membership.isActive() && membership.getEndDate() != null && membership.getEndDate().isBefore(now)) {
+                membershipDowngrade(user);
+            }
+        }
     }
 }

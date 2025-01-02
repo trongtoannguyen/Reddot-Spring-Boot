@@ -1,7 +1,9 @@
 package com.reddot.app.dto.response;
 
 import com.reddot.app.entity.Question;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -17,8 +19,6 @@ import java.util.Set;
 @Getter
 @Setter
 @ToString
-@AllArgsConstructor
-@NoArgsConstructor
 public class QuestionDTO {
     // TODO: Design Improvements: Avoid Direct Entity Usage in DTOs (CommentDTO)
     private Integer questionId;
@@ -38,5 +38,4 @@ public class QuestionDTO {
     private int score;
     private List<CommentDTO> commentList = new ArrayList<>();
     private Question.Visibility visibility;
-
 }

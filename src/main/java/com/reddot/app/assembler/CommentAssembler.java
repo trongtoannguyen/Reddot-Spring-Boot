@@ -7,13 +7,14 @@ import org.mapstruct.DecoratedWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring", uses = {UserAssembler.class})
 @DecoratedWith(CommentMapperDecorator.class)
 public interface CommentAssembler {
 
     @Mapping(target = "commentId", source = "id")
-    @Mapping(target = "questionId", source = "question.id", ignore = true)
-    @Mapping(target = "responseTo", source = "responseTo", resultType = Integer.class)
+    @Mapping(target = "questionId", source = "question.id")
     @Mapping(target = "author", source = "user")
     @Mapping(target = "creationDate", source = "createdAt")
     @Mapping(target = "lastEditDate", source = "updatedAt")
@@ -21,10 +22,6 @@ public interface CommentAssembler {
     @Mapping(target = "downvoted", ignore = true)
     CommentDTO toDTO(Comment comment);
 
-    default Integer mapResponseTo(Comment comment) {
-        if (comment == null) {
-            return null;
-        }
-        return comment.getResponseTo() == null ? null : comment.getResponseTo().getId();
-    }
+    List<CommentDTO> toListDTO(List<Comment> comments);
+
 }
