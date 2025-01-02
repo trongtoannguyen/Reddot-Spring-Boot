@@ -8,11 +8,11 @@ import Sidebar from "./Components/Toolbar/Sidebar";
 import { Theme } from "./Themes/Theme";
 
 function App() {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+    const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
+    const toggleSidebar = () => {
+        setSidebarOpen(!sidebarOpen);
+    };
 
   const location = useLocation();
   const excludeRoutes = ["/users/login", "/users/register"];

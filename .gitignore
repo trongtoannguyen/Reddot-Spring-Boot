@@ -270,6 +270,3 @@ nbdist/
 # Ignore all local history of files
 .history
 .ionide
-
-# End of https://www.toptal.com/developers/gitignore/api/java,maven,intellij,visualstudiocode,eclipse,netbeans
-/src/main/resources/application-local.properties
