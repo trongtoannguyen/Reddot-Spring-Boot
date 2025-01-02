@@ -87,7 +87,7 @@ export default function Navbar({ toggleSidebar }) {
           <Button
             color="inherit"
             component={Link}
-            to="/About"
+            to="/users/login"
             style={{ textTransform: "none", fontSize: "16px" }}
           >
             Login
