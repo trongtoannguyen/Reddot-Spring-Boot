@@ -18,11 +18,11 @@ public interface QuestionRepository extends JpaRepository<Question, Integer> {
     Long countQuestionsByUserId(@NonNull Integer userId); // userId kiểu Integer
 
     @Query("SELECT q.id AS questionId, q.title AS questionTitle, q.upvotes AS upvotes " +
-           "FROM questions q " +
-           "LEFT JOIN votes v ON v.question.id = q.id " +
-           "WHERE q.user.id = :userId " +
-           "GROUP BY q.id " +
-           "ORDER BY upvotes DESC")
+            "FROM questions q " +
+            "LEFT JOIN votes v ON v.question.id = q.id " +
+            "WHERE q.user.id = :userId " +
+            "GROUP BY q.id " +
+            "ORDER BY upvotes DESC")
     List<Object[]> findTopQuestionsByVotesForUser(@Param("userId") Integer userId, Pageable pageable);
 
     // Đếm số câu hỏi theo ngày
@@ -43,18 +43,24 @@ public interface QuestionRepository extends JpaRepository<Question, Integer> {
 
     //tìm câu hỏi trending theo tag: ví dụ top câu hỏi java hay nhất
     @Query(value = "SELECT q.id AS questionId, q.title AS questionTitle, " +
-                   "(q.upvotes - q.downvotes) AS voteScore, t.name AS tagName " +
-                   "FROM questions q " +
-                   "JOIN question_tags qt ON q.id = qt.question_id " +
-                   "JOIN tags t ON qt.tag_id = t.id " +
-                   "WHERE t.name = :tagName " +
-                   "ORDER BY voteScore DESC " +
-                   "LIMIT 5", nativeQuery = true)
+            "(q.upvotes - q.downvotes) AS voteScore, t.name AS tagName " +
+            "FROM questions q " +
+            "JOIN question_tags qt ON q.id = qt.question_id " +
+            "JOIN tags t ON qt.tag_id = t.id " +
+            "WHERE t.name = :tagName " +
+            "ORDER BY voteScore DESC " +
+            "LIMIT 5", nativeQuery = true)
     List<Object[]> findTopQuestionsByTag(@Param("tagName") String tagName);
-
-    Optional<Question> findById(Integer id);
 
     boolean existsByIdAndVotes_UserIdAndVotes_VoteTypeId(Integer questionId, Integer userId, int direction);
 
     Long countUpvotesForQuestionsByUserId(Integer id);
+
+    @Query("SELECT q FROM questions q WHERE (LOWER(q.title) LIKE %:content% OR LOWER(q.body) LIKE %:content%) AND q.visibility = 'PUBLIC'")
+    List<Question> findByKeyword(@Param("content") String content);
+
+    @Query("SELECT q FROM questions q WHERE LOWER(q.user.person.displayName) LIKE LOWER(CONCAT('%', :displayName, '%')) AND q.visibility = 'PUBLIC'")
+    List<Question> findByDisplayName(@Param("displayName") String displayName);
+
+    List<Question> findByUserId(Integer userId);
 }

@@ -92,7 +92,7 @@ public class QuestionController {
                 userId = user.getId();
                 list = questionService.questionGetAllWithUser(userId);
             } else {
-                list = questionService.questionGetAll();
+                list = questionService.getAllQuestions();
             }
             return ResponseEntity.ok(new ServiceResponse<>(200, "Questions retrieved successfully", list));
         } catch (Exception e) {
@@ -169,5 +169,26 @@ public class QuestionController {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @GetMapping("/search")
+    public List<QuestionDTO> searchQuestions(
+            @RequestParam(value = "content" , required = false)String content,
+            @RequestParam(value = "displayName",required = false)String displayName){
+
+        if(content != null && !content.isBlank()){
+            return questionService.searchByKeyword(content);
+        } else if(displayName != null && !displayName.isBlank()){
+            return questionService.searchByDisplayName(displayName);
+        }else {
+            return questionService.getAllQuestions();
+        }
+    }
+
+    @PutMapping("/questions/{questionId}/visibility")
+    public ResponseEntity<QuestionDTO> togggleQuestionVisibility(@PathVariable Integer questionId,@RequestParam Integer loggedInUserId) throws  ResourceNotFoundException, BadRequestException {
+        QuestionDTO updatedQuestion = questionService.toggleVisibiliy(questionId,loggedInUserId);
+
+        return ResponseEntity.ok(updatedQuestion);
     }
 }

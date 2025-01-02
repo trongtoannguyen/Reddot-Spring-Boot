@@ -239,4 +239,7 @@ public class User extends BaseEntity implements UserDetails {
         comment.setUser(this);
     }
 
+    @OneToOne(mappedBy = "user",cascade = CascadeType.ALL)
+    private Membership membership;
+
 }

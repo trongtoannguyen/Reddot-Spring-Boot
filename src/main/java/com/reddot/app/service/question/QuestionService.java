@@ -84,4 +84,12 @@ public interface QuestionService {
     boolean isQuestionDownvotedByUser(Integer questionId, Integer userId);
 
     boolean isQuestionBookmarkedByUser(Integer questionId, Integer userId);
+
+    List<QuestionDTO> searchByKeyword(String content);
+    List<QuestionDTO> searchByDisplayName(String displayName);
+
+    List<QuestionDTO> getQuestionsByUserId(Integer userId,String sort);
+    List<QuestionDTO> getAllQuestions();
+
+    QuestionDTO toggleVisibiliy(Integer questionId, Integer userId) throws ResourceNotFoundException,BadRequestException;
 }
