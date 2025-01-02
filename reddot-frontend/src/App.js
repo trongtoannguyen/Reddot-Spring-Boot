@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { BrowserRouter as Router, useLocation } from "react-router-dom";
+import { BrowserRouter as useLocation } from "react-router-dom";
 import { ThemeProvider } from "@emotion/react";
 import { CssBaseline } from "@mui/material";
 import Routers from "./Routers/Routers";
