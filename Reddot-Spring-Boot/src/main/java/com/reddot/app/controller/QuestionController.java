@@ -37,15 +37,15 @@ public class QuestionController {
                     
                     Use an access_token with role_user to create a new comment.
                     
-                    This method returns the question with the new comment.
+                    This method returns the created comment.
                     """)
     @PostMapping("/{id}/comments/add")
-    public ResponseEntity<ServiceResponse<CommentDTO>> addComment(@PathVariable Integer id, CommentPostDTO dto) {
+    public ResponseEntity<ServiceResponse<CommentDTO>> addComment(@PathVariable Integer id, @RequestBody CommentPostDTO dto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
         dto.setId(id);
         CommentDTO commentDTO = commentService.commentCreateOnQuestion(user, dto);
-        return ResponseEntity.ok(new ServiceResponse<>(200, "Question retrieved successfully", commentDTO));
+        return ResponseEntity.ok(new ServiceResponse<>(200, "Comment created successfully", commentDTO));
     }
 
     @Operation(summary = "Create a new question", description = """
@@ -179,9 +179,9 @@ public class QuestionController {
         }
     }
 
-    @PutMapping("/questions/{questionId}/visibility")
-    public ResponseEntity<QuestionDTO> togggleQuestionVisibility(@PathVariable Integer questionId, @RequestParam Integer loggedInUserId) throws ResourceNotFoundException, BadRequestException {
-        QuestionDTO updatedQuestion = questionService.toggleVisibility(questionId, loggedInUserId);
+    @PutMapping("/{id}/visibility")
+    public ResponseEntity<QuestionDTO> toggleQuestionVisibility(@PathVariable Integer id, @RequestParam Integer userId) throws ResourceNotFoundException, BadRequestException {
+        QuestionDTO updatedQuestion = questionService.toggleVisibility(id, userId);
 
         return ResponseEntity.ok(updatedQuestion);
     }

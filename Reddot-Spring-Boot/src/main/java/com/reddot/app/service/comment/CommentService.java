@@ -56,7 +56,10 @@ public interface CommentService {
 
     CommentDTO commentUpdate(User user, CommentPostDTO dto) throws ResourceNotFoundException, BadRequestException;
 
+    void commentDelete(Integer id, User user) throws ResourceNotFoundException, BadRequestException;
+
     Boolean isCommentUpvotedByUser(Integer commentId, Integer userId);
 
     Boolean isCommentDownvotedByUser(Integer commentId, Integer userId);
+
 }

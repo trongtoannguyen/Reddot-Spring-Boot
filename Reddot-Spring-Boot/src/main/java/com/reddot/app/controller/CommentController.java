@@ -80,4 +80,22 @@ public class CommentController {
         CommentDTO commentDTO = commentService.commentUpdate(user, dto);
         return ResponseEntity.ok(new ServiceResponse<>(200, "Comment updated successfully", commentDTO));
     }
+
+    @Operation(summary = " Delete a comment identified by its id. [auth required]",
+            description = """
+                    Delete an existing comment.
+                    
+                    In practice, this method never return an object, but it returns a success message. 
+                    """)
+    @DeleteMapping("/{id}/delete")
+    public ResponseEntity<ServiceResponse<String>> deleteComment(@PathVariable Integer id) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            User user = (User) authentication.getPrincipal();
+            commentService.commentDelete(id, user);
+            return ResponseEntity.ok(new ServiceResponse<>(200, "Comment deleted successfully", "Comment deleted successfully"));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
