@@ -119,6 +119,24 @@ public class CommentServiceImp implements CommentService {
         }
     }
 
+    @Override
+    public void commentDelete(Integer id, User user) throws ResourceNotFoundException, BadRequestException {
+        try {
+            Assert.notNull(user, "User cannot be null");
+            Comment comment = getCommentById(id);
+            boolean isOwner = isOwner(user, comment);
+            boolean isSuperUser = isSuperUser(user);
+            if (!isOwner && !isSuperUser) {
+                throw new BadRequestException("You are not permitted to delete this comment");
+            }
+            commentRepository.delete(comment);
+        } catch (ResourceNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private boolean isSuperUser(User user) {
         return user.getRoles().stream().anyMatch(role -> role.getName().equals(ROLENAME.ROLE_ADMIN)
                                                          || role.getName().equals(ROLENAME.ROLE_MODERATOR));
