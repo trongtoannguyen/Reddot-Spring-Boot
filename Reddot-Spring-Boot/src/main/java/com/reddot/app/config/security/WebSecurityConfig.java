@@ -37,13 +37,14 @@ public class WebSecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
 
                 // Set permissions for different endpoints
-                .securityMatcher("/questions/**", "/comments/**", "/answers/**", "/users/**", "/settings/**", "/private/**", "/admin/**")
+                .securityMatcher("/questions/**", "/comments/**", "/answers/**", "/users/**", "/settings/**", "/private/**", "/admin/**", "/notifications/*")
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints
                         .requestMatchers("/hello", "/auth/**", "/questions/search").permitAll()
                         .requestMatchers("/users", "/users/{id:[0-9]+}").permitAll()
                         .requestMatchers(HttpMethod.GET, "/questions", "/questions/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/comments", "/comments/*").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/notifications", "/notifications/*").permitAll()
                         .requestMatchers("/settings/reset-password", "/settings/reset-password/confirm", "/settings/email/confirm", "/settings/email/resend-confirm").permitAll()
 
                         // Private endpoints accessible by role
