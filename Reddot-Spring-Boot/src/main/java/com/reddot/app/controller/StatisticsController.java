@@ -86,16 +86,15 @@ public class StatisticsController {
     }
 
 
-    @GetMapping("/assign-badges/{userId}")
-    public String assignBadges(@PathVariable Integer userId) {
+    @GetMapping("/assign-badges/all")
+    public String assignBadgesToAll() {
         try {
-            statisticsService.assignBadgesToUser(userId);
-            return "Badges assigned successfully!";
+            statisticsService.assignBadgesToAllUsers();
+            return "Badges assigned to all users successfully!";
         } catch (Exception e) {
             return "Error: " + e.getMessage();
         }
     }
-
 
     //Thông kê toàn bộ web
     //Tag trending
@@ -108,6 +107,18 @@ public class StatisticsController {
     @GetMapping("/count-user")
     public Map<String, Long> getTotalUsers() {
         return Map.of("totalUsers", statisticsService.getTotalUsers());
+    }
+
+    //Total question
+    @GetMapping("/count-question")
+    public Map<String, Long> getTotalQuestions() {
+        return Map.of("totalQuestions", statisticsService.getTotalQuestions());
+    }
+
+    //Total conmmnet
+    @GetMapping("/count-comment")
+    public Map<String, Long> getTotalComments() {
+        return Map.of("totalComments", statisticsService.getTotalComments());
     }
 
     //Thống kê câu hỏi theo ngày , theo tháng, theo năm
