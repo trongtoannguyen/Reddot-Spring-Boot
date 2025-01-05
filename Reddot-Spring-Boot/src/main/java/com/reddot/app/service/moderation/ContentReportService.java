@@ -8,8 +8,8 @@ import com.reddot.app.repository.CommentRepository;
 import com.reddot.app.repository.ContentReportRepository;
 import com.reddot.app.repository.QuestionRepository;
 import com.reddot.app.repository.UserRepository;
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 

@@ -241,5 +241,4 @@ public class User extends BaseEntity implements UserDetails {
         this.comments.add(comment);
         comment.setUser(this);
     }
-
 }

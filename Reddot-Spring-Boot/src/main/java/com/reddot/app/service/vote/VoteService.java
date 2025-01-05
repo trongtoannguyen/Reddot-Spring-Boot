@@ -10,17 +10,17 @@ import com.reddot.app.repository.QuestionRepository;
 import com.reddot.app.repository.UserRepository;
 import com.reddot.app.repository.VoteRepository;
 import com.reddot.app.repository.VoteTypeRepository;
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 @Service
 public class VoteService {
-    private VoteRepository voteRepository;
-    private UserRepository userRepository;
-    private QuestionRepository questionRepository;
-    private VoteTypeRepository voteTypeRepository;
+    private final VoteRepository voteRepository;
+    private final UserRepository userRepository;
+    private final QuestionRepository questionRepository;
+    private final VoteTypeRepository voteTypeRepository;
 
     public VoteService(VoteRepository voteRepository, UserRepository userRepository,
                        QuestionRepository questionRepository, VoteTypeRepository voteTypeRepository) {
