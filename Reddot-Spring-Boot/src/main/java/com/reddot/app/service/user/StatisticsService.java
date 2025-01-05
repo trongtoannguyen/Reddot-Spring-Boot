@@ -5,8 +5,11 @@ import com.reddot.app.entity.Badge;
 import com.reddot.app.entity.User;
 import com.reddot.app.entity.UserBadge;
 import com.reddot.app.repository.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -15,6 +18,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class StatisticsService {
+    private static final Logger logger = LoggerFactory.getLogger(StatisticsService.class);
 
     private final QuestionRepository questionRepository;
     private final CommentRepository commentRepository;
@@ -121,17 +125,36 @@ public class StatisticsService {
     }
 
 
-    //Trao badges cho user khi đủ điều kiện
+
+    public void assignBadgesToAllUsers() {
+        // Lấy danh sách tất cả người dùng
+        List<User> allUsers = userRepository.findAll();
+
+        // Lặp qua từng người dùng và gán badge nếu đạt điều kiện
+        for (User user : allUsers) {
+            Integer userId = user.getId();
+            assignBadgesToUser(userId); // Sử dụng lại logic hiện tại
+        }
+    }
+
     public void assignBadgesToUser(Integer userId) {
         // Kiểm tra số lượng câu hỏi người dùng đã đăng
         long questionCount = questionRepository.countQuestionsByUserId(userId);
+
 
         // Kiểm tra số lượng bình luận người dùng đã đăng
         long commentCount = commentRepository.countAnswersByUserId(userId);
 
         // Kiểm tra số lượt upvote cho question, và comment
-        long questionUpvotes = voteRepository.countUpvotesForQuestionsByUserId(userId);
-        long commentUpvotes = voteRepository.countUpvotesForCommentsByUserId(userId);
+        Long questionUpvotes = voteRepository.countUpvotesForQuestionsByUserId(userId);
+        if (questionUpvotes == null) {
+            questionUpvotes = 0L; // Gán giá trị mặc định là 0
+        }
+
+        Long commentUpvotes = voteRepository.countUpvotesForCommentsByUserId(userId);
+        if (commentUpvotes == null) {
+            commentUpvotes = 0L;
+        }
 
         // **Câu hỏi:**
         if (questionCount >= 100000000) {
@@ -223,6 +246,16 @@ public class StatisticsService {
     //Total user
     public long getTotalUsers() {
         return userRepository.count();
+    }
+
+    //Total question
+    public long getTotalQuestions() {
+        return questionRepository.count();
+    }
+
+    //Total comment
+    public long getTotalComments() {
+        return commentRepository.count();
     }
 
     //----------------
