@@ -11,22 +11,22 @@ and technical infrastructure of Reddot.
 
 1. Clone the repository:
 
-      ```bash
-      git clone https://github.com/trongtoannguyen/Reddot-Client.git
-      cd Reddot-Client
-      ```
+   ```bash
+   git clone https://github.com/trongtoannguyen/Reddot-Client.git
+   cd Reddot-Client
+   ```
 
 2. Install dependencies:
 
-      ```bash
-      npm install 
-      ```
+   ```bash
+   npm install
+   ```
 
 3. Start the development server:
 
-      ```bash
-      npm run dev 
-      ```
+   ```bash
+   npm run dev
+   ```
 
 4. The application should now be running at `http://localhost:3000`.
 
@@ -53,34 +53,38 @@ user information, questions, and answers across components.
 Reddot follows RESTful principles for its backend API, using the following key endpoints:
 
 - **Authentication API**:
-    - GET /auth/confirm-account: Confirms a user's account.
-    - POST /auth/login: Authenticates a user and returns a JWT token.
-    - POST /auth/register: Registers a new user.
+
+  - GET /auth/confirm-account: Confirms a user's account.
+  - POST /auth/login: Authenticates a user and returns a JWT token.
+  - POST /auth/register: Registers a new user.
 
 - **Recovery API**:
-    - GET /settings/email/resend-confirm: Resends a confirmation email.
-    - GET /settings/email/confirm: Confirms a user's email address.
-    - POST /settings/reset-password: Sends a password reset email.
-    - POST /settings/reset-password/confirm: Resets a user's password.
-    - PUT /settings/email/edit/{id}: Updates a user's email address.
+
+  - GET /settings/email/resend-confirm: Resends a confirmation email.
+  - GET /settings/email/confirm: Confirms a user's email address.
+  - POST /settings/reset-password: Sends a password reset email.
+  - POST /settings/reset-password/confirm: Resets a user's password.
+  - PUT /settings/email/edit/{id}: Updates a user's email address.
 
 - **User Management API**:
-    - GET /users : Fetches user profile by username.
-    - GET /users/{id}: Fetches user profile by user id.
-    - POST /users/delete: Deletes a user account.
-    - PUT /users/edit/{id}: Updates a user's profile.
+
+  - GET /users : Fetches user profile by username.
+  - GET /users/{id}: Fetches user profile by user id.
+  - POST /users/delete: Deletes a user account.
+  - PUT /users/edit/{id}: Updates a user's profile.
 
 - **Question API**:
-    - GET /questions: Gets all the questions on the site.
-    - GET /questions/{ids}: Gets questions in a list of ids.
-        - POST /questions/add: Submit a new question.
-        - POST /questions/{id}/comments/add: Add a comment to a question.
-        - PUT /questions/{id}/update: Updates a question.
-        - DELETE /questions/{id}/delete: Deletes the question identified by ID.
+
+  - GET /questions: Gets all the questions on the site.
+  - GET /questions/{ids}: Gets questions in a list of ids.
+    - POST /questions/add: Submit a new question.
+    - POST /questions/{id}/comments/add: Add a comment to a question.
+    - PUT /questions/{id}/update: Updates a question.
+    - DELETE /questions/{id}/delete: Deletes the question identified by ID.
 
 - **Comment API**:
-    - GET /comments: Get all comments on the site.
-    - GET /comments/{ids}: Get the comments identified by a set of IDs.
+  - GET /comments: Get all comments on the site.
+  - GET /comments/{ids}: Get the comments identified by a set of IDs.
 
 Authentication is handled via JWT tokens passed in the `Authorization` header.
 
@@ -123,24 +127,24 @@ OAuth2 can also be implemented for third-party login options (e.g., Google or Gi
 
 1. Clone the Flutter project:
 
-    ```bash
-    git clone https://github.com/your-repo/reddot-mobile.git 
-    cd reddot-flutter
-    ```
+   ```bash
+   git clone https://github.com/your-repo/reddot-mobile.git
+   cd reddot-flutter
+   ```
 
 2. Set up Android Studio (Recommended), IntelliJ or VSCode for development.
 
 3. Install dependencies:
 
-    ```bash
-    flutter pub get 
-    ```
+   ```bash
+   flutter pub get
+   ```
 
 4. Run the app on a connected device or emulator:
 
-    ```bash
-    flutter run 
-    ```
+   ```bash
+   flutter run
+   ```
 
 ### Navigation
 
@@ -162,17 +166,17 @@ Flutter’s platform channels are used to access native APIs for platform-specif
 using `MethodChannel` to invoke camera or location services in Android/iOS:
 
 ```dart
-const platform = MethodChannel('com.example.reddot/native'); 
+const platform = MethodChannel('com.example.reddot/native');
 
-try { 
+try {
 
-  final result = await platform.invokeMethod('getBatteryLevel'); 
+  final result = await platform.invokeMethod('getBatteryLevel');
 
-} on PlatformException catch (e) { 
+} on PlatformException catch (e) {
 
-  print("Failed to get battery level: '${e.message}'."); 
+  print("Failed to get battery level: '${e.message}'.");
 
-} 
+}
 ```
 
 ### Testing
@@ -183,15 +187,15 @@ Example:
 
 ```dart
 
-test('Increment reputation by 10', () { 
+test('Increment reputation by 10', () {
 
-  var reputation = 50; 
+  var reputation = 50;
 
-  reputation += 10; 
+  reputation += 10;
 
-  expect(reputation, 60); 
+  expect(reputation, 60);
 
-}); 
+});
 
 ```
 
@@ -201,26 +205,26 @@ Example:
 
 ```dart
 
-testWidgets('Question card displays correctly', (WidgetTester tester) async { 
+testWidgets('Question card displays correctly', (WidgetTester tester) async {
 
-  await tester.pumpWidget(QuestionCard(question: sampleQuestion)); 
+  await tester.pumpWidget(QuestionCard(question: sampleQuestion));
 
-  expect(find.text('Sample Question'), findsOneWidget); 
+  expect(find.text('Sample Question'), findsOneWidget);
 
-}); 
+});
 
 ```
 
 To run unit and widget tests:
 
 ```bash
-flutter test 
+flutter test
 ```
 
 For integration tests:
 
 ```bash
-flutter drive --target=test_driver/app.dart 
+flutter drive --target=test_driver/app.dart
 ```
 
 Include tests for critical functions like submitting a question, voting, and logging in.

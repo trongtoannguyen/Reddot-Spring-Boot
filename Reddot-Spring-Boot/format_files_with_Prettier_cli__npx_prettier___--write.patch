@@ -1,0 +1,144 @@
+Subject: [PATCH] format files with Prettier cli: npx prettier . --write
+---
+Index: docs/fordev.md
+===================================================================
+diff --git a/docs/fordev.md b/docs/fordev.md
+--- a/docs/fordev.md	(revision 25c4f6d2aab12089848d23611a517537ec215941)
++++ b/docs/fordev.md	(revision 00f856d09b6391b501e35f10835da0bfd74c34d9)
+@@ -194,4 +194,4 @@
+ - Run `prettier --check .` in CI to make sure that your project stays formatted.
+ - Run Prettier from your editor for the best experience.
+ - Use [eslint-config-prettier](https://github.com/prettier/eslint-config-prettier) to make Prettier and ESLint play nice together.
+-- Set up a pre-commit hook to make sure that every commit is formatted.
+\ No newline at end of file
++- Set up a pre-commit hook to make sure that every commit is formatted.
+Index: eslint.config.js
+===================================================================
+diff --git a/eslint.config.js b/eslint.config.js
+--- a/eslint.config.js	(revision 25c4f6d2aab12089848d23611a517537ec215941)
++++ b/eslint.config.js	(revision 00f856d09b6391b501e35f10835da0bfd74c34d9)
+@@ -1,38 +1,38 @@
+-import js from '@eslint/js'
+-import globals from 'globals'
+-import react from 'eslint-plugin-react'
+-import reactHooks from 'eslint-plugin-react-hooks'
+-import reactRefresh from 'eslint-plugin-react-refresh'
++import js from "@eslint/js";
++import globals from "globals";
++import react from "eslint-plugin-react";
++import reactHooks from "eslint-plugin-react-hooks";
++import reactRefresh from "eslint-plugin-react-refresh";
+ 
+ export default [
+-  { ignores: ['dist'] },
++  { ignores: ["dist"] },
+   {
+-    files: ['**/*.{js,jsx}'],
++    files: ["**/*.{js,jsx}"],
+     languageOptions: {
+       ecmaVersion: 2020,
+       globals: globals.browser,
+       parserOptions: {
+-        ecmaVersion: 'latest',
++        ecmaVersion: "latest",
+         ecmaFeatures: { jsx: true },
+-        sourceType: 'module',
++        sourceType: "module",
+       },
+     },
+-    settings: { react: { version: '18.3' } },
++    settings: { react: { version: "18.3" } },
+     plugins: {
+       react,
+-      'react-hooks': reactHooks,
+-      'react-refresh': reactRefresh,
++      "react-hooks": reactHooks,
++      "react-refresh": reactRefresh,
+     },
+     rules: {
+       ...js.configs.recommended.rules,
+       ...react.configs.recommended.rules,
+-      ...react.configs['jsx-runtime'].rules,
++      ...react.configs["jsx-runtime"].rules,
+       ...reactHooks.configs.recommended.rules,
+-      'react/jsx-no-target-blank': 'off',
+-      'react-refresh/only-export-components': [
+-        'warn',
++      "react/jsx-no-target-blank": "off",
++      "react-refresh/only-export-components": [
++        "warn",
+         { allowConstantExport: true },
+       ],
+     },
+   },
+-]
++];
+Index: src/App.jsx
+===================================================================
+diff --git a/src/App.jsx b/src/App.jsx
+--- a/src/App.jsx	(revision 25c4f6d2aab12089848d23611a517537ec215941)
++++ b/src/App.jsx	(revision 00f856d09b6391b501e35f10835da0bfd74c34d9)
+@@ -1,10 +1,10 @@
+-import { useState } from 'react'
+-import reactLogo from './assets/react.svg'
+-import viteLogo from '/vite.svg'
+-import './App.css'
++import { useState } from "react";
++import reactLogo from "./assets/react.svg";
++import viteLogo from "/vite.svg";
++import "./App.css";
+ 
+ function App() {
+-  const [count, setCount] = useState(0)
++  const [count, setCount] = useState(0);
+ 
+   return (
+     <>
+@@ -29,7 +29,7 @@
+         Click on the Vite and React logos to learn more
+       </p>
+     </>
+-  )
++  );
+ }
+ 
+-export default App
++export default App;
+Index: src/main.jsx
+===================================================================
+diff --git a/src/main.jsx b/src/main.jsx
+--- a/src/main.jsx	(revision 25c4f6d2aab12089848d23611a517537ec215941)
++++ b/src/main.jsx	(revision 00f856d09b6391b501e35f10835da0bfd74c34d9)
+@@ -1,10 +1,10 @@
+-import { StrictMode } from 'react'
+-import { createRoot } from 'react-dom/client'
+-import './index.css'
+-import App from './App.jsx'
++import { StrictMode } from "react";
++import { createRoot } from "react-dom/client";
++import "./index.css";
++import App from "./App.jsx";
+ 
+-createRoot(document.getElementById('root')).render(
++createRoot(document.getElementById("root")).render(
+   <StrictMode>
+     <App />
+   </StrictMode>,
+-)
++);
+Index: vite.config.js
+===================================================================
+diff --git a/vite.config.js b/vite.config.js
+--- a/vite.config.js	(revision 25c4f6d2aab12089848d23611a517537ec215941)
++++ b/vite.config.js	(revision 00f856d09b6391b501e35f10835da0bfd74c34d9)
+@@ -1,7 +1,7 @@
+-import { defineConfig } from 'vite'
+-import react from '@vitejs/plugin-react'
++import { defineConfig } from "vite";
++import react from "@vitejs/plugin-react";
+ 
+ // https://vite.dev/config/
+ export default defineConfig({
+   plugins: [react()],
+-})
++});

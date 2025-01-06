@@ -65,10 +65,11 @@ step-by-step instructions for basic tasks.
 ### Notifications and Updates
 
 - Notifications: You will receive notifications when:
-    - Someone answers your question.
-    - Your answer is voted or accepted.
-        - Someone comments on your post.
-          Notifications appear in the top-right corner as a bell icon.
+
+  - Someone answers your question.
+  - Your answer is voted or accepted.
+    - Someone comments on your post.
+      Notifications appear in the top-right corner as a bell icon.
 
 - Email Updates: You can enable email notifications for new answers, comments, or direct messages by going to your
   profile settings and adjusting your Notification Preferences.
@@ -96,10 +97,10 @@ For Android:
 - Home Screen: The home screen displays the feed of questions. Swipe up to browse the latest or most popular questions.
   Use the search icon to find specific topics.
 - Navigation Bar: At the bottom, the navigation bar contains:
-    - Home: View the question feed.
-    - Ask: Quickly post a new question.
-    - Notifications: View your recent notifications.
-    - Profile: Access and update your profile.
+  - Home: View the question feed.
+  - Ask: Quickly post a new question.
+  - Notifications: View your recent notifications.
+  - Profile: Access and update your profile.
 
 ### Interactivity
 
