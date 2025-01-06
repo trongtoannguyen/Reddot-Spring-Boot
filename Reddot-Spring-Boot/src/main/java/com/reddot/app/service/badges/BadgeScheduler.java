@@ -1,4 +1,4 @@
-package com.reddot.app.scheduler;
+package com.reddot.app.service.badges;
 
 import com.reddot.app.service.user.StatisticsService;
 import org.springframework.scheduling.annotation.Scheduled;
