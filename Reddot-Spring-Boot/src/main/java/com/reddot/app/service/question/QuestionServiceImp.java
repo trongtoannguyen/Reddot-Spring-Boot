@@ -11,9 +11,11 @@ import com.reddot.app.entity.enumeration.ROLENAME;
 import com.reddot.app.entity.enumeration.VOTETYPE;
 import com.reddot.app.exception.BadRequestException;
 import com.reddot.app.exception.ResourceNotFoundException;
+import com.reddot.app.repository.BookmarkRepository;
 import com.reddot.app.repository.QuestionRepository;
 import com.reddot.app.repository.TagRepository;
 import com.reddot.app.repository.UserRepository;
+import com.reddot.app.service.bookmark.BookmarkService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +37,8 @@ public class QuestionServiceImp implements QuestionService {
     private final QuestionRepository questionRepository;
     private final QuestionAssembler questionAssembler;
     private final TagRepository tagRepository;
+    private final BookmarkRepository bookmarkRepository;
+    private final BookmarkService bookmarkService;
 
     private static boolean isOwner(User user, Question question) {
         if (user == null || question == null) {
@@ -125,7 +129,9 @@ public class QuestionServiceImp implements QuestionService {
     @Override
     public List<QuestionDTO> questionGetAll() {
         try {
-            List<Question> list = questionRepository.findAll();
+            List<Question> list = questionRepository.findAll().stream()
+                    .filter(question -> question.getVisibility() != Question.Visibility.PRIVATE)
+                    .collect(Collectors.toList());
             return questionAssembler.toDTOList(list);
         } catch (Exception e) {
             log.error("An error occurred while retrieving the questions", e);
@@ -137,9 +143,12 @@ public class QuestionServiceImp implements QuestionService {
     public List<QuestionDTO> questionGetAllWithUser(@NonNull User user) throws ResourceNotFoundException {
         try {
             Assert.notNull(user, "User cannot be null");
+
+            // get non-private or their own question
             List<Question> list = questionRepository.findAll().stream()
-                    .filter(question -> question.getVisibility() == Question.Visibility.PUBLIC)
-                    .collect(Collectors.toList());
+                    .filter(question -> question.getVisibility() != Question.Visibility.PRIVATE
+                                        || question.getUser().getId().equals(user.getId()))
+                    .toList();
             return getQuestionDTOS(user, list);
         } catch (ResourceNotFoundException e) {
             log.error(e.getMessage());
@@ -219,6 +228,26 @@ public class QuestionServiceImp implements QuestionService {
     }
 
     @Override
+    public QuestionDTO questionBookmark(Integer id, Integer userId) {
+        try {
+            return bookmarkService.bookmarkQuestion(userId, id);
+        } catch (Exception e) {
+            log.error("An error occurred while bookmarking the question", e);
+            throw e;
+        }
+    }
+
+    @Override
+    public QuestionDTO questionUnBookmark(Integer id, Integer userId) {
+        try {
+            return bookmarkService.unBookmarkQuestion(userId, id);
+        } catch (Exception e) {
+            log.error("An error occurred while un-bookmaking the question", e);
+            throw e;
+        }
+    }
+
+    @Override
     public boolean isQuestionUpvotedByUser(Integer questionId, Integer userId) {
         return questionRepository.existsByIdAndVotes_UserIdAndVotes_VoteTypeId(questionId, userId, VOTETYPE.UPVOTE.getDirection());
     }
@@ -230,7 +259,7 @@ public class QuestionServiceImp implements QuestionService {
 
     @Override
     public boolean isQuestionBookmarkedByUser(Integer questionId, Integer userId) {
-        return false;
+        return bookmarkService.isBookmarkedByUser(userId, questionId);
     }
 
     @Override
@@ -305,7 +334,7 @@ public class QuestionServiceImp implements QuestionService {
     }
 
     private Question getSingleQuestionById(Integer id) {
-        return questionRepository.findById(id).filter(question -> question.getVisibility() == Question.Visibility.PUBLIC).orElseThrow(() -> new ResourceNotFoundException("Question with id `" + id + "` not found"));
+        return questionRepository.findById(id).filter(question -> question.getVisibility() != Question.Visibility.PRIVATE).orElseThrow(() -> new ResourceNotFoundException("Question with id `" + id + "` not found"));
     }
 
     private List<Question> getQuestionByIds(List<Integer> ids) {

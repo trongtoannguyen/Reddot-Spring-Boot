@@ -66,7 +66,6 @@ public class Question extends BaseEntity {
     private List<Vote> votes = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private Visibility visibility = Visibility.PUBLIC;
 
     public void addTag(Tag tag) {

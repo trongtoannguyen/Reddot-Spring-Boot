@@ -153,23 +153,16 @@ public class QuestionController {
                     """)
     @DeleteMapping("/{id}/delete")
     public ResponseEntity<ServiceResponse<String>> deleteQuestion(@PathVariable Integer id) {
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            User user = (User) authentication.getPrincipal();
-            questionService.questionDelete(id, user);
-            return ResponseEntity.ok(new ServiceResponse<>(200, "Question deleted successfully", "Question deleted successfully"));
-        } catch (BadRequestException | ResourceNotFoundException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        questionService.questionDelete(id, user);
+        return ResponseEntity.ok(new ServiceResponse<>(200, "Question deleted successfully", "Question deleted successfully"));
     }
 
     @GetMapping("/search")
     public List<QuestionDTO> searchQuestions(
             @RequestParam(value = "content", required = false) String content,
             @RequestParam(value = "displayName", required = false) String displayName) {
-
         if (content != null && !content.isBlank()) {
             return questionService.searchByKeyword(content);
         } else if (displayName != null && !displayName.isBlank()) {
@@ -182,7 +175,42 @@ public class QuestionController {
     @PutMapping("/{id}/visibility")
     public ResponseEntity<QuestionDTO> toggleQuestionVisibility(@PathVariable Integer id, @RequestParam Integer userId) throws ResourceNotFoundException, BadRequestException {
         QuestionDTO updatedQuestion = questionService.toggleVisibility(id, userId);
-
         return ResponseEntity.ok(updatedQuestion);
+    }
+
+    @Operation(summary = "Bookmarks the question identified in {id}. [auth required]",
+            description = """
+                    Use this method to bookmark a question.
+                    
+                    To undo bookmarking a question use the /questions/{id}/bookmark/undo method.
+                    
+                    Use an access_token to bookmark a question.
+                    
+                    This method returns the bookmarked question.
+                    """)
+    @PostMapping("/{id}/bookmark")
+    public ResponseEntity<ServiceResponse<QuestionDTO>> bookmarkQuestion(@PathVariable Integer id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        QuestionDTO dto = questionService.questionBookmark(id, user.getId());
+        return ResponseEntity.ok(new ServiceResponse<>(200, "Question bookmarked successfully", dto));
+    }
+
+    @Operation(summary = "Unbookmarks the question identified in {id}. [auth required]",
+            description = """
+                    Use this method to unbookmark a question.
+                    
+                    To bookmark a question use the /questions/{id}/bookmark method.
+                    
+                    Use an access_token to unbookmark a question.
+                    
+                    This method returns the unbookmarked question.
+                    """)
+    @PostMapping("/{id}/bookmark/undo")
+    public ResponseEntity<ServiceResponse<QuestionDTO>> unBookmarkQuestion(@PathVariable Integer id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        QuestionDTO dto = questionService.questionUnBookmark(id, user.getId());
+        return ResponseEntity.ok(new ServiceResponse<>(200, "Question unbookmarked successfully", dto));
     }
 }

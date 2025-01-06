@@ -38,4 +38,8 @@ public interface UserRepository extends JpaRepository<User, Integer>, PagingAndS
     @Query("SELECT COUNT(u) FROM users u WHERE YEAR(u.createdAt) = :year")
     long countNewUsersByYear(@Param("year") int year);
 
+    // use JPQL is planed to cache the query result, better for performance
+    // another solution is to use @EntityGraph
+    @Query("SELECT u FROM users u LEFT JOIN FETCH u.bookmarks WHERE u.id = :id")
+    Optional<User> findByIdAndFetchBookmarksEagerly(@Param("id") Integer id);
 }

@@ -92,6 +92,10 @@ public interface QuestionService {
      */
     void questionDelete(Integer questionId, User user) throws ResourceNotFoundException, BadRequestException;
 
+    QuestionDTO questionBookmark(Integer id, Integer userId);
+
+    QuestionDTO questionUnBookmark(Integer id, Integer userId);
+
     List<QuestionDTO> searchByKeyword(String content);
 
     List<QuestionDTO> searchByDisplayName(String displayName);
