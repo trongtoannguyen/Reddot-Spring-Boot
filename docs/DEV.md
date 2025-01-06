@@ -9,26 +9,25 @@ and technical infrastructure of Reddot.
 
 #### Project Setup
 
-1. Clone the repository:
+1. Cd into the `reddot-client` directory:
 
    ```bash
-   git clone https://github.com/trongtoannguyen/Reddot-Client.git
    cd Reddot-Client
    ```
 
 2. Install dependencies:
 
    ```bash
-   npm install
+   yarn install
    ```
 
 3. Start the development server:
 
    ```bash
-   npm run dev
+   yarn run dev
    ```
 
-4. The application should now be running at `http://localhost:3000`.
+4. The application should now be running at `http://localhost:5173`.
 
 #### Component Breakdown
 
@@ -38,13 +37,11 @@ and technical infrastructure of Reddot.
 
 #### Routing
 
-Reddot uses React Router for client-side navigation. Routes are configured in `src/routes.js`, mapping URLs to different
-components.
+Reddot uses React Router for client-side navigation.
 
 #### State Management
 
-State is managed using the Context API. Global state is stored in `AppContext.js`, which provides access to data like
-user information, questions, and answers across components.
+State is managed using the Context API.
 
 ### Backend (Spring Boot + MySQL)
 
@@ -148,83 +145,4 @@ OAuth2 can also be implemented for third-party login options (e.g., Google or Gi
 
 ### Navigation
 
-Reddot mobile uses `Navigator 2.0` for handling in-app navigation. Routes are defined in `lib/routes.dart`, mapping URLs
-to screens like `HomeScreen` and `QuestionScreen`. Use `push()` and `pop()` methods to navigate between pages.
-
-Example
-
-```dart
-Navigator.push(
-  context,
-  MaterialPageRoute(builder: (context) => QuestionDetailScreen(id: questionId)),
-);
-```
-
-### Platform-Specific Code
-
-Flutter’s platform channels are used to access native APIs for platform-specific functionality. For example,
-using `MethodChannel` to invoke camera or location services in Android/iOS:
-
-```dart
-const platform = MethodChannel('com.example.reddot/native');
-
-try {
-
-  final result = await platform.invokeMethod('getBatteryLevel');
-
-} on PlatformException catch (e) {
-
-  print("Failed to get battery level: '${e.message}'.");
-
-}
-```
-
-### Testing
-
-- **Unit Testing**: For testing individual functions, such as validating input or calculating votes.
-
-Example:
-
-```dart
-
-test('Increment reputation by 10', () {
-
-  var reputation = 50;
-
-  reputation += 10;
-
-  expect(reputation, 60);
-
-});
-
-```
-
-- **Widget Testing**: Tests for UI components to ensure proper rendering and user interactions.
-
-Example:
-
-```dart
-
-testWidgets('Question card displays correctly', (WidgetTester tester) async {
-
-  await tester.pumpWidget(QuestionCard(question: sampleQuestion));
-
-  expect(find.text('Sample Question'), findsOneWidget);
-
-});
-
-```
-
-To run unit and widget tests:
-
-```bash
-flutter test
-```
-
-For integration tests:
-
-```bash
-flutter drive --target=test_driver/app.dart
-```
-
-Include tests for critical functions like submitting a question, voting, and logging in.
+Reddot mobile uses `Navigator 2.0` for handling in-app navigation.
