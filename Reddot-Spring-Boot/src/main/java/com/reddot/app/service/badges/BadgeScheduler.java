@@ -5,6 +5,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+
 @Component
 public class BadgeScheduler {
     private final StatisticsService statisticsService;
@@ -13,8 +14,7 @@ public class BadgeScheduler {
         this.statisticsService = statisticsService;
     }
 
-    // Định nghĩa tác vụ chạy mỗi phút
-    @Scheduled(fixedRate = 60000) // Mỗi 60 giây
+    @Scheduled(cron = "0 0 0 * * *")
     public void assignBadgesAutomatically() {
         try {
             statisticsService.assignBadgesToAllUsers(); // Logic gán badge
