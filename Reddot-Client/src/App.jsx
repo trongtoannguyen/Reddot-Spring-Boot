@@ -1,34 +1,36 @@
 import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
+import { BrowserRouter as Router } from "react-router-dom";
+import { Theme } from "./Themes/Theme";
+import Navbar from "./Components/Toolbar/Navbar";
+import Sidebar from "./Components/Toolbar/Sidebar";
+import Routers from "./Routers/Routers";
+import { CssBaseline, ThemeProvider } from "@mui/material";
 
 function App() {
-  const [count, setCount] = useState(0);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <Router>
+      <ThemeProvider theme={Theme}>
+        <CssBaseline />
+        <Navbar toggleSidebar={toggleSidebar} />
+        <Sidebar open={sidebarOpen} toggleSidebar={toggleSidebar} />
+        <div
+          style={{
+            marginLeft: sidebarOpen ? 240 : 0,
+            padding: "20px",
+            transition: "margin-left 0.3s ease",
+          }}
+        >
+          <Routers />
+        </div>
+      </ThemeProvider>
+    </Router>
   );
 }
 
