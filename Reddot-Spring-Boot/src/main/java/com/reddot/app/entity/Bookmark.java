@@ -1,6 +1,8 @@
 package com.reddot.app.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.*;
 
 
@@ -16,13 +18,8 @@ import lombok.*;
 @Getter
 @NoArgsConstructor
 @RequiredArgsConstructor
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Bookmark {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @EqualsAndHashCode.Include
-    private Integer id;
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = true)
+public class Bookmark extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)

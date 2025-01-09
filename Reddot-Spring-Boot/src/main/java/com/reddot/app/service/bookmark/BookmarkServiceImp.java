@@ -1,7 +1,10 @@
 package com.reddot.app.service.bookmark;
 
+import com.reddot.app.assembler.BookmarkAssembler;
 import com.reddot.app.assembler.CommentAssembler;
 import com.reddot.app.assembler.QuestionAssembler;
+import com.reddot.app.dto.request.SearchCriteria;
+import com.reddot.app.dto.response.BookmarkDTO;
 import com.reddot.app.dto.response.QuestionDTO;
 import com.reddot.app.entity.Bookmark;
 import com.reddot.app.entity.Question;
@@ -14,8 +17,14 @@ import com.reddot.app.repository.QuestionRepository;
 import com.reddot.app.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -27,14 +36,16 @@ public class BookmarkServiceImp implements BookmarkService {
     private final CommentAssembler commentAssembler;
     private final BookmarkRepository bookmarkRepository;
     private final UserRepository userRepository;
+    private final BookmarkAssembler bookmarkAssembler;
 
-    public BookmarkServiceImp(QuestionRepository questionRepository, @Qualifier("questionAssemblerImpl") QuestionAssembler questionAssembler, CommentRepository commentRepository, @Qualifier("commentAssemblerImpl") CommentAssembler commentAssembler, BookmarkRepository bookmarkRepository, UserRepository userRepository) {
+    public BookmarkServiceImp(QuestionRepository questionRepository, @Qualifier("questionAssemblerImpl") QuestionAssembler questionAssembler, CommentRepository commentRepository, @Qualifier("commentAssemblerImpl") CommentAssembler commentAssembler, BookmarkRepository bookmarkRepository, UserRepository userRepository, BookmarkAssembler bookmarkAssembler) {
         this.questionRepository = questionRepository;
         this.questionAssembler = questionAssembler;
         this.commentRepository = commentRepository;
         this.commentAssembler = commentAssembler;
         this.bookmarkRepository = bookmarkRepository;
         this.userRepository = userRepository;
+        this.bookmarkAssembler = bookmarkAssembler;
     }
 
     @Override
@@ -75,7 +86,7 @@ public class BookmarkServiceImp implements BookmarkService {
                 bookmarkRepository.delete(bookmark);
             } else {
                 log.error(ERROR_OCCURRED_BY + userId);
-                throw new BadRequestException("Error occurred related to status of bookmarking question");
+                throw new BadRequestException("Error occurred related to status of un-bookmarking target question");
             }
             return questionAssembler.toDTO(question);
         } catch (ResourceNotFoundException | BadRequestException e) {
@@ -85,6 +96,24 @@ public class BookmarkServiceImp implements BookmarkService {
             log.error(e.getMessage());
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public Page<BookmarkDTO> bookmarkGetAllByUserIds(SearchCriteria criteria, List<Integer> uIds) {
+        try {
+            Pageable pageable = createPageable(criteria);
+            Page<Bookmark> bookmarks = bookmarkRepository.findByUser_IdIn(uIds, pageable);
+            return bookmarks.map(bookmarkAssembler::toBookmarkDTO);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+
+    private Pageable createPageable(SearchCriteria criteria) {
+        Sort sort = criteria.getSortDirection().equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(criteria.getOrderBy()).ascending()
+                : Sort.by(criteria.getOrderBy()).descending();
+        return PageRequest.of(criteria.getPageNo() - 1, criteria.getPageSize(), sort);
     }
 
     @Override

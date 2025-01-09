@@ -231,6 +231,9 @@ public class QuestionServiceImp implements QuestionService {
     public QuestionDTO questionBookmark(Integer id, Integer userId) {
         try {
             return bookmarkService.bookmarkQuestion(userId, id);
+        } catch (ResourceNotFoundException | BadRequestException e) {
+            log.error(e.getMessage());
+            throw e;
         } catch (Exception e) {
             log.error("An error occurred while bookmarking the question", e);
             throw e;
@@ -241,6 +244,9 @@ public class QuestionServiceImp implements QuestionService {
     public QuestionDTO questionUnBookmark(Integer id, Integer userId) {
         try {
             return bookmarkService.unBookmarkQuestion(userId, id);
+        } catch (ResourceNotFoundException | BadRequestException e) {
+            log.error(e.getMessage());
+            throw e;
         } catch (Exception e) {
             log.error("An error occurred while un-bookmaking the question", e);
             throw e;
