@@ -1,10 +1,10 @@
 import { useState } from "react";
 import "./App.css";
 import { BrowserRouter as Router } from "react-router-dom";
-import { Theme } from "./Themes/Theme";
+import { Theme } from "./themes/Theme";
 import Navbar from "./Components/Toolbar/Navbar";
 import Sidebar from "./Components/Toolbar/Sidebar";
-import Routers from "./Routers/Routers";
+import Routers from "./routers/Routers";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 
 function App() {
