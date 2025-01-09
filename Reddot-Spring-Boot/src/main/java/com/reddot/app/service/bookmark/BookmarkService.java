@@ -1,7 +1,12 @@
 package com.reddot.app.service.bookmark;
 
+import com.reddot.app.dto.request.SearchCriteria;
+import com.reddot.app.dto.response.BookmarkDTO;
 import com.reddot.app.dto.response.QuestionDTO;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public interface BookmarkService {
@@ -16,6 +21,8 @@ public interface BookmarkService {
     QuestionDTO bookmarkQuestion(Integer userId, Integer questionId);
 
     QuestionDTO unBookmarkQuestion(Integer userId, Integer questionId);
+
+    Page<BookmarkDTO> bookmarkGetAllByUserIds(SearchCriteria criteria, List<Integer> uIds);
 
     boolean isBookmarkedByUser(Integer userId, Integer questionId);
 }

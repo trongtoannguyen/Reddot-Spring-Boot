@@ -39,7 +39,7 @@ public class Question extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
     @Column(name = "report_count", nullable = false)
-    private int reportCount = 0;
+    private int reportCount;
     @JsonIgnore
     @Builder.Default
     @OneToMany(mappedBy = "question",
@@ -65,6 +65,7 @@ public class Question extends BaseEntity {
             fetch = FetchType.EAGER)
     private List<Vote> votes = new ArrayList<>();
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     private Visibility visibility = Visibility.PUBLIC;
 
