@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/moderation")
+@RequestMapping("/moderation")
 @PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
 public class ModerationController {
 
