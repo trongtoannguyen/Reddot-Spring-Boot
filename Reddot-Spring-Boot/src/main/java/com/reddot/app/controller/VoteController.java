@@ -8,7 +8,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/questions")
+@RequestMapping("/questions")
 public class VoteController {
 
     private final VoteService voteService;
