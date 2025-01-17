@@ -24,7 +24,6 @@ public abstract class BaseEntity implements Persistable<Integer>, Serializable {
     private final String temporaryKey = UUID.randomUUID().toString();
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @NonNull
     private Integer id;
 
