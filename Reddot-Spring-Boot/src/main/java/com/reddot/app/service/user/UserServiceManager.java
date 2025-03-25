@@ -77,5 +77,4 @@ public interface UserServiceManager extends UserDetailsService {
 
     void emailConfirmResend(Integer userId) throws UserNotFoundException, BadRequestException;
 
-    void membershipDowngrade(User user);
 }

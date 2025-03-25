@@ -6,7 +6,6 @@ import com.reddot.app.dto.request.RegisterRequest;
 import com.reddot.app.dto.request.UpdatePasswordRequest;
 import com.reddot.app.dto.response.UserProfileDTO;
 import com.reddot.app.entity.*;
-import com.reddot.app.entity.enumeration.MembershipRank;
 import com.reddot.app.entity.enumeration.ROLENAME;
 import com.reddot.app.exception.BadRequestException;
 import com.reddot.app.exception.EmailNotFoundException;
@@ -18,7 +17,6 @@ import jakarta.validation.Valid;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -99,15 +97,6 @@ public class UserServiceManagerImp implements UserServiceManager {
             ROLENAME roleUser = ROLENAME.ROLE_USER;
             Role role = findRoleByName(roleUser);
             user.addRole(role);
-
-            Membership membership = new Membership();
-            membership.setRank(MembershipRank.NONE);
-            membership.setActive(false);
-            membership.setStartDate(null);
-            membership.setEndDate(null);
-            membership.setUser(user);
-
-            user.setMembership(membership);
             userRepository.save(user);
 
             // Send confirmation email
@@ -169,7 +158,6 @@ public class UserServiceManagerImp implements UserServiceManager {
             // Save confirmation token
             confirmationTokenRepository.save(token);
         } catch (Exception e) {
-            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
@@ -357,21 +345,6 @@ public class UserServiceManagerImp implements UserServiceManager {
     }
 
     @Override
-    public void membershipDowngrade(User user) {
-        if (user == null) {
-            throw new IllegalArgumentException("User not found");
-        }
-
-        Membership currentMembership = user.getMembership();
-        currentMembership.setRank(MembershipRank.NONE);
-        currentMembership.setStartDate(null);
-        currentMembership.setEndDate(null);
-        currentMembership.setActive(false);
-
-        userRepository.save(user);
-    }
-
-    @Override
     public void pwForgot(String email) throws ResourceNotFoundException {
         try {
             if (!userExistsByEmail(email)) {
@@ -539,17 +512,5 @@ public class UserServiceManagerImp implements UserServiceManager {
         return messages;
     }
 
-    @Scheduled(cron = "0 0 0 * * ?")
-    protected void handleMembershipDowngrades() {
-        List<User> users = userRepository.findAll();
-        LocalDateTime now = LocalDateTime.now();
 
-        for (User user : users) {
-            Membership membership = user.getMembership();
-
-            if (membership.isActive() && membership.getEndDate() != null && membership.getEndDate().isBefore(now)) {
-                membershipDowngrade(user);
-            }
-        }
-    }
 }

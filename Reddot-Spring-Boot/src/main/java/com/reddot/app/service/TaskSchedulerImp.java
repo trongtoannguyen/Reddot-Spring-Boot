@@ -1,6 +1,5 @@
 package com.reddot.app.service;
 
-import com.reddot.app.entity.Membership;
 import com.reddot.app.entity.User;
 import com.reddot.app.entity.UserOnDelete;
 import com.reddot.app.repository.UserRepository;
@@ -15,7 +14,6 @@ import org.springframework.util.Assert;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Slf4j
@@ -30,14 +28,12 @@ public class TaskSchedulerImp {
     private final LocalDateTime warningDate = LocalDateTime.now().minusDays(WARNING_DAYS);
     private final UserRepository userRepository;
     private final MailSenderManager mailSenderManager;
-    private final UserServiceManager userServiceManager;
     Set<UserOnDelete> onDeletes = new HashSet<>();
 
     public TaskSchedulerImp(userDeleteRepository userDeleteRepository, UserRepository userRepository, MailSenderManager mailSenderManager, UserServiceManager userServiceManager) {
         this.userDeleteRepository = userDeleteRepository;
         this.userRepository = userRepository;
         this.mailSenderManager = mailSenderManager;
-        this.userServiceManager = userServiceManager;
     }
 
     // TODO: DOCS ME
@@ -80,20 +76,6 @@ public class TaskSchedulerImp {
             });
         } catch (Exception e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    @Scheduled(cron = "0 0 0 * * ?")
-    protected void handleMembershipDowngrades() {
-        List<User> users = userRepository.findAll();
-        LocalDateTime now = LocalDateTime.now();
-
-        for (User user : users) {
-            Membership membership = user.getMembership();
-
-            if (membership.isActive() && membership.getEndDate() != null && membership.getEndDate().isBefore(now)) {
-                userServiceManager.membershipDowngrade(user);
-            }
         }
     }
 
